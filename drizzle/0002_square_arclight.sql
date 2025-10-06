@@ -1,0 +1,1 @@
+ALTER TABLE "sql_execution_log" ADD COLUMN "result_data" jsonb;

@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  button {
+    @apply cursor-pointer;
+  }
+}
+@theme {
+  --font-primary: Inter Display, sans-serif;
+  --font-mono: DM Mono, monospace;
+  --color-charcoal-900: #202020;
+  --color-charcoal-800: #29292e;
+  --color-charcoal-700: #343434;
+
+  --color-gray-100: #f9f9f9;
+  --color-gray-200: #f5f5f5;
+  --color-gray-300: #eaedf1;
+  --color-gray-400: #d7d7d7;
+  --color-gray-500: #c0c0c0;
+  --color-gray-600: #8b8b8b;
+
+  --color-brand: #f17463;
+  --shadow-aceternity:
+    0px 2px 3px -1px rgba(0, 0, 0, 0.1), 0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+    0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+
+  --background-repeating-gradient: radial-gradient(
+    var(--color-gray-300) 1px,
+    transparent 1px
+  );
+  --repeat-gradient-size: 10px 10px;
+
+  --animate-orbit: orbit 24s linear infinite;
+  --animate-counter-orbit: counter-orbit 24s linear infinite;
+
+  @keyframes orbit {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes counter-orbit {
+    0% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+:root {
+  --divide: var(--color-gray-300);
+  --primary: var(--color-neutral-900);
+  --canvas: var(--color-neutral-400);
+  --canvas-fill: var(--color-neutral-300);
+  --dots: var(--color-gray-300);
+  --line: var(--color-neutral-200);
+  --footer-link: #676767;
+}
+
+.dark {
+  --divide: var(--color-neutral-800);
+  --primary: var(--color-neutral-100);
+  --canvas: var(--color-neutral-200);
+  --canvas-fill: var(--color-neutral-800);
+  --dots: var(--color-neutral-800);
+  --line: var(--color-neutral-700);
+  --footer-link: var(--color-neutral-300);
+}
+
+@theme inline {
+  --color-divide: var(--divide);
+  --color-primary: var(--primary);
+  --color-canvas: var(--canvas);
+  --color-canvas-fill: var(--canvas-fill);
+  --color-dots: var(--dots);
+  --color-line: var(--line);
+  --color-footer-link: var(--footer-link);
+}

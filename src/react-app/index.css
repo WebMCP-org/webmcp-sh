@@ -1,0 +1,175 @@
+@import "tailwindcss";
+@plugin '@tailwindcss/typography';
+
+/* Starry Night syntax highlighting - auto dark/light mode */
+@import "@wooorm/starry-night/style/both";
+
+
+@layer base {
+  button {
+    @apply cursor-pointer;
+  }
+}
+@theme {
+  --font-primary: Inter Display, sans-serif;
+  --font-mono: DM Mono, monospace;
+  --color-charcoal-900: #202020;
+  --color-charcoal-800: #29292e;
+  --color-charcoal-700: #343434;
+
+  --color-gray-100: #f9f9f9;
+  --color-gray-200: #f5f5f5;
+  --color-gray-300: #eaedf1;
+  --color-gray-400: #d7d7d7;
+  --color-gray-500: #c0c0c0;
+  --color-gray-600: #8b8b8b;
+
+  /* Neutral colors for light/dark mode */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
+
+  --color-brand: #f17463;
+
+  /* Chart colors - No purple! */
+  --color-chart-1: #f17463;
+  --color-chart-2: #60a5fa;
+  --color-chart-3: #34d399;
+  --color-chart-4: #fbbf24;
+  --color-chart-5: #f87171;
+
+  /* Entity category colors (base) */
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-purple-500: #8b5cf6;
+  --color-purple-600: #9333ea;
+  --color-purple-700: #7c3aed;
+  --color-pink-500: #ec4899;
+  --color-pink-600: #db2777;
+  --color-pink-700: #be185d;
+  --color-green-500: #10b981;
+  --color-green-600: #059669;
+  --color-green-700: #047857;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-slate-200: #e2e8f0;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  --shadow-aceternity:
+    0px 2px 3px -1px rgba(0, 0, 0, 0.1), 0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+    0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+
+  --background-repeating-gradient: radial-gradient(
+    var(--color-gray-300) 1px,
+    transparent 1px
+  );
+  --repeat-gradient-size: 10px 10px;
+
+  --animate-orbit: orbit 24s linear infinite;
+  --animate-counter-orbit: counter-orbit 24s linear infinite;
+
+  @keyframes orbit {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes counter-orbit {
+    0% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+:root {
+  /* Custom colors - Light mode only */
+  --divide: var(--color-gray-300);
+  --primary: var(--color-neutral-900);
+  --canvas: var(--color-neutral-400);
+  --canvas-fill: var(--color-neutral-300);
+  --dots: var(--color-gray-300);
+  --line: var(--color-neutral-200);
+  --footer-link: #676767;
+}
+
+@layer base {
+  :root {
+    /* Custom colors */
+    --color-divide: var(--divide);
+    --color-primary: var(--primary);
+    --color-canvas: var(--canvas);
+    --color-canvas-fill: var(--canvas-fill);
+    --color-dots: var(--dots);
+    --color-line: var(--line);
+    --color-footer-link: var(--footer-link);
+
+    /* Shadcn theme colors - Light Mode Only */
+    --color-background: #fafafa;
+    --color-foreground: #0a0a0a;
+    --color-card: #ffffff;
+    --color-card-foreground: #0a0a0a;
+    --color-popover: #ffffff;
+    --color-popover-foreground: #0a0a0a;
+    --color-primary-hsl: #f17463;
+    --color-primary-foreground: #ffffff;
+    --color-secondary: #f5f5f5;
+    --color-secondary-foreground: #171717;
+    --color-muted: #f5f5f5;
+    --color-muted-foreground: #737373;
+    --color-accent: #f5f5f5;
+    --color-accent-foreground: #171717;
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #ffffff;
+    --color-border: #e5e5e5;
+    --color-input: #e5e5e5;
+    --color-ring: #f17463;
+  }
+}
+
+/* Reusable gradient utilities for cards - Light mode only */
+@layer utilities {
+  .card-gradient-blue {
+    @apply bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20;
+  }
+
+  .card-gradient-purple {
+    @apply bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20;
+  }
+
+  .card-gradient-pink {
+    @apply bg-gradient-to-br from-pink-500/10 to-pink-600/5 border-pink-500/20;
+  }
+
+  .card-gradient-green {
+    @apply bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20;
+  }
+
+  .card-gradient-amber {
+    @apply bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30;
+  }
+
+  .card-gradient-slate {
+    @apply bg-gradient-to-br from-slate-50 to-slate-100/50 border-slate-200;
+  }
+}
