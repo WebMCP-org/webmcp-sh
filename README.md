@@ -48,7 +48,7 @@ WebMCP.sh provides a comprehensive development environment for working with the 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/webmcp/webmcp-sh.git
+git clone https://github.com/WebMCP-org/webmcp-sh.git
 cd webmcp-sh
 ```
 
