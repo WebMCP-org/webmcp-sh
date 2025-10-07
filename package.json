@@ -119,6 +119,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.7.5",
     "@eslint/js": "9.29.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@tanstack/router-plugin": "^1.132.37",
     "@types/dagre": "^0.7.53",
     "@types/hast": "^3.0.4",
