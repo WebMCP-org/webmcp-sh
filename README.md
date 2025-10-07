@@ -57,18 +57,7 @@ cd webmcp-sh
 pnpm install
 ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-4. Initialize the database:
-```bash
-pnpm db:push
-```
-
-5. Start the development server:
+3. Start the development server:
 ```bash
 pnpm dev
 ```
