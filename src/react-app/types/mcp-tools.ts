@@ -31,7 +31,7 @@ export interface MCPToolsConfig<T extends Record<string, unknown>> {
   onSelectItem: (item: T | null) => void;
 
   /** Fields that should be searchable via global filter */
-  searchableFields: Array<keyof T | string>;
+  searchableFields: string[];
 
   /** Function to extract a unique ID from an item */
   getItemId: (item: T) => string | number;
