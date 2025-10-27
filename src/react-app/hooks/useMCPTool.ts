@@ -4,9 +4,6 @@ import { useWebMCP } from '@mcp-b/react-webmcp';
 // Re-export the useWebMCP hook as useMCPTool for backward compatibility
 export { useWebMCP as useMCPTool };
 
-// Re-export types if needed
-export type { MCPToolConfig, MCPToolReturn } from '@mcp-b/react-webmcp';
-
 /**
  * Simplified hook for read-only context tools
  * Use this for exposing current UI state (e.g., "current post ID")
