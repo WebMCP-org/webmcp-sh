@@ -195,7 +195,7 @@ export const columns: ColumnDef<Entity>[] = [
       return (
         <EditableCell
           value={entity.name}
-          onSave={(value) => handleUpdate(entity.id, 'name', value)}
+          onSave={(value: string | number) => handleUpdate(entity.id, 'name', value)}
           displayComponent={
             <div className="flex items-center gap-2 min-w-0 max-w-[220px]">
               <div className={`h-7 w-7 rounded-lg ${categoryConfig.bgColor} flex items-center justify-center flex-shrink-0`}>
@@ -239,7 +239,7 @@ export const columns: ColumnDef<Entity>[] = [
         <EditableSelectCell
           value={entity.category}
           options={categoryOptions}
-          onSave={(value) => handleUpdate(entity.id, 'category', value)}
+          onSave={(value: string) => handleUpdate(entity.id, 'category', value)}
           displayComponent={
             <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 capitalize whitespace-nowrap">
               {entity.category}
@@ -262,7 +262,7 @@ export const columns: ColumnDef<Entity>[] = [
           <EditableCell
             value={entity.description}
             type="textarea"
-            onSave={(value) => handleUpdate(entity.id, 'description', value)}
+            onSave={(value: string | number) => handleUpdate(entity.id, 'description', value)}
             displayComponent={
               <div className="truncate text-sm text-gray-600" title={entity.description}>
                 {entity.description}
@@ -330,7 +330,7 @@ export const columns: ColumnDef<Entity>[] = [
         <EditableCell
           value={entity.confidence}
           type="number"
-          onSave={(value) => handleUpdate(entity.id, 'confidence', value)}
+          onSave={(value: string | number) => handleUpdate(entity.id, 'confidence', value)}
           displayComponent={<span className="text-sm whitespace-nowrap">{entity.confidence}%</span>}
         />
       )
@@ -379,7 +379,7 @@ export const columns: ColumnDef<Entity>[] = [
         <EditableCell
           value={entity.importance_score}
           type="number"
-          onSave={(value) => handleUpdate(entity.id, 'importance_score', value)}
+          onSave={(value: string | number) => handleUpdate(entity.id, 'importance_score', value)}
           displayComponent={
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">

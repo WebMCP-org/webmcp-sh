@@ -84,7 +84,7 @@ export function MemoryBlocksDataTable<TData extends Record<string, unknown>, TVa
                 <EditableSelectCell
                   value={block.block_type}
                   options={blockTypeOptions}
-                  onSave={(value) => handleUpdate(block.id, 'block_type', value)}
+                  onSave={(value: string) => handleUpdate(block.id, 'block_type', value)}
                   displayComponent={
                     <p className="text-sm text-gray-900 capitalize">{block.block_type.replace(/_/g, ' ')}</p>
                   }
@@ -107,7 +107,7 @@ export function MemoryBlocksDataTable<TData extends Record<string, unknown>, TVa
                 <EditableCell
                   value={block.char_limit}
                   type="number"
-                  onSave={(value) => handleUpdate(block.id, 'char_limit', value)}
+                  onSave={(value: string | number) => handleUpdate(block.id, 'char_limit', value)}
                   displayComponent={
                     <p className="text-sm text-gray-900">{block.char_limit.toLocaleString()}</p>
                   }
@@ -153,7 +153,7 @@ export function MemoryBlocksDataTable<TData extends Record<string, unknown>, TVa
                 <EditableCell
                   value={block.inclusion_priority}
                   type="number"
-                  onSave={(value) => handleUpdate(block.id, 'inclusion_priority', value)}
+                  onSave={(value: string | number) => handleUpdate(block.id, 'inclusion_priority', value)}
                   displayComponent={
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -186,7 +186,7 @@ export function MemoryBlocksDataTable<TData extends Record<string, unknown>, TVa
                 <EditableCell
                   value={block.value}
                   type="textarea"
-                  onSave={(value) => handleUpdate(block.id, 'value', value)}
+                  onSave={(value: string | number) => handleUpdate(block.id, 'value', value)}
                   displayComponent={
                     <p className="text-sm text-gray-900 leading-relaxed whitespace-pre-wrap">{block.value}</p>
                   }

@@ -77,7 +77,7 @@ function DashboardHome() {
 
   const tierChartData = tierTokensData
     .map((item, idx) => ({
-      name: item.memory_tier.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+      name: item.memory_tier.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
       value: Number(item.total_tokens) || 0,
       count: Number(item.count) || 0,
       color: TIER_COLORS[idx % TIER_COLORS.length]
