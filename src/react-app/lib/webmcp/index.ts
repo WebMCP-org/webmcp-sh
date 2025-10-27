@@ -1,3 +1,4 @@
+import '@mcp-b/global';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { TabServerTransport } from "@mcp-b/transports"
 
