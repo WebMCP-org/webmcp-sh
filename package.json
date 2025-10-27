@@ -121,6 +121,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.7.5",
     "@eslint/js": "9.29.0",
+    "@playwright/test": "^1.49.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/router-plugin": "^1.132.37",
     "@types/dagre": "^0.7.53",
@@ -153,7 +154,11 @@
     "dev": "vite",
     "lint": "eslint .",
     "preview": "npm run build && vite preview",
-    "db:generate": "drizzle-kit generate && tsx scripts/compile-migrations.ts"
+    "db:generate": "drizzle-kit generate && tsx scripts/compile-migrations.ts",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug"
   },
   "type": "module"
 }
