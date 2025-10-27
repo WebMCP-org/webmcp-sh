@@ -18,7 +18,6 @@ export const Route = createFileRoute('/_dashboard/')({
   component: DashboardHome,
 })
 
-// Chart colors
 const ENTITY_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#14b8a6'];
 const TIER_COLORS = ['#f59e0b', '#3b82f6', '#8b5cf6', '#6b7280'];
 
@@ -31,13 +30,11 @@ function DashboardHome() {
   const offsetRef = useRef(0);
   const PAGE_SIZE = 10;
 
-  // Get counts
   const blocksQuery = memory_blocks.getMemoryBlocksCountQuerySQL();
   const entitiesQuery = memory_entities.getMemoryEntitiesCountQuerySQL();
   const relationshipsQuery = entity_relationships.getEntityRelationshipsCountQuerySQL();
   const sessionsQuery = conversation_sessions.getConversationSessionsCountQuerySQL();
 
-  // Token-based queries
   const categoryTokensQuery = memory_entities.getMemoryEntityTokensByCategoryQuerySQL();
   const tierTokensQuery = memory_entities.getMemoryEntityTokensByTierQuerySQL();
   const blockTypeTokensQuery = memory_blocks.getMemoryBlockTokensByTypeQuerySQL();
@@ -47,7 +44,6 @@ function DashboardHome() {
   const relationshipsResult = useLiveQuery<entity_relationships.GetEntityRelationshipsCountResult>(relationshipsQuery.sql, relationshipsQuery.params);
   const sessionsResult = useLiveQuery<conversation_sessions.GetConversationSessionsCountResult>(sessionsQuery.sql, sessionsQuery.params);
 
-  // Token-based results
   const categoryTokensResult = useLiveQuery<memory_entities.GetMemoryEntityTokensByCategoryResult>(categoryTokensQuery.sql, categoryTokensQuery.params);
   const tierTokensResult = useLiveQuery<memory_entities.GetMemoryEntityTokensByTierResult>(tierTokensQuery.sql, tierTokensQuery.params);
   const blockTypeTokensResult = useLiveQuery<memory_blocks.GetMemoryBlockTokensByTypeResult>(blockTypeTokensQuery.sql, blockTypeTokensQuery.params);
@@ -57,16 +53,9 @@ function DashboardHome() {
   const relationshipCount = relationshipsResult?.rows?.[0]?.count ?? 0;
   const sessionCount = sessionsResult?.rows?.[0]?.count ?? 0;
 
-  // Token data
   const categoryTokensData = categoryTokensResult?.rows ?? [];
   const tierTokensData = tierTokensResult?.rows ?? [];
   const blockTypeTokensData = blockTypeTokensResult?.rows ?? [];
-
-  console.log('Category Tokens Data:', categoryTokensData);
-  console.log('Tier Tokens Data:', tierTokensData);
-  console.log('Block Type Tokens Data:', blockTypeTokensData);
-
-  // Calculate total tokens from all sources (handle null/undefined/NaN)
   const totalEntityTokens = categoryTokensData.reduce((sum, item) => {
     const tokens = Number(item.total_tokens);
     return sum + (isNaN(tokens) ? 0 : tokens);
@@ -77,8 +66,6 @@ function DashboardHome() {
   }, 0);
   const totalTokens = totalEntityTokens + totalBlockTokens;
 
-
-  // Prepare chart data (using token counts as the primary value, filter out NaN/zero values)
   const categoryChartData = categoryTokensData
     .map((item, idx) => ({
       name: item.category.charAt(0).toUpperCase() + item.category.slice(1),
@@ -97,26 +84,21 @@ function DashboardHome() {
     }))
     .filter(item => item.value > 0);
 
-  // Load initial audit logs and check if we need to load more to fill the container
   useEffect(() => {
     const loadInitial = async () => {
       await loadMoreAuditLogs();
 
-      // After initial load, check if we need more items to fill the scroll area
       setTimeout(() => {
         const container = document.querySelector('.audit-log-container') as HTMLDivElement;
         if (container && container.scrollHeight <= container.clientHeight && hasMore) {
-          console.log('[Audit Log] Container not filled, loading more...');
           loadMoreAuditLogs();
         }
       }, 100);
     };
 
     loadInitial();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Highlight JSON data for audit logs
   useEffect(() => {
     const highlightAuditLogJson = async () => {
       for (const log of auditLogs) {
@@ -153,18 +135,14 @@ function DashboardHome() {
     }
   }, [auditLogs, highlightedJson]);
 
-  // Function to load more audit logs
   const loadMoreAuditLogs = useCallback(async () => {
     if (isLoading || !hasMore) {
-      console.log('[Audit Log] Skipping load:', { isLoading, hasMore });
       return;
     }
 
     const currentOffset = offsetRef.current;
-    console.log('[Audit Log] Starting to load more...', { offset: currentOffset, PAGE_SIZE });
     setIsLoading(true);
     try {
-      // Check if audit_log table exists
       const tableCheck = await db.query<{ exists: boolean }>(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables
@@ -174,18 +152,10 @@ function DashboardHome() {
       `);
 
       if (!tableCheck.rows[0]?.exists) {
-        console.log('[Audit Log] Table does not exist yet');
         setHasMore(false);
         setIsLoading(false);
         return;
       }
-
-      // Get total count for debugging
-      const countResult = await db.query<{ count: number }>(`
-        SELECT COUNT(*) as count FROM audit_log
-      `);
-      const totalCount = Number(countResult.rows[0]?.count || 0);
-      console.log('[Audit Log] Total audit logs in DB:', totalCount);
 
       const result = await db.query<AuditLog>(`
         SELECT
@@ -206,19 +176,12 @@ function DashboardHome() {
 
       const newLogs = result.rows;
 
-      setAuditLogs(prev => {
-        const newTotal = prev.length + newLogs.length;
-        console.log('[Audit Log] Loaded', newLogs.length, 'new items. Previous:', prev.length, 'New total:', newTotal, 'Total in DB:', totalCount);
-        return [...prev, ...newLogs];
-      });
+      setAuditLogs(prev => [...prev, ...newLogs]);
 
       offsetRef.current = currentOffset + newLogs.length;
 
       if (newLogs.length < PAGE_SIZE) {
-        console.log('[Audit Log] Reached end of data (got', newLogs.length, 'expected', PAGE_SIZE, ')');
         setHasMore(false);
-      } else {
-        console.log('[Audit Log] More items available, next offset will be:', offsetRef.current);
       }
     } catch (error) {
       console.error('Error loading audit logs:', error);
@@ -228,24 +191,18 @@ function DashboardHome() {
     }
   }, [db, isLoading, hasMore, PAGE_SIZE]);
 
-  // Handle scroll for infinite loading
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const scrollTop = target.scrollTop;
     const scrollHeight = target.scrollHeight;
     const clientHeight = target.clientHeight;
 
-    // Calculate how close we are to the bottom (in pixels)
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 
-    // Load more when within 200px of the bottom
     if (distanceFromBottom < 200 && !isLoading && hasMore) {
-      console.log('[Audit Log] Loading more items...', { scrollTop, scrollHeight, clientHeight, distanceFromBottom });
       loadMoreAuditLogs();
     }
   }, [isLoading, hasMore, loadMoreAuditLogs]);
-
-  // Count by operation type
   const insertCount = auditLogs.filter(e => e.operation === 'INSERT').length;
   const updateCount = auditLogs.filter(e => e.operation === 'UPDATE').length;
   const deleteCount = auditLogs.filter(e => e.operation === 'DELETE').length;
@@ -253,7 +210,6 @@ function DashboardHome() {
   return (
     <TooltipProvider>
     <div className="flex flex-col h-full bg-background">
-      {/* Compact Header */}
       <div className="flex-shrink-0 border-b px-6 py-3">
         <div className="flex items-center justify-between">
           <div>
@@ -279,9 +235,7 @@ function DashboardHome() {
         </div>
       </div>
 
-      {/* Main Content - Single Screen */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Fixed Top Stats */}
         <div className="flex-shrink-0 p-4 pb-2">
           <div className="grid grid-cols-5 gap-3">
             <motion.div
@@ -431,12 +385,9 @@ function DashboardHome() {
           </div>
         </div>
 
-        {/* Main scrollable content area */}
         <div className="flex-1 p-4 pt-2 overflow-hidden">
           <div className="h-full grid grid-cols-12 gap-4">
-            {/* Left Column - Token Summary & Charts */}
             <div className="col-span-8 flex flex-col gap-4 h-full overflow-hidden">
-              {/* Token Budget Summary */}
               <div className="grid grid-cols-3 gap-3 flex-shrink-0">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -514,9 +465,7 @@ function DashboardHome() {
               </motion.div>
               </div>
 
-              {/* Doughnut Charts */}
               <div className="grid grid-cols-2 gap-4 flex-1 min-h-0 max-h-[400px] overflow-hidden">
-              {/* Entity Categories Chart */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -583,7 +532,6 @@ function DashboardHome() {
                 </Card>
               </motion.div>
 
-              {/* Memory Tiers Chart */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -652,7 +600,6 @@ function DashboardHome() {
               </div>
             </div>
 
-            {/* Right Column - Audit Log */}
             <div className="col-span-4 h-full min-h-0">
             <Card className="h-full flex flex-col p-0 card-gradient-slate overflow-hidden">
               <CardHeader className="p-4 pb-3 flex-shrink-0 border-b border-border">
@@ -683,7 +630,6 @@ function DashboardHome() {
                   {auditLogs.length > 0 ? (
                     <div className="space-y-2">
                         {auditLogs.map((entry, idx) => {
-                          // Determine icon and colors based on operation
                           let icon = <PlusCircle className="h-3.5 w-3.5" />;
                           let iconBgColor = 'bg-green-500/10';
                           let iconColor = 'text-green-600';

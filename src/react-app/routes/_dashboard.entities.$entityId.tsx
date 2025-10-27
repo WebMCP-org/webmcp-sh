@@ -23,17 +23,14 @@ const categoryIcons: Record<string, { icon: LucideIcon; color: string; bgColor: 
 function EntityDetailComponent() {
   const { entityId } = Route.useParams()
 
-  // Fetch entity details
   const entityQuery = memory_entities.getMemoryEntityByIdQuerySQL(entityId)
   const entityResult = useLiveQuery<memory_entities.GetMemoryEntityByIdResult>(entityQuery.sql, entityQuery.params)
   const entity = entityResult?.rows?.[0]
 
-  // Fetch outgoing relationships
   const outgoingQuery = entity_relationships.getEntityOutgoingRelationshipsQuerySQL(entityId)
   const outgoingResult = useLiveQuery<entity_relationships.GetEntityOutgoingRelationshipsResult>(outgoingQuery.sql, outgoingQuery.params)
   const outgoing = outgoingResult?.rows ?? []
 
-  // Fetch incoming relationships
   const incomingQuery = entity_relationships.getEntityIncomingRelationshipsQuerySQL(entityId)
   const incomingResult = useLiveQuery<entity_relationships.GetEntityIncomingRelationshipsResult>(incomingQuery.sql, incomingQuery.params)
   const incoming = incomingResult?.rows ?? []
@@ -49,7 +46,6 @@ function EntityDetailComponent() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Compact Header */}
       <div className="border-b border-divide px-6 py-4">
         <Link to="/entities">
           <Button variant="ghost" size="sm" className="mb-2 -ml-2">
@@ -75,9 +71,7 @@ function EntityDetailComponent() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-auto p-4 space-y-4">
-        {/* Description */}
         <Card>
           <CardHeader className="pb-2 px-4 pt-3">
             <CardTitle className="text-sm">Description</CardTitle>
@@ -87,7 +81,6 @@ function EntityDetailComponent() {
           </CardContent>
         </Card>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
           <Card>
             <CardHeader className="pb-2 px-4 pt-3">
@@ -114,7 +107,6 @@ function EntityDetailComponent() {
           </Card>
         </div>
 
-        {/* Tags */}
         {entity.tags.length > 0 && (
           <Card>
             <CardHeader className="pb-2 px-4 pt-3">
@@ -135,7 +127,6 @@ function EntityDetailComponent() {
           </Card>
         )}
 
-        {/* Relationships */}
         {relationships.length > 0 && (
           <Card>
             <CardHeader className="pb-2 px-4 pt-3">

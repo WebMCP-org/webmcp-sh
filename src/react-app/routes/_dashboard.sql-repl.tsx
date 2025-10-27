@@ -9,16 +9,13 @@ export const Route = createFileRoute('/_dashboard/sql-repl')({
   component: SQLReplPage,
 })
 
-// Global ref to access REPL from MCP tools
 export let replRef: ReplRef | null = null
 
 function SQLReplPage() {
   const localReplRef = useRef<ReplRef>(null)
 
-  // Register SQL MCP tools for this page
   useMCPSQLTool()
 
-  // Expose ref globally for MCP tools
   useEffect(() => {
     replRef = localReplRef.current
     return () => {
@@ -28,7 +25,6 @@ function SQLReplPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header */}
       <div className="flex-shrink-0 border-b px-6 py-3">
         <div className="flex items-center gap-2">
           <Terminal className="h-5 w-5 text-primary" />
@@ -39,7 +35,6 @@ function SQLReplPage() {
         </div>
       </div>
 
-      {/* Full-screen REPL */}
       <div className="flex-1 overflow-hidden">
         <Repl ref={localReplRef} key="repl" pg={pg_lite} disableUpdateSchema={true} border={false} theme="auto" />
       </div>

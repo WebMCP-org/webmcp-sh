@@ -25,10 +25,6 @@ import './Repl.css'
 import { formatSQL } from '@/lib/syntax-highlight'
 import { toast } from 'sonner'
 
-// Filter out the Enter key from the default keymap, we entirely override its behavior
-// to run the query when the user presses Enter.
-// We keep the up and down arrow keys as we only override their behavior
-// when the cursor is on the first or last line.
 const baseKeymap = defaultKeymap.filter((key) => key.key !== 'Enter')
 
 export type ReplTheme = 'light' | 'dark' | 'auto'
@@ -132,7 +128,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     }
   }, [])
 
-  // Format SQL in editor
   const handleFormat = async () => {
     if (!value.trim()) return
 
@@ -146,7 +141,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     }
   }
 
-  // Expose executeQuery method to parent components
   useImperativeHandle(ref, () => ({
     executeQuery: async (query: string): Promise<Response> => {
       const response = await runQuery(query, pg)
@@ -156,7 +150,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
           outputRef.current!.scrollTop = outputRef.current!.scrollHeight
         }, 0)
       }
-      // Update the schema for any new tables to be used in autocompletion
       if (!disableUpdateSchema) {
         getSchema(pg).then(setSchema)
       }
@@ -179,7 +172,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
                   outputRef.current!.scrollTop = outputRef.current!.scrollHeight
                 }, 0)
               }
-              // Update the schema for any new tables to be used in autocompletion
               if (!disableUpdateSchema) {
                 getSchema(pg).then(setSchema)
               }
@@ -198,7 +190,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
               state.selection.main.head,
             ).number
             if (cursorLine === 1) {
-              // If the cursor is on the first line, go back in history
               const currentPos = historyPos.current
               historyPos.current++
               if (historyPos.current >= output.length) {
@@ -227,7 +218,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
             ).number
             const lastLine = state.doc.lines
             if (cursorLine === lastLine) {
-              // If the cursor is on the last line, go forward in history
               const currentPos = historyPos.current
               historyPos.current--
               if (historyPos.current >= output.length) {

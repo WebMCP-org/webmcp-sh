@@ -55,7 +55,6 @@ function EntitiesComponent() {
 
   const totalCount = entities.length
 
-  // MCP Tools configuration to pass to the DataTable
   const mcpToolsConfig: MCPToolsConfig<memory_entities.GetAllMemoryEntitiesResult> = {
     tableName: 'entities',
     tableDescription: 'Structured knowledge entities (facts, preferences, skills, people, projects, goals)',
@@ -122,7 +121,6 @@ function EntitiesComponent() {
   return (
     <TooltipProvider>
     <div className="h-full w-full flex flex-col bg-background">
-      {/* Compact Header */}
       <div className="flex-shrink-0 border-b border-divide bg-card px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -159,7 +157,6 @@ function EntitiesComponent() {
             </DialogContent>
           </Dialog>
 
-          {/* Edit Dialog */}
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
               <DialogHeader className="px-6 pt-6 pb-4 border-b border-divide">
@@ -194,7 +191,6 @@ function EntitiesComponent() {
             </DialogContent>
           </Dialog>
 
-          {/* Duplicate Dialog */}
           <Dialog open={isDuplicateDialogOpen} onOpenChange={setIsDuplicateDialogOpen}>
             <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
               <DialogHeader className="px-6 pt-6 pb-4 border-b border-divide">
@@ -223,7 +219,6 @@ function EntitiesComponent() {
         </div>
       </div>
 
-      {/* Category Filters */}
       <div className="flex-shrink-0 border-b border-divide px-6 py-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
           <button
@@ -262,7 +257,6 @@ function EntitiesComponent() {
         </div>
       </div>
 
-      {/* Data Table Container - Single scroll container */}
       <div className="flex-1 overflow-auto p-6">
         <EntitiesDataTable columns={columns} data={filteredEntities} mcpTools={mcpToolsConfig} />
       </div>
