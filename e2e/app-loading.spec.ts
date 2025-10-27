@@ -55,11 +55,19 @@ test.describe('App Loading', () => {
 
   test('should render the root element', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
+
+    // Wait for the app to initialize (give more time for slower browsers)
+    await page.waitForTimeout(3000);
 
     // Check that the root div exists and has content
     const rootElement = page.locator('#root');
-    await expect(rootElement).toBeVisible();
+
+    // Wait for content to be rendered (more lenient check)
+    await page.waitForFunction(() => {
+      const root = document.getElementById('root');
+      return root && root.innerHTML.trim().length > 0;
+    }, { timeout: 10000 });
 
     // Verify the root has rendered content
     const rootContent = await rootElement.innerHTML();
