@@ -13,7 +13,7 @@ export function useMCPContextTool<T>(
   description: string,
   getValue: () => T
 ) {
-  return useMCPTool({
+  return useWebMCP({
     name,
     description,
     annotations: {
