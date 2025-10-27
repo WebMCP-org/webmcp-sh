@@ -1,3 +1,4 @@
+import '@mcp-b/global';
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./index.css";
