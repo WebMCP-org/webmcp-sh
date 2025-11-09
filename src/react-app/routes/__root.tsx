@@ -15,15 +15,12 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
-  // Register navigation tools at the root level so they're always available
   useMCPNavigationTool();
 
   return (
     <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
       <div className="h-screen flex overflow-hidden bg-background">
-        {/* Compact Sidebar */}
         <aside className="w-14 border-r border-border bg-card flex flex-col items-center py-3 gap-1.5">
-          {/* Logo */}
           <Link to="/" className="mb-2 group">
             <motion.div
               whileHover={{ scale: 1.15, rotate: 360 }}
@@ -35,7 +32,6 @@ function RootComponent() {
             </motion.div>
           </Link>
 
-          {/* Navigation - More Compact */}
           <nav className="flex flex-col gap-1.5 w-full px-1.5">
             {[
               { to: '/', icon: Home, title: 'Dashboard' },
@@ -68,7 +64,6 @@ function RootComponent() {
           </nav>
         </aside>
 
-        {/* Main Content Area - Dashboard */}
         <main className="flex-1 overflow-hidden bg-background">
           <Outlet />
         </main>
@@ -76,10 +71,8 @@ function RootComponent() {
         <TanStackRouterDevtools position="bottom-right" />
       </div>
 
-      {/* Toast Notifications */}
       <Toaster />
 
-      {/* PWA Components */}
       <PWAUpdatePrompt />
       <PWAInstallPrompt />
     </PGliteProvider>

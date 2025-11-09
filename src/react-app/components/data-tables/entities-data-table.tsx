@@ -82,7 +82,7 @@ export function EntitiesDataTable<TData extends Record<string, unknown>, TValue>
                 <EditableSelectCell
                   value={entity.memory_tier}
                   options={memoryTierOptions}
-                  onSave={(value) => handleUpdate(entity.id, 'memory_tier', value)}
+                  onSave={(value: string) => handleUpdate(entity.id, 'memory_tier', value)}
                   displayComponent={
                     <p className="text-sm text-gray-900 capitalize">{entity.memory_tier.replace(/_/g, ' ')}</p>
                   }
@@ -97,7 +97,7 @@ export function EntitiesDataTable<TData extends Record<string, unknown>, TValue>
                 <EditableCell
                   value={entity.current_strength}
                   type="number"
-                  onSave={(value) => handleUpdate(entity.id, 'current_strength', value)}
+                  onSave={(value: string | number) => handleUpdate(entity.id, 'current_strength', value)}
                   displayComponent={
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -120,7 +120,7 @@ export function EntitiesDataTable<TData extends Record<string, unknown>, TValue>
                 <EditableCell
                   value={entity.description}
                   type="textarea"
-                  onSave={(value) => handleUpdate(entity.id, 'description', value)}
+                  onSave={(value: string | number) => handleUpdate(entity.id, 'description', value)}
                   displayComponent={
                     <p className="text-sm text-gray-900 leading-relaxed">{entity.description}</p>
                   }
@@ -133,7 +133,7 @@ export function EntitiesDataTable<TData extends Record<string, unknown>, TValue>
               <div className="col-span-1 md:col-span-2 space-y-2">
                 <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">All Tags</label>
                 <div className="flex flex-wrap gap-2">
-                  {entity.tags.map((tag, i) => (
+                  {entity.tags.map((tag: string, i: number) => (
                     <span
                       key={i}
                       className="px-3 py-1.5 rounded-md text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 border border-gray-200"

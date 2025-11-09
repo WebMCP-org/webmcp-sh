@@ -30,14 +30,11 @@ const nodeTypes = {
   entity: EntityNode as React.ComponentType<NodeProps>,
 };
 
-// Wrapper component
 function GraphWrapper() {
   return <GraphComponent />;
 }
 
-// 2D ReactFlow wrapper that registers tools
 function ReactFlow2D({ nodes, edges }: { nodes: Node[], edges: Edge[] }) {
-  // Register 2D MCP tools
   useMCPGraphTools();
 
   return (
@@ -80,47 +77,37 @@ function GraphComponent() {
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d');
   const kg3dRef = useRef<KG3DApi>(null);
 
-  // Register SQL tools
   useMCPSQLTool();
 
-  // Register 3D tools
   useMCPGraph3DTools();
 
-  // Register advanced 3D tools
   useMCPGraph3DAdvanced();
 
-  // Fetch all entities for graph
   const allEntitiesQuery = memory_entities.getAllMemoryEntitiesQuerySQL()
   const allEntitiesResult = useLiveQuery<memory_entities.GetAllMemoryEntitiesResult>(allEntitiesQuery.sql, allEntitiesQuery.params)
 
-  // Fetch all relationships for graph
   const allRelationshipsQuery = entity_relationships.getAllEntityRelationshipsQuerySQL()
   const allRelationshipsResult = useLiveQuery<entity_relationships.GetAllEntityRelationshipsResult>(allRelationshipsQuery.sql, allRelationshipsQuery.params)
-
-  // Transform data for 3D graph
   const { nodes: nodes3d, links: links3d } = useMemo(() => {
     const entities = allEntitiesResult?.rows ?? [];
     const relationships = allRelationshipsResult?.rows ?? [];
     return toForceGraphData(entities, relationships);
   }, [allEntitiesResult, allRelationshipsResult]);
 
-  // Also keep ReactFlow data for potential 2D view
   const { nodes, edges } = useMemo(() => {
     const entities = allEntitiesResult?.rows ?? [];
     const relationships = allRelationshipsResult?.rows ?? [];
 
-    // Count connections per entity
     const connectionCounts = new Map<string, number>();
     relationships.forEach(rel => {
       connectionCounts.set(rel.from_entity_id, (connectionCounts.get(rel.from_entity_id) || 0) + 1);
       connectionCounts.set(rel.to_entity_id, (connectionCounts.get(rel.to_entity_id) || 0) + 1);
     });
 
-    // Create nodes
     const rawNodes: Node[] = entities.map(entity => ({
       id: entity.id,
       type: 'entity',
-      position: { x: 0, y: 0 }, // Will be set by layout
+      position: { x: 0, y: 0 },
       data: {
         name: entity.name,
         category: entity.category,
@@ -136,7 +123,6 @@ function GraphComponent() {
       },
     }));
 
-    // Create edges
     const rawEdges: Edge[] = relationships.map(rel => ({
       id: rel.id,
       source: rel.from_entity_id,
@@ -153,7 +139,6 @@ function GraphComponent() {
       },
     }));
 
-    // Apply auto-layout
     return getLayoutedElements(rawNodes, rawEdges, {
       direction: 'TB',
       rankSep: 200,
@@ -164,7 +149,6 @@ function GraphComponent() {
   return (
     <TooltipProvider>
     <div className="w-full h-full bg-slate-950">
-      {/* Header */}
       <div className="border-b border-slate-800 bg-slate-900 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -200,7 +184,6 @@ function GraphComponent() {
         </div>
       </div>
 
-      {/* Graph Container */}
       <div className="relative" style={{ width: '100%', height: 'calc(100vh - 120px)' }}>
         {viewMode === '3d' ? (
           <>
@@ -211,7 +194,6 @@ function GraphComponent() {
               height="100%"
             />
 
-            {/* 3D Controls Legend */}
             <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-3 text-xs z-10 max-w-xs">
               <h4 className="font-semibold text-white mb-2">3D Controls</h4>
               <div className="space-y-1 text-slate-300">
@@ -222,7 +204,6 @@ function GraphComponent() {
               </div>
             </div>
 
-            {/* Category Legend */}
             <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-3 text-xs z-10">
               <h4 className="font-semibold text-white mb-2">Categories</h4>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1">

@@ -17,7 +17,6 @@ export const Route = createFileRoute('/_dashboard/sql-execution-log')({
   component: SQLExecutionLogPage,
 })
 
-// Helper function to escape HTML
 function escapeHtml(text: string): string {
   const map: Record<string, string> = {
     '&': '&amp;',
@@ -36,10 +35,8 @@ function SQLExecutionLogPage() {
   const [isFormatted, setIsFormatted] = useState(false)
   const [formattedQuery, setFormattedQuery] = useState<string>('')
 
-  // Register SQL MCP tools for this page
   useMCPSQLTool()
 
-  // Query execution logs from database
   const logsResult = useLiveQuery<SQLExecutionLog>(`
     SELECT * FROM sql_execution_log
     ORDER BY executed_at DESC
@@ -54,13 +51,10 @@ function SQLExecutionLogPage() {
     toast.success('Query history cleared')
   }
 
-  // Format SQL with Prettier
   const handleFormatSQL = async () => {
     if (!selectedQuery?.query) return
 
-    // If already formatted, toggle back to original
     if (isFormatted) {
-      // Don't format when going back to original - pass false
       const highlighted = await highlightSQL(selectedQuery.query, false)
       setHighlightedSQL(highlighted)
       setIsFormatted(false)
@@ -72,7 +66,6 @@ function SQLExecutionLogPage() {
     setIsFormatting(true)
     try {
       const formatted = await formatSQL(selectedQuery.query)
-      // Already formatted, so don't format again - pass false
       const highlighted = await highlightSQL(formatted, false)
       setHighlightedSQL(highlighted)
       setFormattedQuery(formatted)
@@ -86,7 +79,6 @@ function SQLExecutionLogPage() {
     }
   }
 
-  // Copy SQL to clipboard (formatted if available, otherwise raw)
   const handleCopySQL = async () => {
     if (!selectedQuery?.query) return
 
@@ -100,21 +92,17 @@ function SQLExecutionLogPage() {
     }
   }
 
-  // Auto-select first query when list loads
   useEffect(() => {
     if (queryHistory.length > 0 && !selectedQuery) {
       setSelectedQuery(queryHistory[0])
     }
   }, [queryHistory, selectedQuery])
 
-  // Highlight SQL when selected query changes
   useEffect(() => {
     if (selectedQuery?.query) {
-      // Reset formatting state when switching queries
       setIsFormatted(false)
       setFormattedQuery('')
 
-      // Don't format when highlighting - pass false to shouldFormat parameter
       highlightSQL(selectedQuery.query, false).then(setHighlightedSQL).catch((error) => {
         console.error('Failed to highlight SQL:', error)
         setHighlightedSQL(`<pre>${selectedQuery.query}</pre>`)
@@ -126,7 +114,6 @@ function SQLExecutionLogPage() {
     }
   }, [selectedQuery])
 
-  // Parse result data for display
   const parsedResultData = useMemo(() => {
     if (!selectedQuery?.result_data) return null
 

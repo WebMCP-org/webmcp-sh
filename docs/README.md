@@ -25,11 +25,10 @@ Welcome to the WebMCP Playground documentation! This directory contains comprehe
 
 ### For Developers
 
-4. **[Database README](../src/react-app/lib/db/README.md)**
-   - PGlite + Drizzle architecture
-   - Database utilities
-   - Migration guide
-   - Performance tips
+4. **[Database Schema](./SCHEMA.md)**
+   - Complete schema reference
+   - Table definitions and relationships
+   - Index information
 
 ## 🚀 Quick Start for AI Agents
 

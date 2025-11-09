@@ -45,7 +45,7 @@ export function EditableCell({
       setIsEditing(false)
     } catch (error) {
       console.error("Failed to save:", error)
-      setEditValue(value) // Reset on error
+      setEditValue(value)
     } finally {
       setIsSaving(false)
     }

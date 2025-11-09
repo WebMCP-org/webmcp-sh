@@ -30,7 +30,6 @@ function MemoryBlocksComponent() {
   const blocksResult = useLiveQuery<memory_blocks.GetAllMemoryBlocksResult>(blocksQuery.sql, blocksQuery.params)
   const blocks = blocksResult?.rows ?? []
 
-  // MCP Tools configuration to pass to the DataTable
   const mcpToolsConfig: MCPToolsConfig<memory_blocks.GetAllMemoryBlocksResult> = {
     tableName: 'memory_blocks',
     tableDescription: 'Always-in-context memory blocks that are core to the AI system',
@@ -73,7 +72,6 @@ function MemoryBlocksComponent() {
       filter_by_type: {
         description: 'Filter the table to show only this block type',
         handler: async (item) => {
-          // This would need a filter state if the table supports type filtering
           return `Would filter by ${item.block_type} (not yet implemented)`
         }
       }
@@ -83,7 +81,6 @@ function MemoryBlocksComponent() {
   return (
     <TooltipProvider>
     <div className="h-full w-full flex flex-col bg-background">
-      {/* Compact Header */}
       <div className="flex-shrink-0 border-b border-divide bg-card px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -120,7 +117,6 @@ function MemoryBlocksComponent() {
             </DialogContent>
           </Dialog>
 
-          {/* Edit Dialog */}
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
               <DialogHeader className="px-6 pt-6 pb-4 border-b border-divide">
@@ -155,7 +151,6 @@ function MemoryBlocksComponent() {
             </DialogContent>
           </Dialog>
 
-          {/* Duplicate Dialog */}
           <Dialog open={isDuplicateDialogOpen} onOpenChange={setIsDuplicateDialogOpen}>
             <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
               <DialogHeader className="px-6 pt-6 pb-4 border-b border-divide">
@@ -184,7 +179,6 @@ function MemoryBlocksComponent() {
         </div>
       </div>
 
-      {/* Data Table Container - Single scroll container */}
       <div className="flex-1 overflow-auto p-6">
         <MemoryBlocksDataTable columns={columns} data={blocks} mcpTools={mcpToolsConfig} />
       </div>

@@ -182,7 +182,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
       return (
         <EditableCell
           value={block.label}
-          onSave={(value) => handleUpdate(block.id, 'label', value)}
+          onSave={(value: string | number) => handleUpdate(block.id, 'label', value)}
           displayComponent={
             <div className="flex items-center gap-2 min-w-0 max-w-[200px]">
               <div className={`h-7 w-7 rounded-lg ${style.bgColor} flex items-center justify-center flex-shrink-0`}>
@@ -220,7 +220,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
         <EditableSelectCell
           value={blockType}
           options={blockTypeOptions}
-          onSave={(value) => handleUpdate(block.id, 'block_type', value)}
+          onSave={(value: string) => handleUpdate(block.id, 'block_type', value)}
           displayComponent={
             <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 whitespace-nowrap">
               {blockType.replace(/_/g, ' ')}
@@ -244,7 +244,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
           <EditableCell
             value={value}
             type="textarea"
-            onSave={(newValue) => handleUpdate(block.id, 'value', newValue)}
+            onSave={(newValue: string | number) => handleUpdate(block.id, 'value', newValue)}
             displayComponent={
               <div className="bg-gray-50 rounded p-2">
                 <p className="text-xs text-gray-900 leading-relaxed line-clamp-2" title={value}>
@@ -282,7 +282,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
         <EditableCell
           value={block.priority}
           type="number"
-          onSave={(value) => handleUpdate(block.id, 'priority', value)}
+          onSave={(value: string | number) => handleUpdate(block.id, 'priority', value)}
           displayComponent={<span className="text-sm">{block.priority}</span>}
         />
       )
