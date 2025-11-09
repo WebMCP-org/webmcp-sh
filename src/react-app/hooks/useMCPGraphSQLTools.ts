@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useMCPTool } from './useMCPTool';
+import { useWebMCP } from '@mcp-b/react-webmcp';
 import { pg_lite } from '@/lib/db';
 
 /**
@@ -8,7 +8,7 @@ import { pg_lite } from '@/lib/db';
  */
 export function useMCPGraphSQLTools() {
   // Tool 1: Find connected entities
-  useMCPTool({
+  useWebMCP({
     name: 'graph_find_connections',
     description: `Find all entities connected to a specific entity in the knowledge graph.
 
@@ -130,7 +130,7 @@ Found ${connections.length} connections:
   });
 
   // Tool 2: Find paths between entities
-  useMCPTool({
+  useWebMCP({
     name: 'graph_find_path',
     description: `Find the shortest path between two entities in the knowledge graph.
 
@@ -255,7 +255,7 @@ ${path.join(' → ')}`;
   });
 
   // Tool 3: Analyze entity clusters
-  useMCPTool({
+  useWebMCP({
     name: 'graph_analyze_clusters',
     description: `Analyze clusters and highly connected components in the knowledge graph.
 

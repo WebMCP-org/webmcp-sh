@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { useMCPTool } from "./useMCPTool";
+import { useWebMCP } from "@mcp-b/react-webmcp";
 import { pg_lite } from "@/lib/db";
 import { KG3DApi } from "@/components/graph/KG3D";
 
@@ -17,7 +17,7 @@ export function useMCPGraph3DTools() {
   };
 
   // Tool 1: Query and highlight in 3D with visual effects
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_query_highlight",
     description: `Find entities by SQL WHERE clause and highlight them in 3D with visual effects.
 
@@ -99,7 +99,7 @@ ${orbit_camera ? "🎬 Camera orbiting" : ""}`;
   });
 
   // Tool 2: Focus on entity with cinematic camera movement
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_focus_entity",
     description: `Fly camera to a specific entity with cinematic effects.
 
@@ -173,7 +173,7 @@ ${show_connections ? "✨ Connection particles flowing" : ""}`;
   });
 
   // Tool 3: Create cinematic camera tour
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_camera_tour",
     description: `Create a cinematic camera tour through multiple entities.
 
@@ -251,7 +251,7 @@ Total duration: ${tour_entities.length * duration_per_stop / 1000} seconds`;
   });
 
   // Tool 4: Explode/Contract view for dramatic effect
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_explode_view",
     description: `Explode or contract the graph for dramatic effect.
 
@@ -284,7 +284,7 @@ This creates a "big bang" or "collapse" effect:
   });
 
   // Tool 5: Particle burst effect
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_particle_burst",
     description: `Create a particle burst effect from high-importance nodes.
 
@@ -338,7 +338,7 @@ ${particle_count} particles per edge`;
   });
 
   // Tool 6: Clear all effects and reset
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_clear",
     description: "Clear all 3D highlights and effects, reset camera view.",
     inputSchema: {},
@@ -360,7 +360,7 @@ ${particle_count} particles per edge`;
   });
 
   // Tool 7: Category wave effect
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_category_wave",
     description: `Create a wave effect that highlights categories in sequence.
 

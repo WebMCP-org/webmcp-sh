@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useMCPTool } from './useMCPTool';
+import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react';
 import { pg_lite } from '@/lib/db';
 import { getCategoryColor } from '@/lib/category-colors';
@@ -14,7 +14,7 @@ export function useMCPGraphVisualEffects() {
   const edges = useEdges();
 
   // Tool 1: Animated Ripple Effect from Entity
-  useMCPTool({
+  useWebMCP({
     name: 'graph_ripple_effect',
     description: `Create an animated ripple effect emanating from an entity, progressively revealing its connections.
 
@@ -191,7 +191,7 @@ Color scheme: ${color_scheme}`;
   });
 
   // Tool 2: Constellation Mode - Group and Highlight by Category
-  useMCPTool({
+  useWebMCP({
     name: 'graph_constellation_mode',
     description: `Transform the graph into a constellation view, grouping entities by category with animated connections.
 
@@ -349,7 +349,7 @@ Strong connections (≥${min_strength}) are emphasized`;
   });
 
   // Tool 3: Path Animation - Show Connection Path
-  useMCPTool({
+  useWebMCP({
     name: 'graph_animate_path',
     description: `Animate a path between two entities, showing how they connect through the knowledge graph.
 
@@ -525,7 +525,7 @@ Total animation time: ${foundPath.length * animation_speed}ms`;
   });
 
   // Tool 4: Importance Heatmap
-  useMCPTool({
+  useWebMCP({
     name: 'graph_importance_heatmap',
     description: `Transform the graph into a heatmap showing importance scores.
 

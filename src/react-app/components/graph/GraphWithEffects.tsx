@@ -1,5 +1,5 @@
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react';
-import { useMCPTool } from '@/hooks/useMCPTool';
+import { useWebMCP } from '@mcp-b/react-webmcp';
 import { z } from 'zod';
 import { pg_lite } from '@/lib/db';
 
@@ -13,7 +13,7 @@ export function GraphWithEffects() {
   const edges = useEdges();
 
   // Simple highlight tool that actually works
-  useMCPTool({
+  useWebMCP({
     name: 'graph_highlight_category',
     description: `Highlight all entities of a specific category with visual effects.
 
@@ -114,7 +114,7 @@ ${zoom_to_category ? '\nZoomed to show highlighted nodes' : ''}`;
   });
 
   // Wave effect tool
-  useMCPTool({
+  useWebMCP({
     name: 'graph_wave_effect',
     description: `Create a wave effect across the graph, highlighting nodes in sequence.
 
@@ -218,7 +218,7 @@ Total duration: ${sortedNodes.length * wave_speed}ms`;
   });
 
   // Clear all effects
-  useMCPTool({
+  useWebMCP({
     name: 'graph_clear_effects',
     description: 'Clear all visual effects and return graph to normal state.',
     inputSchema: {},

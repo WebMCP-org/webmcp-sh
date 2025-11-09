@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useMCPTool } from './useMCPTool';
+import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react';
 import { pg_lite } from '@/lib/db';
 
@@ -15,7 +15,7 @@ export function useMCPGraphTools() {
   const edges = useEdges();
 
   // Tool 1: Query and highlight entities in graph
-  useMCPTool({
+  useWebMCP({
     name: 'graph_query_entities',
     description: `Execute SQL query to find entities and highlight them in the knowledge graph.
 
@@ -147,7 +147,7 @@ ${zoom_to_results ? 'Graph zoomed to show results.' : 'Results highlighted in cu
   });
 
   // Tool 2: Focus on specific entity and its connections
-  useMCPTool({
+  useWebMCP({
     name: 'graph_focus_entity',
     description: `Focus the graph view on a specific entity and show its immediate connections.
 
@@ -321,7 +321,7 @@ Showing ${connectedIds.size} entities within depth ${connection_depth}${details}
   });
 
   // Tool 3: Clear all highlights
-  useMCPTool({
+  useWebMCP({
     name: 'graph_clear_highlights',
     description: 'Clear all highlights and return the graph to its normal state.',
     inputSchema: {},
@@ -369,7 +369,7 @@ Showing ${connectedIds.size} entities within depth ${connection_depth}${details}
   });
 
   // Tool 4: Get graph statistics
-  useMCPTool({
+  useWebMCP({
     name: 'graph_statistics',
     description: 'Get statistics about the current graph visualization.',
     inputSchema: {},
