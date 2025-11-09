@@ -7,7 +7,7 @@
   "homepage": "https://webmcp.sh",
   "repository": {
     "type": "git",
-    "url": "https://github.com/webmcp/webmcp-sh.git"
+    "url": "https://github.com/WebMCP-org/webmcp-sh.git"
   },
   "keywords": [
     "mcp",

@@ -73,7 +73,7 @@ function RootComponent() {
           <Outlet />
         </main>
 
-        <TanStackRouterDevtools position="bottom-right" />
+        {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
       </div>
 
       {/* Toast Notifications */}
