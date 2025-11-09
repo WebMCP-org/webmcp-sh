@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useMCPTool } from './useMCPTool';
+import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useCallback, useMemo } from 'react';
 import type {
   ColumnFiltersState,
@@ -709,7 +709,7 @@ export function useMCPTableTools<T extends TableItem = TableItem>(config?: Table
   }, [customActions]);
 
   // Register the powerful table tool
-  useMCPTool({
+  useWebMCP({
     name: `table_${tableName}`,
     description: `Control and interact with the ${tableDescription} table UI.
 

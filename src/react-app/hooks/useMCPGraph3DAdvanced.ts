@@ -1,4 +1,4 @@
-import { useMCPTool } from "@/hooks/useMCPTool";
+import { useWebMCP } from "@mcp-b/react-webmcp";
 import { z } from "zod";
 import { pg_lite } from "@/lib/db";
 
@@ -13,7 +13,7 @@ export function useMCPGraph3DAdvanced() {
   };
 
   // Tool 1: Advanced Relationship Visualization
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_activate_particle_flow",
     description: `Activate sophisticated particle flows between entity categories to show relationships.
 
@@ -96,7 +96,7 @@ ${color_gradient ? "✨ Gradient coloring enabled" : ""}`;
   });
 
   // Tool 2: Dynamic Node Styling
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_style_nodes_by_metrics",
     description: `Apply sophisticated node styling based on computed metrics.
 
@@ -171,7 +171,7 @@ Styled ${entities.length} nodes`;
   });
 
   // Tool 3: Sophisticated Camera Choreography
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_camera_sequence",
     description: `Execute a choreographed camera sequence with multiple movements.
 
@@ -308,7 +308,7 @@ ${sequence.map((s, i) => `${i + 1}. ${s.action} ${s.target || ''} (${s.duration}
   });
 
   // Tool 4: Real-time Visual Reasoning
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_highlight_analysis_path",
     description: `Show analytical reasoning process through progressive highlighting.
 
@@ -403,7 +403,7 @@ Analysis revealed through progressive highlighting`;
   });
 
   // Tool 5: Comparative Analysis
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_comparative_layout",
     description: `Arrange entities in comparative layouts to analyze relationships.
 
@@ -554,7 +554,7 @@ ${show_inter_group_flows ? '✨ Inter-group flows active' : ''}`;
   });
 
   // Tool 6: Pattern Detection
-  useMCPTool({
+  useWebMCP({
     name: "graph3d_pattern_detection",
     description: `Detect and highlight structural patterns in the knowledge graph.
 

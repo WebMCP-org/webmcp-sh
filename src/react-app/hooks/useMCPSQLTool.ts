@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useMCPTool } from './useMCPTool';
+import { useWebMCP } from '@mcp-b/react-webmcp';
 import { pg_lite } from '@/lib/db';
 import type { Response } from '@/components/CustomRepl';
 import { formatSQL } from '@/lib/syntax-highlight';
@@ -335,7 +335,7 @@ ORDER BY cm.created_at DESC;`
  */
 export function useMCPSQLTool() {
   // Database info tool - call this ONCE before using sql_query
-  useMCPTool({
+  useWebMCP({
     name: 'get_database_info',
     description: `Get complete database information including schema, tables, query patterns, and best practices.
 
@@ -363,7 +363,7 @@ After calling this once, use sql_query for all your database operations.`,
   });
 
   // Main SQL query tool - lightweight, just executes queries
-  useMCPTool({
+  useWebMCP({
     name: 'sql_query',
     description: `Execute SQL queries against the AI memory database (PostgreSQL via PGlite).
 

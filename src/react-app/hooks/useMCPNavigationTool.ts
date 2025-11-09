@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useMCPTool } from './useMCPTool';
+import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useRouter } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import type { FileRoutesByTo } from '../routeTree.gen';
@@ -297,7 +297,7 @@ export function useMCPNavigationTool() {
   const routeListDescription = useMemo(() => formatRouteList(), []);
 
   // Main navigation tool
-  useMCPTool({
+  useWebMCP({
     name: 'navigate',
     description: `Navigate to a different route in the application using TanStack Router.
 
@@ -372,7 +372,7 @@ The tool will navigate the user to the specified route and return a confirmation
   });
 
   // Current context tool
-  useMCPTool({
+  useWebMCP({
     name: 'get_current_context',
     description: `Get the current application context including route, pathname, and search params.
 
@@ -397,7 +397,7 @@ Useful for understanding where the user is and providing context-aware responses
   });
 
   // List all routes tool
-  useMCPTool({
+  useWebMCP({
     name: 'list_all_routes',
     description: 'Get a detailed list of all available routes in the application with their descriptions and parameters.',
     inputSchema: {},
@@ -413,7 +413,7 @@ Useful for understanding where the user is and providing context-aware responses
   });
 
   // Gateway tool - Primary navigation and app overview
-  useMCPTool({
+  useWebMCP({
     name: 'app_gateway',
     description: `🗺️ PRIMARY APPLICATION GATEWAY TOOL
 
