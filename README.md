@@ -175,4 +175,4 @@ For issues, questions, or suggestions, please open an issue on GitHub or contact
 
 **Website**: [webmcp.sh](https://webmcp.sh)
 **Documentation**: [docs.webmcp.sh](https://docs.webmcp.sh)
-**GitHub**: [github.com/webmcp/webmcp-sh](https://github.com/webmcp/webmcp-sh)
+**GitHub**: [github.com/WebMCP-org/webmcp-sh](https://github.com/WebMCP-org/webmcp-sh)
