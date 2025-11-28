@@ -1,6 +1,6 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { Home, Brain, Database, Network, Terminal, ScrollText } from 'lucide-react'
+import { Home, Brain, Database, Network, Terminal, ScrollText, Github, MessageCircle } from 'lucide-react'
 import { Toaster } from '@/components/ui/sonner'
 import { PGliteProvider } from '@electric-sql/pglite-react'
 import { pg_lite } from '@/lib/db/database'
@@ -66,6 +66,41 @@ function RootComponent() {
               </Link>
             ))}
           </nav>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* External Links - GitHub & Contact */}
+          <div className="flex flex-col gap-1.5 w-full px-1.5 mb-2">
+            <a
+              href="https://github.com/WebMCP-org/webmcp-sh"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="View Source on GitHub"
+            >
+              <motion.div
+                whileHover={{ scale: 1.1, x: 2 }}
+                whileTap={{ scale: 0.95 }}
+                className="h-9 w-9 rounded-lg flex items-center justify-center transition-all duration-150 hover:bg-muted text-muted-foreground hover:text-brand"
+              >
+                <Github className="h-4 w-4" />
+              </motion.div>
+            </a>
+            <a
+              href="https://github.com/WebMCP-org/webmcp-sh/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Report an Issue / Contact Us"
+            >
+              <motion.div
+                whileHover={{ scale: 1.1, x: 2 }}
+                whileTap={{ scale: 0.95 }}
+                className="h-9 w-9 rounded-lg flex items-center justify-center transition-all duration-150 hover:bg-muted text-muted-foreground hover:text-brand"
+              >
+                <MessageCircle className="h-4 w-4" />
+              </motion.div>
+            </a>
+          </div>
         </aside>
 
         {/* Main Content Area - Dashboard */}
