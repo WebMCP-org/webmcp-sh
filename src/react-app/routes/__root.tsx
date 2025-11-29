@@ -109,7 +109,7 @@ function RootComponent() {
         </aside>
 
         {/* Main Content Area - Dashboard */}
-        <main className="flex-1 overflow-hidden bg-background pt-14 pb-16 md:pt-0 md:pb-0">
+        <main className="flex-1 overflow-hidden bg-background pb-16 md:pb-0">
           <Outlet />
         </main>
 
