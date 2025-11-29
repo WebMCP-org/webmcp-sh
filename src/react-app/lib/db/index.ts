@@ -1,17 +1,9 @@
-/**
- * Database module exports
- */
-
-// Main database instance and utilities
 export { db, pg_lite, db_utils } from './database';
 
-// Types - single source of truth
 export * from './types';
 
-// Schema (for advanced usage only - prefer types from './types')
 export * as schema from './schema';
 
-// Query utilities - all tables
 export * as memory_blocks from './queries/memory-blocks';
 export * as memory_entities from './queries/memory-entities';
 export * as entity_relationships from './queries/entity-relationships';
@@ -27,5 +19,3 @@ export * as memory_consolidations from './queries/memory-consolidations';
 export * as memory_conflicts from './queries/memory-conflicts';
 export * as memory_budget_logs from './queries/memory-budget-logs';
 
-// Tab guard for preventing multiple tabs
-export { tab_guard, use_is_primary_tab, get_tab_status } from './tab-guard';
