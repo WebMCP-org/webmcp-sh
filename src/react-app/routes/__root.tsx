@@ -55,14 +55,12 @@ function RootComponent() {
   // For all other pages, render with sidebar
   return (
     <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
-      <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-background">
-        {/* Mobile Navigation */}
-        <div className="md:hidden">
-          <MobileNavigation />
-        </div>
+      {/* Mobile Navigation - Outside flex container since it's fixed position */}
+      <MobileNavigation />
 
+      <div className="h-screen flex flex-row overflow-hidden bg-background">
         {/* Desktop Sidebar - Hidden on mobile */}
-        <aside className="hidden md:flex w-14 border-r border-border bg-card flex-col items-center py-3 gap-1.5">
+        <aside className="hidden md:flex w-14 border-r border-border bg-card flex-col items-center py-3 gap-1.5 flex-shrink-0">
           {/* Logo */}
           <Link to="/" className="mb-2 group">
             <motion.div
