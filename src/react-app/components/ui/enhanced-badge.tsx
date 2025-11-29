@@ -1,12 +1,21 @@
-import { ShimmerText } from "./shimmer-text";
+import { cn } from "@/lib/utils";
 
-export const EnhancedBadge = ({ text }: { text: string }) => {
+interface EnhancedBadgeProps {
+  text: string;
+  className?: string;
+}
+
+export const EnhancedBadge = ({ text, className }: EnhancedBadgeProps) => {
   return (
-    <ShimmerText
-      duration={1.2}
-      className="text-sm font-normal [--base-color:var(--color-brand)] [--base-gradient-color:var(--color-white)] dark:[--base-color:var(--color-brand)] dark:[--base-gradient-color:var(--color-white)]"
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium",
+        "bg-primary/10 text-primary",
+        "dark:bg-primary/20 dark:text-primary",
+        className
+      )}
     >
       {text}
-    </ShimmerText>
+    </span>
   );
 };
