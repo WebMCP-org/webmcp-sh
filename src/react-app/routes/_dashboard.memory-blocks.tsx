@@ -12,7 +12,7 @@ import { InfoTooltip } from '@/components/ui/info-tooltip'
 import { tooltips } from '@/lib/tooltip-content'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { MCPToolsConfig } from '@/types/mcp-tools'
-import type { UpdateMemoryBlock } from '@/lib/db/schema'
+import type { UpdateMemoryBlock } from '@/lib/db/types'
 
 export const Route = createFileRoute('/_dashboard/memory-blocks')({
   component: MemoryBlocksComponent,

@@ -10,7 +10,7 @@ import { motion } from "motion/react"
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { InfoTooltip } from '@/components/ui/info-tooltip'
 import { tooltips } from '@/lib/tooltip-content'
-import type { AuditLog } from '@/lib/db/schema'
+import type { AuditLog } from '@/lib/db/types'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { highlightCode } from '@/lib/syntax-highlight'
 
