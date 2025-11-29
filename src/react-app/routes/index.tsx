@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Container } from '@/components/ui/container'
 import { Badge } from '@/components/ui/badge'
+import { motion, AnimatePresence } from 'motion/react'
+import { useState, useEffect } from 'react'
+import { highlightCode } from '@/lib/syntax-highlight'
 import {
   Database,
   Network,
@@ -16,15 +19,17 @@ import {
   Table2,
   Navigation,
   ChevronRight,
+  Sparkles,
+  X,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
 })
 
-const CODE_EXAMPLES = {
-  useWebMCP: `// From useMCPNavigationTool.ts
-useWebMCP({
+// Tool code snippets - actual code from the hooks
+const TOOL_CODE: Record<string, string> = {
+  navigate: `useWebMCP({
   name: 'navigate',
   description: 'Navigate to a different route in the application',
   inputSchema: {
@@ -38,60 +43,239 @@ useWebMCP({
   },
 });`,
 
-  sqlTool: `// From useMCPSQLTool.ts
-useWebMCP({
+  get_current_context: `useWebMCP({
+  name: 'get_current_context',
+  description: 'Get the current application context',
+  inputSchema: {},
+  annotations: { readOnlyHint: true },
+  handler: async () => {
+    const location = router.state.location;
+    return {
+      pathname: location.pathname,
+      search: location.search || {},
+      hash: location.hash || '',
+    };
+  },
+});`,
+
+  list_all_routes: `useWebMCP({
+  name: 'list_all_routes',
+  description: 'Get all available routes with descriptions',
+  inputSchema: {},
+  handler: async () => {
+    return formatRouteList(); // Returns formatted route documentation
+  },
+});`,
+
+  app_gateway: `useWebMCP({
+  name: 'app_gateway',
+  description: 'Primary entry point for understanding the app',
+  inputSchema: {
+    query: z.string().optional()
+      .describe('Specific area to focus on')
+  },
+  handler: async (input) => {
+    let output = formatRouteList();
+    if (input.query) {
+      // Filter routes based on query
+      const relevant = ROUTE_DEFINITIONS.filter(route =>
+        route.path.includes(input.query) ||
+        route.availableTools?.some(t => t.includes(input.query))
+      );
+      output += formatRelevantRoutes(relevant);
+    }
+    return output;
+  },
+});`,
+
+  sql_query: `useWebMCP({
   name: 'sql_query',
   description: 'Execute SQL queries against the database',
   inputSchema: {
     query: z.string().describe('The SQL query to execute'),
   },
   handler: async (input) => {
+    // Safety check - block dangerous operations
     const analysis = analyzeQuery(input.query);
     if (analysis.isDangerous) {
       throw new Error(\`Blocked: \${analysis.reason}\`);
     }
+
     const result = await pg_lite.query(input.query);
     return JSON.stringify(result.rows, null, 2);
   },
 });`,
 
-  tableTool: `// From useMCPTableTools.ts
-useWebMCP({
-  name: \`table_\${tableName}\`,
-  description: 'Control table UI: filter, sort, group, paginate',
-  inputSchema: {
-    operation: z.enum(['filter_column', 'sort', 'search',
-                       'group_by', 'paginate', 'select']),
-    column: z.string().optional(),
-    value: z.unknown().optional(),
-    sortOrder: z.enum(['asc', 'desc']).optional(),
-  },
-  handler: async (input) => {
-    // Manipulates React state to update UI in real-time
-    if (input.operation === 'filter_column') {
-      setColumnFilters(prev => [...prev, { id: input.column, value: input.value }]);
-    }
-    // ... other operations
+  get_database_info: `useWebMCP({
+  name: 'get_database_info',
+  description: 'Get complete schema and query patterns',
+  inputSchema: {},
+  annotations: { readOnlyHint: true },
+  handler: async () => {
+    // Returns comprehensive database documentation:
+    // - All table schemas with column types
+    // - Record counts per table
+    // - 7 powerful query patterns (JOINs, CTEs, etc.)
+    // - Best practices for efficient querying
+    return await getDatabaseInfo();
   },
 });`,
 
-  graphTool: `// From useMCPGraphTools.ts
-useWebMCP({
+  'table_*': `useWebMCP({
+  name: \`table_\${tableName}\`,
+  description: 'Control table UI in real-time',
+  inputSchema: {
+    operation: z.enum([
+      'filter_column', 'batch_filter', 'clear_filter',
+      'group_by', 'sort', 'search', 'paginate', 'select'
+    ]),
+    column: z.string().optional(),
+    value: z.unknown().optional(),
+    filterType: z.enum(['equals', 'contains', 'greaterThan', 'between']).optional(),
+  },
+  handler: async (input) => {
+    // Directly manipulates React state for immediate UI updates
+    if (input.operation === 'filter_column') {
+      setColumnFilters(prev => [...prev, { id: input.column, value: input.value }]);
+    }
+    if (input.operation === 'sort') {
+      setSorting([{ id: input.sortBy, desc: input.sortOrder === 'desc' }]);
+    }
+    // ... other operations update state similarly
+  },
+});`,
+
+  filter_column: `// Part of table_* tool
+case 'filter_column': {
+  const { column, value, filterType = 'contains' } = params;
+
+  if (setColumnFilters) {
+    setColumnFilters(prev => {
+      const existing = prev.filter(f => f.id !== column);
+      return [...existing, { id: column, value }];
+    });
+    return { success: true, message: \`Filtered \${column}\` };
+  }
+}`,
+
+  batch_filter: `// Apply multiple filters at once
+case 'batch_filter': {
+  const { filters } = params;
+
+  const newFilters = filters
+    .filter(f => f.value !== undefined)
+    .map(f => ({ id: f.column, value: f.value }));
+
+  setColumnFilters(newFilters);
+  return { success: true, message: \`Applied \${newFilters.length} filters\` };
+}`,
+
+  group_by: `// Group rows by columns
+case 'group_by': {
+  const groupingColumns = Array.isArray(groupBy) ? groupBy : [groupBy];
+
+  if (setGrouping) {
+    setGrouping(groupingColumns);
+    return { success: true, message: \`Grouped by: \${groupingColumns.join(', ')}\` };
+  } else if (table) {
+    table.setGrouping(groupingColumns);
+  }
+}`,
+
+  graph_query_entities: `useWebMCP({
   name: 'graph_query_entities',
-  description: 'Query entities and highlight them in the graph',
+  description: 'Query and highlight entities in the graph',
   inputSchema: {
     where_clause: z.string().describe('SQL WHERE clause'),
     zoom_to_results: z.boolean().optional().default(true),
   },
   handler: async (input) => {
+    // Execute SQL to find matching entities
     const result = await pg_lite.query(
       \`SELECT * FROM memory_entities WHERE \${input.where_clause}\`
     );
+    const matchedIds = new Set(result.rows.map(e => e.id));
+
     // Highlight matching nodes in React Flow
     reactFlowInstance.setNodes(nodes.map(node => ({
       ...node,
-      className: matchedIds.has(node.id) ? 'highlighted' : '',
+      className: matchedIds.has(node.id) ? 'highlighted-node' : '',
     })));
+
+    if (input.zoom_to_results) {
+      reactFlowInstance.fitView({ nodes: matchedNodes, padding: 0.2 });
+    }
+  },
+});`,
+
+  graph_focus_entity: `useWebMCP({
+  name: 'graph_focus_entity',
+  description: 'Focus view on a specific entity',
+  inputSchema: {
+    entity_id: z.string().describe('Entity UUID to focus on'),
+    show_connections: z.boolean().optional().default(true),
+  },
+  handler: async (input) => {
+    const node = nodes.find(n => n.id === input.entity_id);
+    if (!node) throw new Error('Entity not found in graph');
+
+    // Center view on the node
+    reactFlowInstance.setCenter(node.position.x, node.position.y, {
+      zoom: 1.5,
+      duration: 800,
+    });
+
+    // Highlight connections if requested
+    if (input.show_connections) {
+      const connectedEdges = edges.filter(
+        e => e.source === input.entity_id || e.target === input.entity_id
+      );
+      // ... highlight logic
+    }
+  },
+});`,
+
+  graph_set_layout: `useWebMCP({
+  name: 'graph_set_layout',
+  description: 'Change graph layout algorithm',
+  inputSchema: {
+    layout: z.enum(['force', 'hierarchical', 'radial', 'grid']),
+    animate: z.boolean().optional().default(true),
+  },
+  handler: async (input) => {
+    const newPositions = calculateLayout(nodes, edges, input.layout);
+
+    if (input.animate) {
+      // Animate nodes to new positions
+      animateNodes(nodes, newPositions, 800);
+    } else {
+      reactFlowInstance.setNodes(
+        nodes.map(n => ({ ...n, position: newPositions[n.id] }))
+      );
+    }
+  },
+});`,
+
+  graph_3d_rotate: `useWebMCP({
+  name: 'graph_3d_rotate',
+  description: 'Control 3D graph rotation and zoom',
+  inputSchema: {
+    action: z.enum(['rotate', 'zoom', 'reset', 'auto_rotate']),
+    x: z.number().optional(),
+    y: z.number().optional(),
+    zoom: z.number().optional(),
+  },
+  handler: async (input) => {
+    const controls = threeRef.current?.controls;
+
+    if (input.action === 'rotate') {
+      controls.rotateLeft(input.x * Math.PI / 180);
+      controls.rotateUp(input.y * Math.PI / 180);
+    }
+    if (input.action === 'auto_rotate') {
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 2;
+    }
   },
 });`,
 }
@@ -100,6 +284,7 @@ const TOOLS_DEMONSTRATED = [
   {
     category: 'Navigation',
     icon: Navigation,
+    color: 'blue',
     tools: [
       { name: 'navigate', description: 'Navigate to routes in the application' },
       { name: 'get_current_context', description: 'Get current route and page context' },
@@ -110,6 +295,7 @@ const TOOLS_DEMONSTRATED = [
   {
     category: 'SQL Database',
     icon: Database,
+    color: 'purple',
     tools: [
       { name: 'sql_query', description: 'Execute SELECT, INSERT, UPDATE, DELETE queries' },
       { name: 'get_database_info', description: 'Get complete schema and query patterns' },
@@ -118,6 +304,7 @@ const TOOLS_DEMONSTRATED = [
   {
     category: 'Table Controls',
     icon: Table2,
+    color: 'green',
     tools: [
       { name: 'table_*', description: 'Filter, sort, search, group, paginate any table' },
       { name: 'filter_column', description: 'Add column filters with various match types' },
@@ -128,6 +315,7 @@ const TOOLS_DEMONSTRATED = [
   {
     category: 'Knowledge Graph',
     icon: Network,
+    color: 'amber',
     tools: [
       { name: 'graph_query_entities', description: 'Query and highlight entities in the graph' },
       { name: 'graph_focus_entity', description: 'Focus view on a specific entity' },
@@ -137,17 +325,182 @@ const TOOLS_DEMONSTRATED = [
   },
 ]
 
+const COLOR_CLASSES: Record<string, { card: string; icon: string; badge: string }> = {
+  blue: {
+    card: 'border-l-4 border-l-blue-500 hover:shadow-blue-500/10',
+    icon: 'bg-blue-500/10 text-blue-500',
+    badge: 'bg-blue-500/10 text-blue-600',
+  },
+  purple: {
+    card: 'border-l-4 border-l-purple-500 hover:shadow-purple-500/10',
+    icon: 'bg-purple-500/10 text-purple-500',
+    badge: 'bg-purple-500/10 text-purple-600',
+  },
+  green: {
+    card: 'border-l-4 border-l-green-500 hover:shadow-green-500/10',
+    icon: 'bg-green-500/10 text-green-500',
+    badge: 'bg-green-500/10 text-green-600',
+  },
+  amber: {
+    card: 'border-l-4 border-l-amber-500 hover:shadow-amber-500/10',
+    icon: 'bg-amber-500/10 text-amber-500',
+    badge: 'bg-amber-500/10 text-amber-600',
+  },
+}
+
+// Highlighted code component
+function HighlightedCode({ code, language = 'ts' }: { code: string; language?: string }) {
+  const [html, setHtml] = useState<string>('')
+
+  useEffect(() => {
+    highlightCode(code, language).then(setHtml)
+  }, [code, language])
+
+  if (!html) {
+    return (
+      <pre className="text-xs text-zinc-300 overflow-x-auto p-4">
+        <code>{code}</code>
+      </pre>
+    )
+  }
+
+  return (
+    <div
+      className="text-xs overflow-x-auto p-4 [&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
+
+// Tool item with expandable code
+function ToolItem({
+  tool,
+  color,
+  isExpanded,
+  onToggle
+}: {
+  tool: { name: string; description: string }
+  color: string
+  isExpanded: boolean
+  onToggle: () => void
+}) {
+  const hasCode = TOOL_CODE[tool.name]
+  const colors = COLOR_CLASSES[color]
+
+  return (
+    <div className="border-b border-border/50 last:border-0">
+      <button
+        onClick={hasCode ? onToggle : undefined}
+        className={`w-full flex items-start gap-2 text-sm p-2 rounded transition-colors text-left ${
+          hasCode ? 'hover:bg-muted/50 cursor-pointer' : 'cursor-default'
+        }`}
+      >
+        {hasCode ? (
+          <motion.div
+            animate={{ rotate: isExpanded ? 90 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-0.5"
+          >
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </motion.div>
+        ) : (
+          <ChevronRight className="h-4 w-4 text-muted-foreground/30 mt-0.5" />
+        )}
+        <div className="flex-1">
+          <code className={`text-xs px-1.5 py-0.5 rounded font-mono ${colors.badge}`}>
+            {tool.name}
+          </code>
+          <span className="text-muted-foreground ml-2">{tool.description}</span>
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && hasCode && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mx-2 mb-2 rounded-lg bg-zinc-950 border border-zinc-800">
+              <HighlightedCode code={TOOL_CODE[tool.name]} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// Code modal for mobile/full view
+function CodeModal({
+  toolName,
+  onClose
+}: {
+  toolName: string | null
+  onClose: () => void
+}) {
+  if (!toolName || !TOOL_CODE[toolName]) return null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-zinc-950 border border-zinc-800 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+          <code className="text-sm font-mono text-zinc-300">{toolName}</code>
+          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-200">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="overflow-auto max-h-[60vh]">
+          <HighlightedCode code={TOOL_CODE[toolName]} />
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 function HomePage() {
+  const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set())
+  const [modalTool, setModalTool] = useState<string | null>(null)
+
+  const toggleTool = (toolName: string) => {
+    setExpandedTools(prev => {
+      const next = new Set(prev)
+      if (next.has(toolName)) {
+        next.delete(toolName)
+      } else {
+        next.add(toolName)
+      }
+      return next
+    })
+  }
+
   return (
     <div className="min-h-screen bg-background overflow-auto">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+      <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <Container className="px-6 py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-brand to-brand/80 flex items-center justify-center">
+              <motion.div
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                className="h-9 w-9 rounded-lg bg-gradient-to-br from-brand to-brand/80 flex items-center justify-center shadow-lg"
+              >
                 <span className="text-white font-bold">W</span>
-              </div>
+              </motion.div>
               <span className="font-semibold text-lg">WebMCP Demo</span>
             </Link>
             <div className="flex items-center gap-3">
@@ -158,7 +511,7 @@ function HomePage() {
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
               >
                 <BookOpen className="h-4 w-4" />
-                Docs
+                <span className="hidden sm:inline">Docs</span>
               </a>
               <a
                 href="https://docs.mcp-b.ai/packages/react-webmcp.md"
@@ -167,7 +520,7 @@ function HomePage() {
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
               >
                 <Code2 className="h-4 w-4" />
-                React Hooks
+                <span className="hidden sm:inline">React Hooks</span>
               </a>
               <a
                 href="https://github.com/WebMCP-org/webmcp-sh"
@@ -188,37 +541,67 @@ function HomePage() {
         </Container>
       </nav>
 
-      {/* Header */}
-      <section className="border-b border-border py-12">
-        <Container className="px-6">
+      {/* Hero Section */}
+      <section className="relative border-b border-border py-16 overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-purple-500/5" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+
+        <Container className="px-6 relative">
           <div className="max-w-3xl">
-            <Badge variant="secondary" className="mb-4">Kitchen Sink Demo</Badge>
-            <h1 className="text-3xl font-bold mb-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Badge variant="secondary" className="mb-4 gap-1">
+                <Sparkles className="h-3 w-3" />
+                Kitchen Sink Demo
+              </Badge>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-4xl font-bold mb-4"
+            >
               WebMCP Tools in Action
-            </h1>
-            <p className="text-lg text-muted-foreground mb-6">
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-lg text-muted-foreground mb-6"
+            >
               This application demonstrates how to expose website functionality to AI agents using{' '}
-              <a href="https://docs.mcp-b.ai/introduction.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+              <a href="https://docs.mcp-b.ai/introduction.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">
                 WebMCP
               </a>
-              . It's a complete example showing navigation tools, SQL database access, table controls,
-              and graph visualization—all accessible through the{' '}
-              <code className="text-sm bg-muted px-1.5 py-0.5 rounded">navigator.modelContext</code> API.
-            </p>
-            <div className="flex gap-3">
+              . Click on any tool below to see its implementation code.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex gap-3"
+            >
               <Link to="/dashboard">
-                <Button variant="brand">
+                <Button variant="brand" size="lg">
                   Explore the Demo
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <a href="https://docs.mcp-b.ai/quickstart.md" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline">
+                <Button variant="outline" size="lg">
                   Quick Start Guide
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               </a>
-            </div>
+            </motion.div>
           </div>
         </Container>
       </section>
@@ -226,26 +609,32 @@ function HomePage() {
       {/* What is WebMCP */}
       <section className="py-12 border-b border-border">
         <Container className="px-6">
-          <h2 className="text-xl font-semibold mb-4">What is WebMCP?</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-4 text-muted-foreground">
-              <p>
-                WebMCP enables websites to expose structured tools that AI agents can discover and invoke.
-                Instead of AI navigating UI elements or scraping pages, it calls well-defined functions
-                with validated inputs and structured outputs.
-              </p>
-              <p>
-                Tools are registered using the{' '}
-                <a href="https://docs.mcp-b.ai/packages/react-webmcp.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
-                  @mcp-b/react-webmcp
-                </a>{' '}
-                package with the <code className="text-sm bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> hook.
-                Each tool defines its name, description, input schema (using Zod), and handler function.
-              </p>
-            </div>
-            <Card className="bg-muted/30">
-              <CardContent className="p-4">
-                <pre className="text-xs overflow-x-auto"><code>{`import { useWebMCP } from '@mcp-b/react-webmcp';
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-xl font-semibold mb-4">What is WebMCP?</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="space-y-4 text-muted-foreground">
+                <p>
+                  WebMCP enables websites to expose structured tools that AI agents can discover and invoke.
+                  Instead of AI navigating UI elements or scraping pages, it calls well-defined functions
+                  with validated inputs and structured outputs.
+                </p>
+                <p>
+                  Tools are registered using the{' '}
+                  <a href="https://docs.mcp-b.ai/packages/react-webmcp.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+                    @mcp-b/react-webmcp
+                  </a>{' '}
+                  package with the <code className="text-sm bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> hook.
+                  Each tool defines its name, description, input schema (using Zod), and handler function.
+                </p>
+              </div>
+              <Card className="bg-zinc-950 border-zinc-800">
+                <CardContent className="p-0">
+                  <HighlightedCode code={`import { useWebMCP } from '@mcp-b/react-webmcp';
 import { z } from 'zod';
 
 useWebMCP({
@@ -258,180 +647,167 @@ useWebMCP({
     // Tool implementation
     return 'Result for AI';
   },
-});`}</code></pre>
-              </CardContent>
-            </Card>
-          </div>
+});`} />
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
         </Container>
       </section>
 
       {/* Tools Demonstrated */}
       <section className="py-12 border-b border-border bg-muted/20">
         <Container className="px-6">
-          <h2 className="text-xl font-semibold mb-6">Tools Demonstrated in This App</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {TOOLS_DEMONSTRATED.map((category) => (
-              <Card key={category.category}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <category.icon className="h-5 w-5 text-brand" />
-                    {category.category}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ul className="space-y-2">
-                    {category.tools.map((tool) => (
-                      <li key={tool.name} className="flex items-start gap-2 text-sm">
-                        <ChevronRight className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                        <div>
-                          <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">
-                            {tool.name}
-                          </code>
-                          <span className="text-muted-foreground ml-2">{tool.description}</span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* Code Examples */}
-      <section className="py-12 border-b border-border">
-        <Container className="px-6">
-          <h2 className="text-xl font-semibold mb-2">Code from This Demo</h2>
-          <p className="text-muted-foreground mb-6">
-            These are actual code snippets from the hooks used in this application.
-          </p>
-
-          <div className="space-y-6">
-            {/* Navigation Tool */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Navigation className="h-4 w-4 text-brand" />
-                <h3 className="font-medium">Navigation Tool</h3>
-                <Badge variant="outline" className="text-xs">useMCPNavigationTool.ts</Badge>
-              </div>
-              <Card className="bg-zinc-950">
-                <CardContent className="p-4">
-                  <pre className="text-xs text-zinc-300 overflow-x-auto"><code>{CODE_EXAMPLES.useWebMCP}</code></pre>
-                </CardContent>
-              </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Tools Demonstrated</h2>
+              <Badge variant="outline" className="text-xs">
+                Click tools to view code
+              </Badge>
             </div>
 
-            {/* SQL Tool */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Database className="h-4 w-4 text-brand" />
-                <h3 className="font-medium">SQL Query Tool</h3>
-                <Badge variant="outline" className="text-xs">useMCPSQLTool.ts</Badge>
-              </div>
-              <Card className="bg-zinc-950">
-                <CardContent className="p-4">
-                  <pre className="text-xs text-zinc-300 overflow-x-auto"><code>{CODE_EXAMPLES.sqlTool}</code></pre>
-                </CardContent>
-              </Card>
+            <div className="grid md:grid-cols-2 gap-6">
+              {TOOLS_DEMONSTRATED.map((category, idx) => {
+                const colors = COLOR_CLASSES[category.color]
+                return (
+                  <motion.div
+                    key={category.category}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  >
+                    <Card className={`${colors.card} hover:shadow-lg transition-all duration-300`}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-3 text-base">
+                          <div className={`h-10 w-10 rounded-lg ${colors.icon} flex items-center justify-center`}>
+                            <category.icon className="h-5 w-5" />
+                          </div>
+                          {category.category}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        {category.tools.map((tool) => (
+                          <ToolItem
+                            key={tool.name}
+                            tool={tool}
+                            color={category.color}
+                            isExpanded={expandedTools.has(tool.name)}
+                            onToggle={() => toggleTool(tool.name)}
+                          />
+                        ))}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )
+              })}
             </div>
-
-            {/* Table Tool */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Table2 className="h-4 w-4 text-brand" />
-                <h3 className="font-medium">Table Control Tool</h3>
-                <Badge variant="outline" className="text-xs">useMCPTableTools.ts</Badge>
-              </div>
-              <Card className="bg-zinc-950">
-                <CardContent className="p-4">
-                  <pre className="text-xs text-zinc-300 overflow-x-auto"><code>{CODE_EXAMPLES.tableTool}</code></pre>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Graph Tool */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Network className="h-4 w-4 text-brand" />
-                <h3 className="font-medium">Graph Visualization Tool</h3>
-                <Badge variant="outline" className="text-xs">useMCPGraphTools.ts</Badge>
-              </div>
-              <Card className="bg-zinc-950">
-                <CardContent className="p-4">
-                  <pre className="text-xs text-zinc-300 overflow-x-auto"><code>{CODE_EXAMPLES.graphTool}</code></pre>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          </motion.div>
         </Container>
       </section>
 
       {/* Pages in This Demo */}
-      <section className="py-12 border-b border-border bg-muted/20">
+      <section className="py-12 border-b border-border">
         <Container className="px-6">
-          <h2 className="text-xl font-semibold mb-6">Pages in This Demo</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              { path: '/dashboard', icon: Brain, title: 'Dashboard', description: 'Memory overview with stats, charts, and audit logs' },
-              { path: '/memory-blocks', icon: Brain, title: 'Memory Blocks', description: 'Manage always-in-context memory blocks' },
-              { path: '/entities', icon: Database, title: 'Entities', description: 'Browse facts, preferences, skills, and more' },
-              { path: '/graph', icon: Network, title: 'Knowledge Graph', description: '2D/3D visualization of entity relationships' },
-              { path: '/sql-repl', icon: Terminal, title: 'SQL REPL', description: 'Execute queries against the in-browser database' },
-              { path: '/sql-execution-log', icon: Terminal, title: 'Execution Log', description: 'View SQL query history and analytics' },
-            ].map((page) => (
-              <Link key={page.path} to={page.path}>
-                <Card className="h-full hover:border-brand/50 transition-colors cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <page.icon className="h-4 w-4 text-brand" />
-                      <span className="font-medium">{page.title}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{page.description}</p>
-                    <code className="text-xs text-muted-foreground mt-2 block">{page.path}</code>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-xl font-semibold mb-6">Pages in This Demo</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                { path: '/dashboard', icon: Brain, title: 'Dashboard', description: 'Memory overview with stats, charts, and audit logs', color: 'blue' },
+                { path: '/memory-blocks', icon: Brain, title: 'Memory Blocks', description: 'Manage always-in-context memory blocks', color: 'purple' },
+                { path: '/entities', icon: Database, title: 'Entities', description: 'Browse facts, preferences, skills, and more', color: 'green' },
+                { path: '/graph', icon: Network, title: 'Knowledge Graph', description: '2D/3D visualization of entity relationships', color: 'amber' },
+                { path: '/sql-repl', icon: Terminal, title: 'SQL REPL', description: 'Execute queries against the in-browser database', color: 'blue' },
+                { path: '/sql-execution-log', icon: Terminal, title: 'Execution Log', description: 'View SQL query history and analytics', color: 'purple' },
+              ].map((page, idx) => {
+                const colors = COLOR_CLASSES[page.color]
+                return (
+                  <motion.div
+                    key={page.path}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  >
+                    <Link to={page.path}>
+                      <Card className={`h-full ${colors.card} hover:shadow-lg transition-all duration-300 cursor-pointer group`}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`h-8 w-8 rounded-lg ${colors.icon} flex items-center justify-center`}>
+                              <page.icon className="h-4 w-4" />
+                            </div>
+                            <span className="font-medium">{page.title}</span>
+                            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
+                          </div>
+                          <p className="text-sm text-muted-foreground">{page.description}</p>
+                          <code className="text-xs text-muted-foreground mt-2 block">{page.path}</code>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                )
+              })}
+            </div>
+          </motion.div>
         </Container>
       </section>
 
       {/* Documentation Links */}
-      <section className="py-12 border-b border-border">
+      <section className="py-12 border-b border-border bg-muted/20">
         <Container className="px-6">
-          <h2 className="text-xl font-semibold mb-6">Learn More</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { title: 'Introduction to WebMCP', url: 'https://docs.mcp-b.ai/introduction.md', description: 'What WebMCP is and how it works' },
-              { title: 'Quick Start', url: 'https://docs.mcp-b.ai/quickstart.md', description: 'Add WebMCP to your website in minutes' },
-              { title: 'React Hooks (@mcp-b/react-webmcp)', url: 'https://docs.mcp-b.ai/packages/react-webmcp.md', description: 'useWebMCP hook documentation' },
-              { title: 'Tool Design Patterns', url: 'https://docs.mcp-b.ai/concepts/tool-design.md', description: 'Best practices for designing tools' },
-              { title: 'Security Best Practices', url: 'https://docs.mcp-b.ai/security.md', description: 'Input validation and safety' },
-              { title: 'Connecting Agents', url: 'https://docs.mcp-b.ai/connecting-agents.md', description: 'How AI agents connect to WebMCP' },
-              { title: 'MCP-B Extension', url: 'https://docs.mcp-b.ai/extension/index.md', description: 'Browser extension for testing' },
-              { title: 'Live Examples', url: 'https://docs.mcp-b.ai/live-tool-examples.md', description: 'Interactive tool demonstrations' },
-              { title: 'Architecture Overview', url: 'https://docs.mcp-b.ai/concepts/architecture.md', description: 'How the pieces fit together' },
-            ].map((link) => (
-              <a
-                key={link.url}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <Card className="h-full hover:border-brand/50 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-sm">{link.title}</span>
-                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{link.description}</p>
-                  </CardContent>
-                </Card>
-              </a>
-            ))}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-xl font-semibold mb-6">Learn More</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { title: 'Introduction to WebMCP', url: 'https://docs.mcp-b.ai/introduction.md', description: 'What WebMCP is and how it works' },
+                { title: 'Quick Start', url: 'https://docs.mcp-b.ai/quickstart.md', description: 'Add WebMCP to your website in minutes' },
+                { title: 'React Hooks', url: 'https://docs.mcp-b.ai/packages/react-webmcp.md', description: 'useWebMCP hook documentation' },
+                { title: 'Tool Design Patterns', url: 'https://docs.mcp-b.ai/concepts/tool-design.md', description: 'Best practices for designing tools' },
+                { title: 'Security', url: 'https://docs.mcp-b.ai/security.md', description: 'Input validation and safety' },
+                { title: 'Connecting Agents', url: 'https://docs.mcp-b.ai/connecting-agents.md', description: 'How AI agents connect to WebMCP' },
+                { title: 'MCP-B Extension', url: 'https://docs.mcp-b.ai/extension/index.md', description: 'Browser extension for testing' },
+                { title: 'Live Examples', url: 'https://docs.mcp-b.ai/live-tool-examples.md', description: 'Interactive tool demonstrations' },
+                { title: 'Architecture', url: 'https://docs.mcp-b.ai/concepts/architecture.md', description: 'How the pieces fit together' },
+              ].map((link, idx) => (
+                <motion.a
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.2, delay: idx * 0.03 }}
+                  className="block group"
+                >
+                  <Card className="h-full hover:border-brand/50 hover:shadow-md transition-all duration-300">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-sm group-hover:text-brand transition-colors">{link.title}</span>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-brand transition-colors" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{link.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
         </Container>
       </section>
 
@@ -459,6 +835,11 @@ useWebMCP({
           </div>
         </Container>
       </footer>
+
+      {/* Code Modal */}
+      <AnimatePresence>
+        {modalTool && <CodeModal toolName={modalTool} onClose={() => setModalTool(null)} />}
+      </AnimatePresence>
     </div>
   )
 }
