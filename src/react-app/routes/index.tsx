@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Container } from '@/components/ui/container'
 import { Badge } from '@/components/ui/badge'
 import { motion, AnimatePresence } from 'motion/react'
-import { useState, useEffect } from 'react'
-import { highlightCode } from '@/lib/syntax-highlight'
+import { useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import {
   Database,
   Network,
@@ -349,26 +350,26 @@ const COLOR_CLASSES: Record<string, { card: string; icon: string; badge: string 
 }
 
 // Highlighted code component
-function HighlightedCode({ code, language = 'ts' }: { code: string; language?: string }) {
-  const [html, setHtml] = useState<string>('')
-
-  useEffect(() => {
-    highlightCode(code, language).then(setHtml)
-  }, [code, language])
-
-  if (!html) {
-    return (
-      <pre className="text-xs text-zinc-300 overflow-x-auto p-4">
-        <code>{code}</code>
-      </pre>
-    )
-  }
-
+function HighlightedCode({ code, language = 'typescript' }: { code: string; language?: string }) {
   return (
-    <div
-      className="text-xs overflow-x-auto p-4 [&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <SyntaxHighlighter
+      language={language}
+      style={oneDark}
+      customStyle={{
+        margin: 0,
+        padding: '1rem',
+        fontSize: '0.75rem',
+        borderRadius: 0,
+        background: 'transparent',
+      }}
+      codeTagProps={{
+        style: {
+          fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+        }
+      }}
+    >
+      {code}
+    </SyntaxHighlighter>
   )
 }
 
