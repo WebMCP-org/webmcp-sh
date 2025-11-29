@@ -143,28 +143,28 @@ function SQLExecutionLogPage() {
     <div className="flex flex-col h-full bg-gradient-to-br from-zinc-50 to-zinc-100">
       {/* Header */}
       <div className="flex-shrink-0 border-b backdrop-blur-xl bg-white/70 z-10">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="px-4 md:px-6 py-3 md:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200">
-                <ScrollTextIcon className="h-5 w-5 text-blue-600" />
+              <div className="p-2 md:p-2.5 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200 flex-shrink-0">
+                <ScrollTextIcon className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
               </div>
-              <div>
-                <h1 className="text-xl font-semibold text-zinc-900">
+              <div className="min-w-0">
+                <h1 className="text-lg md:text-xl font-semibold text-zinc-900 truncate">
                   SQL Execution Log
                 </h1>
-                <p className="text-sm text-zinc-600">View all AI and manual SQL query executions</p>
+                <p className="text-xs md:text-sm text-zinc-600 truncate">View AI and manual SQL queries</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="glass" className="font-mono">
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Badge variant="glass" className="font-mono text-xs">
                 <Database className="h-3 w-3 mr-1" />
-                {queryHistory.length} queries
+                {queryHistory.length}
               </Badge>
               {queryHistory.length > 0 && (
-                <Button variant="outline" size="sm" onClick={clearHistory}>
-                  <Trash2 className="h-4 w-4 mr-1.5" />
-                  Clear History
+                <Button variant="outline" size="sm" onClick={clearHistory} className="text-xs">
+                  <Trash2 className="h-3.5 w-3.5 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Clear</span>
                 </Button>
               )}
             </div>
@@ -173,9 +173,9 @@ function SQLExecutionLogPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex min-h-0">
-        {/* Sidebar - Query List (Wider and properly scrollable) */}
-        <div className="w-80 flex-shrink-0 border-r bg-white/50 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
+        {/* Sidebar - Query List (Collapsible on mobile) */}
+        <div className="w-full md:w-72 lg:w-80 flex-shrink-0 border-b md:border-b-0 md:border-r bg-white/50 flex flex-col h-48 md:h-auto md:min-h-0">
           <div className="flex-shrink-0 p-3 border-b bg-white/70 backdrop-blur">
             <h2 className="font-medium text-sm text-zinc-900">Recent Queries</h2>
           </div>
@@ -257,11 +257,11 @@ function SQLExecutionLogPage() {
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
             {/* Query Info Bar */}
-            <div className="flex-shrink-0 px-4 py-3 border-b bg-white/70 backdrop-blur-xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 px-3 md:px-4 py-2 md:py-3 border-b bg-white/70 backdrop-blur-xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2 md:gap-3 min-w-0">
                   <div className={cn(
-                    "p-1.5 rounded-lg",
+                    "p-1.5 rounded-lg flex-shrink-0",
                     selectedQuery.source === 'ai'
                       ? 'bg-gradient-to-br from-blue-100 to-sky-100'
                       : 'bg-gradient-to-br from-zinc-100 to-zinc-200'
@@ -272,10 +272,10 @@ function SQLExecutionLogPage() {
                       <User className="h-3.5 w-3.5 text-zinc-600" />
                     )}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-zinc-900">
-                        {selectedQuery.source === 'ai' ? 'AI Generated' : 'Manual Query'}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
+                      <span className="font-medium text-xs md:text-sm text-zinc-900">
+                        {selectedQuery.source === 'ai' ? 'AI' : 'Manual'}
                       </span>
                       <Badge variant={selectedQuery.success ? 'success' : 'destructive'} className="text-[10px] px-1.5 py-0.5">
                         {selectedQuery.success ? '✓' : '✗'}
@@ -286,24 +286,24 @@ function SQLExecutionLogPage() {
                         </Badge>
                       )}
                       {selectedQuery.rows_affected !== null && selectedQuery.rows_affected !== undefined && (
-                        <span className="text-xs text-zinc-600">{selectedQuery.rows_affected} rows</span>
+                        <span className="text-[10px] md:text-xs text-zinc-600">{selectedQuery.rows_affected} rows</span>
                       )}
                     </div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">
+                    <div className="text-[10px] md:text-[11px] text-zinc-500 mt-0.5 truncate">
                       {new Date(selectedQuery.executed_at).toLocaleString()}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={handleCopySQL}
                     className="h-7 text-xs"
                   >
-                    <Copy className="h-3 w-3 mr-1" />
-                    Copy
+                    <Copy className="h-3 w-3 sm:mr-1" />
+                    <span className="hidden sm:inline">Copy</span>
                   </Button>
                   <Button
                     size="sm"
@@ -312,17 +312,17 @@ function SQLExecutionLogPage() {
                     loading={isFormatting}
                     className="h-7 text-xs"
                   >
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    {isFormatted ? "Original" : "Format"}
+                    <Sparkles className="h-3 w-3 sm:mr-1" />
+                    <span className="hidden sm:inline">{isFormatted ? "Original" : "Format"}</span>
                   </Button>
                 </div>
               </div>
             </div>
 
             {/* Side by Side Content - SQL and Results */}
-            <div className="flex-1 grid grid-cols-2 gap-3 p-3 min-h-0">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 p-3 min-h-0 overflow-auto lg:overflow-hidden">
               {/* SQL Query Panel */}
-              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm flex flex-col min-h-0">
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm flex flex-col min-h-[200px] lg:min-h-0">
                 <div className="flex-shrink-0 px-4 py-3 border-b bg-gradient-to-br from-white to-zinc-50">
                   <div className="text-sm font-semibold flex items-center gap-2 text-zinc-900">
                     <Code2 className="h-3.5 w-3.5 text-blue-600" />
@@ -340,7 +340,7 @@ function SQLExecutionLogPage() {
               </div>
 
               {/* Results Panel */}
-              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm flex flex-col min-h-0">
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm flex flex-col min-h-[200px] lg:min-h-0">
                 <div className="flex-shrink-0 px-4 py-3 border-b bg-gradient-to-br from-white to-zinc-50">
                   <div className="text-sm font-semibold flex items-center gap-2 text-zinc-900">
                     <FileJson className="h-3.5 w-3.5 text-blue-600" />

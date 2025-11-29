@@ -9,6 +9,7 @@ import { motion } from 'motion/react'
 import { PWAUpdatePrompt } from '@/components/pwa-update-prompt'
 import { PWAInstallPrompt } from '@/components/pwa-install-prompt'
 import { useMCPNavigationTool } from '@/hooks/useMCPNavigationTool'
+import { MobileNavigation } from '@/components/mobile-nav'
 
 // JSX type declaration for the webmcp-agent custom element
 declare module 'react' {
@@ -54,9 +55,14 @@ function RootComponent() {
   // For all other pages, render with sidebar
   return (
     <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
-      <div className="h-screen flex overflow-hidden bg-background">
-        {/* Compact Sidebar */}
-        <aside className="w-14 border-r border-border bg-card flex flex-col items-center py-3 gap-1.5">
+      <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-background">
+        {/* Mobile Navigation */}
+        <div className="md:hidden">
+          <MobileNavigation />
+        </div>
+
+        {/* Desktop Sidebar - Hidden on mobile */}
+        <aside className="hidden md:flex w-14 border-r border-border bg-card flex-col items-center py-3 gap-1.5">
           {/* Logo */}
           <Link to="/" className="mb-2 group">
             <motion.div
@@ -103,7 +109,7 @@ function RootComponent() {
         </aside>
 
         {/* Main Content Area - Dashboard */}
-        <main className="flex-1 overflow-hidden bg-background">
+        <main className="flex-1 overflow-hidden bg-background pt-14 pb-16 md:pt-0 md:pb-0">
           <Outlet />
         </main>
 

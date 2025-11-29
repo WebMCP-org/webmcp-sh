@@ -230,25 +230,26 @@ function DashboardHome() {
     <TooltipProvider>
     <div className="flex flex-col h-full bg-background">
       {/* Compact Header */}
-      <div className="flex-shrink-0 border-b px-6 py-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold">WebMCP Memory</h1>
+      <div className="flex-shrink-0 border-b px-4 md:px-6 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg md:text-xl font-bold truncate">WebMCP Memory</h1>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              SQL-first AI memory · No embeddings
+              <span className="hidden sm:inline">SQL-first AI memory · No embeddings</span>
+              <span className="sm:hidden">SQL-first AI memory</span>
               <InfoTooltip content={tooltips.technical.sqlFirst} side="right" />
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button variant="outline" size="sm" asChild className="hidden sm:flex">
               <a href="https://mcp-b.ai" target="_blank" rel="noopener noreferrer" className="text-xs">
                 MCP-B.AI
               </a>
             </Button>
             <Button variant="outline" size="sm" asChild>
               <a href="https://chromewebstore.google.com/detail/mcp-b-extension/daohopfhkdelnpemnhlekblhnikhdhfa?pli=1" target="_blank" rel="noopener noreferrer" className="text-xs">
-                <Chrome className="h-3 w-3 mr-1" />
-                Extension
+                <Chrome className="h-3 w-3 sm:mr-1" />
+                <span className="hidden sm:inline">Extension</span>
               </a>
             </Button>
           </div>
@@ -258,8 +259,8 @@ function DashboardHome() {
       {/* Main Content - Single Screen */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Fixed Top Stats */}
-        <div className="flex-shrink-0 p-4 pb-2">
-          <div className="grid grid-cols-5 gap-3">
+        <div className="flex-shrink-0 p-3 md:p-4 pb-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -408,12 +409,12 @@ function DashboardHome() {
         </div>
 
         {/* Main scrollable content area */}
-        <div className="flex-1 p-4 pt-2 overflow-hidden">
-          <div className="h-full grid grid-cols-12 gap-4">
+        <div className="flex-1 p-3 md:p-4 pt-2 overflow-auto md:overflow-hidden">
+          <div className="h-full flex flex-col lg:grid lg:grid-cols-12 gap-4">
             {/* Left Column - Token Summary & Charts */}
-            <div className="col-span-8 flex flex-col gap-4 h-full overflow-hidden">
+            <div className="lg:col-span-8 flex flex-col gap-3 md:gap-4 lg:h-full lg:overflow-hidden">
               {/* Token Budget Summary */}
-              <div className="grid grid-cols-3 gap-3 flex-shrink-0">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 flex-shrink-0">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -491,13 +492,13 @@ function DashboardHome() {
               </div>
 
               {/* Doughnut Charts */}
-              <div className="grid grid-cols-2 gap-4 flex-1 min-h-0 max-h-[400px] overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 flex-1 min-h-0 md:max-h-[400px] overflow-visible md:overflow-hidden">
               {/* Entity Categories Chart */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="h-full"
+                className="min-h-[280px] md:h-full"
               >
                 <Card className="h-full p-0 flex flex-col card-gradient-slate hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="p-4 pb-3">
@@ -564,7 +565,7 @@ function DashboardHome() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                className="h-full"
+                className="min-h-[280px] md:h-full"
               >
                 <Card className="h-full p-0 flex flex-col card-gradient-blue hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="p-4 pb-3">
@@ -629,7 +630,7 @@ function DashboardHome() {
             </div>
 
             {/* Right Column - Audit Log */}
-            <div className="col-span-4 h-full min-h-0">
+            <div className="lg:col-span-4 min-h-[300px] lg:h-full lg:min-h-0">
             <Card className="h-full flex flex-col p-0 card-gradient-slate overflow-hidden">
               <CardHeader className="p-4 pb-3 flex-shrink-0 border-b border-border">
                 <div className="flex items-center justify-between">

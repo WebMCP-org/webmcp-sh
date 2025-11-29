@@ -357,16 +357,18 @@ function HighlightedCode({ code, language = 'typescript' }: { code: string; lang
       style={oneDark}
       customStyle={{
         margin: 0,
-        padding: '1rem',
-        fontSize: '0.75rem',
+        padding: '0.75rem',
+        fontSize: '0.65rem',
         borderRadius: 0,
         background: 'transparent',
+        overflowX: 'auto',
       }}
       codeTagProps={{
         style: {
           fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
         }
       }}
+      wrapLongLines={false}
     >
       {code}
     </SyntaxHighlighter>
@@ -392,26 +394,26 @@ function ToolItem({
     <div className="border-b border-border/50 last:border-0">
       <button
         onClick={hasCode ? onToggle : undefined}
-        className={`w-full flex items-start gap-2 text-sm p-2 rounded transition-colors text-left ${
-          hasCode ? 'hover:bg-muted/50 cursor-pointer' : 'cursor-default'
+        className={`w-full flex items-start gap-1.5 md:gap-2 text-xs md:text-sm p-2 rounded transition-colors text-left ${
+          hasCode ? 'hover:bg-muted/50 cursor-pointer active:bg-muted/70' : 'cursor-default'
         }`}
       >
         {hasCode ? (
           <motion.div
             animate={{ rotate: isExpanded ? 90 : 0 }}
             transition={{ duration: 0.2 }}
-            className="mt-0.5"
+            className="mt-0.5 flex-shrink-0"
           >
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
           </motion.div>
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground/30 mt-0.5" />
+          <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground/30 mt-0.5 flex-shrink-0" />
         )}
-        <div className="flex-1">
-          <code className={`text-xs px-1.5 py-0.5 rounded font-mono ${colors.badge}`}>
+        <div className="flex-1 min-w-0">
+          <code className={`text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded font-mono ${colors.badge}`}>
             {tool.name}
           </code>
-          <span className="text-muted-foreground ml-2">{tool.description}</span>
+          <span className="text-muted-foreground ml-1 md:ml-2 text-[11px] md:text-sm">{tool.description}</span>
         </div>
       </button>
 
@@ -424,7 +426,7 @@ function ToolItem({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mx-2 mb-2 rounded-lg bg-zinc-950 border border-zinc-800">
+            <div className="mx-1.5 md:mx-2 mb-2 rounded-lg bg-zinc-950 border border-zinc-800 overflow-x-auto">
               <HighlightedCode code={TOOL_CODE[tool.name]} />
             </div>
           </motion.div>
@@ -493,47 +495,48 @@ function HomePage() {
     <div className="min-h-screen bg-background overflow-auto">
       {/* Navigation */}
       <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
-        <Container className="px-6 py-3">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
+        <Container className="px-4 md:px-6 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <Link to="/" className="flex items-center gap-2 md:gap-3 min-w-0">
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 5 }}
-                className="h-9 w-9 rounded-lg bg-gradient-to-br from-brand to-brand/80 flex items-center justify-center shadow-lg"
+                className="h-8 w-8 md:h-9 md:w-9 rounded-lg bg-gradient-to-br from-brand to-brand/80 flex items-center justify-center shadow-lg flex-shrink-0"
               >
-                <span className="text-white font-bold">W</span>
+                <span className="text-white font-bold text-sm">W</span>
               </motion.div>
-              <span className="font-semibold text-lg">WebMCP Demo</span>
+              <span className="font-semibold text-base md:text-lg truncate">WebMCP Demo</span>
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <a
                 href="https://docs.mcp-b.ai/introduction.md"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 hidden sm:flex"
               >
                 <BookOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Docs</span>
+                <span className="hidden md:inline">Docs</span>
               </a>
               <a
                 href="https://docs.mcp-b.ai/packages/react-webmcp.md"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 hidden md:flex"
               >
                 <Code2 className="h-4 w-4" />
-                <span className="hidden sm:inline">React Hooks</span>
+                <span className="hidden lg:inline">React Hooks</span>
               </a>
               <a
                 href="https://github.com/WebMCP-org/webmcp-sh"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors p-1"
               >
                 <Github className="h-4 w-4" />
               </a>
               <Link to="/dashboard">
-                <Button variant="brand" size="sm">
-                  Open Demo
+                <Button variant="brand" size="sm" className="text-xs md:text-sm">
+                  <span className="hidden sm:inline">Open Demo</span>
+                  <span className="sm:hidden">Demo</span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -543,20 +546,20 @@ function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative border-b border-border py-16 overflow-hidden">
+      <section className="relative border-b border-border py-10 md:py-16 overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-purple-500/5" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-48 md:w-96 h-48 md:h-96 bg-brand/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-48 md:w-96 h-48 md:h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
-        <Container className="px-6 relative">
+        <Container className="px-4 md:px-6 relative">
           <div className="max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Badge variant="secondary" className="mb-4 gap-1">
+              <Badge variant="secondary" className="mb-3 md:mb-4 gap-1 text-xs">
                 <Sparkles className="h-3 w-3" />
                 Kitchen Sink Demo
               </Badge>
@@ -566,7 +569,7 @@ function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl font-bold mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4"
             >
               WebMCP Tools in Action
             </motion.h1>
@@ -575,7 +578,7 @@ function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg text-muted-foreground mb-6"
+              className="text-base md:text-lg text-muted-foreground mb-5 md:mb-6"
             >
               This application demonstrates how to expose website functionality to AI agents using{' '}
               <a href="https://docs.mcp-b.ai/introduction.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">
@@ -588,16 +591,16 @@ function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex gap-3"
+              className="flex flex-col sm:flex-row gap-3"
             >
               <Link to="/dashboard">
-                <Button variant="brand" size="lg">
+                <Button variant="brand" size="lg" className="w-full sm:w-auto">
                   Explore the Demo
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <a href="https://docs.mcp-b.ai/quickstart.md" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="lg">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   Quick Start Guide
                   <ExternalLink className="h-4 w-4" />
                 </Button>
@@ -608,17 +611,17 @@ function HomePage() {
       </section>
 
       {/* What is WebMCP */}
-      <section className="py-12 border-b border-border">
-        <Container className="px-6">
+      <section className="py-8 md:py-12 border-b border-border">
+        <Container className="px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-xl font-semibold mb-4">What is WebMCP?</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4 text-muted-foreground">
+            <h2 className="text-lg md:text-xl font-semibold mb-4">What is WebMCP?</h2>
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              <div className="space-y-3 md:space-y-4 text-sm md:text-base text-muted-foreground">
                 <p>
                   WebMCP enables websites to expose structured tools that AI agents can discover and invoke.
                   Instead of AI navigating UI elements or scraping pages, it calls well-defined functions
@@ -629,12 +632,12 @@ function HomePage() {
                   <a href="https://docs.mcp-b.ai/packages/react-webmcp.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
                     @mcp-b/react-webmcp
                   </a>{' '}
-                  package with the <code className="text-sm bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> hook.
+                  package with the <code className="text-xs md:text-sm bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> hook.
                   Each tool defines its name, description, input schema (using Zod), and handler function.
                 </p>
               </div>
-              <Card className="bg-zinc-950 border-zinc-800">
-                <CardContent className="p-0">
+              <Card className="bg-zinc-950 border-zinc-800 overflow-hidden">
+                <CardContent className="p-0 overflow-x-auto">
                   <HighlightedCode code={`import { useWebMCP } from '@mcp-b/react-webmcp';
 import { z } from 'zod';
 
@@ -657,22 +660,22 @@ useWebMCP({
       </section>
 
       {/* Tools Demonstrated */}
-      <section className="py-12 border-b border-border bg-muted/20">
-        <Container className="px-6">
+      <section className="py-8 md:py-12 border-b border-border bg-muted/20">
+        <Container className="px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Tools Demonstrated</h2>
-              <Badge variant="outline" className="text-xs">
-                Click tools to view code
+            <div className="flex items-center justify-between mb-4 md:mb-6 gap-2">
+              <h2 className="text-lg md:text-xl font-semibold">Tools Demonstrated</h2>
+              <Badge variant="outline" className="text-[10px] md:text-xs whitespace-nowrap">
+                Tap to view code
               </Badge>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               {TOOLS_DEMONSTRATED.map((category, idx) => {
                 const colors = COLOR_CLASSES[category.color]
                 return (
@@ -713,16 +716,16 @@ useWebMCP({
       </section>
 
       {/* Pages in This Demo */}
-      <section className="py-12 border-b border-border">
-        <Container className="px-6">
+      <section className="py-8 md:py-12 border-b border-border">
+        <Container className="px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-xl font-semibold mb-6">Pages in This Demo</h2>
-            <div className="grid md:grid-cols-3 gap-4">
+            <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Pages in This Demo</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {[
                 { path: '/dashboard', icon: Brain, title: 'Dashboard', description: 'Memory overview with stats, charts, and audit logs', color: 'blue' },
                 { path: '/memory-blocks', icon: Brain, title: 'Memory Blocks', description: 'Manage always-in-context memory blocks', color: 'purple' },
@@ -764,16 +767,16 @@ useWebMCP({
       </section>
 
       {/* Documentation Links */}
-      <section className="py-12 border-b border-border bg-muted/20">
-        <Container className="px-6">
+      <section className="py-8 md:py-12 border-b border-border bg-muted/20">
+        <Container className="px-4 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-xl font-semibold mb-6">Learn More</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Learn More</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {[
                 { title: 'Introduction to WebMCP', url: 'https://docs.mcp-b.ai/introduction.md', description: 'What WebMCP is and how it works' },
                 { title: 'Quick Start', url: 'https://docs.mcp-b.ai/quickstart.md', description: 'Add WebMCP to your website in minutes' },
@@ -813,24 +816,24 @@ useWebMCP({
       </section>
 
       {/* Footer */}
-      <footer className="py-6 border-t border-border">
-        <Container className="px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+      <footer className="py-5 md:py-6 border-t border-border">
+        <Container className="px-4 md:px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded bg-brand/10 flex items-center justify-center">
-                <span className="text-brand font-bold text-xs">W</span>
+              <div className="h-5 w-5 md:h-6 md:w-6 rounded bg-brand/10 flex items-center justify-center">
+                <span className="text-brand font-bold text-[10px] md:text-xs">W</span>
               </div>
               <span>WebMCP Kitchen Sink Demo</span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-center">
               <a href="https://docs.mcp-b.ai" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                Documentation
+                Docs
               </a>
               <a href="https://github.com/WebMCP-org/webmcp-sh" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                Source Code
+                Source
               </a>
               <a href="https://www.npmjs.com/package/@mcp-b/react-webmcp" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
-                NPM Package
+                NPM
               </a>
             </div>
           </div>

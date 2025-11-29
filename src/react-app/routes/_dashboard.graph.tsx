@@ -165,43 +165,43 @@ function GraphComponent() {
     <TooltipProvider>
     <div className="w-full h-full bg-slate-950">
       {/* Header */}
-      <div className="border-b border-slate-800 bg-slate-900 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-400" />
-              Knowledge Graph 3D
+      <div className="border-b border-slate-800 bg-slate-900 px-4 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+              <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-blue-400 flex-shrink-0" />
+              <span className="truncate">Knowledge Graph</span>
               <InfoTooltip content={tooltips.pageHeaders.knowledgeGraph} />
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-[10px] md:text-xs text-slate-400 mt-1">
               {nodes3d.length} entities, {links3d.length} relationships
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
             <Button
               variant={viewMode === '3d' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('3d')}
-              className="text-xs"
+              className="text-xs h-8 px-2 md:px-3"
             >
-              <Box className="h-3 w-3 mr-1" />
-              3D View
+              <Box className="h-3 w-3 md:mr-1" />
+              <span className="hidden md:inline">3D</span>
             </Button>
             <Button
               variant={viewMode === '2d' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('2d')}
-              className="text-xs"
+              className="text-xs h-8 px-2 md:px-3"
             >
-              <Network className="h-3 w-3 mr-1" />
-              2D View
+              <Network className="h-3 w-3 md:mr-1" />
+              <span className="hidden md:inline">2D</span>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Graph Container */}
-      <div className="relative" style={{ width: '100%', height: 'calc(100vh - 120px)' }}>
+      {/* Graph Container - Account for mobile header/footer */}
+      <div className="relative w-full h-[calc(100vh-180px)] md:h-[calc(100vh-120px)]">
         {viewMode === '3d' ? (
           <>
             <KG3D
@@ -211,21 +211,23 @@ function GraphComponent() {
               height="100%"
             />
 
-            {/* 3D Controls Legend */}
-            <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-3 text-xs z-10 max-w-xs">
-              <h4 className="font-semibold text-white mb-2">3D Controls</h4>
-              <div className="space-y-1 text-slate-300">
-                <div>🖱️ Left click + drag: Rotate</div>
-                <div>🖱️ Right click + drag: Pan</div>
-                <div>🖱️ Scroll: Zoom</div>
-                <div>👆 Click node: Focus & info</div>
+            {/* 3D Controls Legend - Hidden on small mobile */}
+            <div className="absolute top-2 md:top-4 left-2 md:left-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-2 md:p-3 text-[10px] md:text-xs z-10 max-w-[140px] md:max-w-xs hidden sm:block">
+              <h4 className="font-semibold text-white mb-1.5 md:mb-2 text-xs">Controls</h4>
+              <div className="space-y-0.5 md:space-y-1 text-slate-300">
+                <div className="hidden md:block">🖱️ Left click + drag: Rotate</div>
+                <div className="hidden md:block">🖱️ Right click + drag: Pan</div>
+                <div className="hidden md:block">🖱️ Scroll: Zoom</div>
+                <div className="md:hidden">👆 Drag: Rotate</div>
+                <div className="md:hidden">✌️ Pinch: Zoom</div>
+                <div>👆 Tap node: Focus</div>
               </div>
             </div>
 
-            {/* Category Legend */}
-            <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-3 text-xs z-10">
-              <h4 className="font-semibold text-white mb-2">Categories</h4>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+            {/* Category Legend - Compact on mobile */}
+            <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-2 md:p-3 text-[10px] md:text-xs z-10">
+              <h4 className="font-semibold text-white mb-1.5 md:mb-2 text-xs hidden sm:block">Categories</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-x-2 md:gap-x-3 gap-y-0.5 md:gap-y-1">
                 {[
                   { label: 'Fact', color: '#10b981', key: 'fact' },
                   { label: 'Preference', color: '#3b82f6', key: 'preference' },
@@ -238,9 +240,9 @@ function GraphComponent() {
                 ].map(({ label, color, key }) => (
                   <Tooltip key={label}>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center gap-1.5 cursor-help">
-                        <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: color }} />
-                        <span className="text-slate-200">{label}</span>
+                      <div className="flex items-center gap-1 md:gap-1.5 cursor-help">
+                        <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
+                        <span className="text-slate-200 truncate">{label}</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">
