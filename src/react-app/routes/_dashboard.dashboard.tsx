@@ -14,7 +14,7 @@ import type { AuditLog } from '@/lib/db/types'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { highlightCode } from '@/lib/syntax-highlight'
 
-export const Route = createFileRoute('/_dashboard/')({
+export const Route = createFileRoute('/_dashboard/dashboard')({
   component: DashboardHome,
 })
 
