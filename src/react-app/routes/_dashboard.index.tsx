@@ -10,7 +10,7 @@ import { motion } from "motion/react"
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { InfoTooltip } from '@/components/ui/info-tooltip'
 import { tooltips } from '@/lib/tooltip-content'
-import type { AuditLog } from '@/lib/db/schema'
+import type { AuditLog } from '@/lib/db/types'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { highlightCode } from '@/lib/syntax-highlight'
 
@@ -62,9 +62,6 @@ function DashboardHome() {
   const tierTokensData = tierTokensResult?.rows ?? [];
   const blockTypeTokensData = blockTypeTokensResult?.rows ?? [];
 
-  console.log('Category Tokens Data:', categoryTokensData);
-  console.log('Tier Tokens Data:', tierTokensData);
-  console.log('Block Type Tokens Data:', blockTypeTokensData);
 
   // Calculate total tokens from all sources (handle null/undefined/NaN)
   const totalEntityTokens = categoryTokensData.reduce((sum, item) => {
@@ -106,7 +103,6 @@ function DashboardHome() {
       setTimeout(() => {
         const container = document.querySelector('.audit-log-container') as HTMLDivElement;
         if (container && container.scrollHeight <= container.clientHeight && hasMore) {
-          console.log('[Audit Log] Container not filled, loading more...');
           loadMoreAuditLogs();
         }
       }, 100);
@@ -127,8 +123,8 @@ function DashboardHome() {
             try {
               const oldJson = JSON.stringify(log.old_data, null, 2);
               highlighted.old = await highlightCode(oldJson, 'json');
-            } catch (error) {
-              console.error('Error highlighting old data:', error);
+            } catch {
+              // Highlighting failed, will fall back to plain JSON
             }
           }
 
@@ -136,8 +132,8 @@ function DashboardHome() {
             try {
               const newJson = JSON.stringify(log.new_data, null, 2);
               highlighted.new = await highlightCode(newJson, 'json');
-            } catch (error) {
-              console.error('Error highlighting new data:', error);
+            } catch {
+              // Highlighting failed, will fall back to plain JSON
             }
           }
 
@@ -156,12 +152,10 @@ function DashboardHome() {
   // Function to load more audit logs
   const loadMoreAuditLogs = useCallback(async () => {
     if (isLoading || !hasMore) {
-      console.log('[Audit Log] Skipping load:', { isLoading, hasMore });
       return;
     }
 
     const currentOffset = offsetRef.current;
-    console.log('[Audit Log] Starting to load more...', { offset: currentOffset, PAGE_SIZE });
     setIsLoading(true);
     try {
       // Check if audit_log table exists
@@ -174,18 +168,10 @@ function DashboardHome() {
       `);
 
       if (!tableCheck.rows[0]?.exists) {
-        console.log('[Audit Log] Table does not exist yet');
         setHasMore(false);
         setIsLoading(false);
         return;
       }
-
-      // Get total count for debugging
-      const countResult = await db.query<{ count: number }>(`
-        SELECT COUNT(*) as count FROM audit_log
-      `);
-      const totalCount = Number(countResult.rows[0]?.count || 0);
-      console.log('[Audit Log] Total audit logs in DB:', totalCount);
 
       const result = await db.query<AuditLog>(`
         SELECT
@@ -206,22 +192,13 @@ function DashboardHome() {
 
       const newLogs = result.rows;
 
-      setAuditLogs(prev => {
-        const newTotal = prev.length + newLogs.length;
-        console.log('[Audit Log] Loaded', newLogs.length, 'new items. Previous:', prev.length, 'New total:', newTotal, 'Total in DB:', totalCount);
-        return [...prev, ...newLogs];
-      });
-
+      setAuditLogs(prev => [...prev, ...newLogs]);
       offsetRef.current = currentOffset + newLogs.length;
 
       if (newLogs.length < PAGE_SIZE) {
-        console.log('[Audit Log] Reached end of data (got', newLogs.length, 'expected', PAGE_SIZE, ')');
         setHasMore(false);
-      } else {
-        console.log('[Audit Log] More items available, next offset will be:', offsetRef.current);
       }
-    } catch (error) {
-      console.error('Error loading audit logs:', error);
+    } catch {
       setHasMore(false);
     } finally {
       setIsLoading(false);
@@ -240,7 +217,6 @@ function DashboardHome() {
 
     // Load more when within 200px of the bottom
     if (distanceFromBottom < 200 && !isLoading && hasMore) {
-      console.log('[Audit Log] Loading more items...', { scrollTop, scrollHeight, clientHeight, distanceFromBottom });
       loadMoreAuditLogs();
     }
   }, [isLoading, hasMore, loadMoreAuditLogs]);

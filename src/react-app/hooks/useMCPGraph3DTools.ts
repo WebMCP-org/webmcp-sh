@@ -1,7 +1,28 @@
 import { z } from "zod";
 import { useWebMCP } from "@mcp-b/react-webmcp";
 import { pg_lite } from "@/lib/db";
-import { KG3DApi } from "@/components/graph/KG3D";
+import type { KG3DApi } from "@/components/graph/KG3D";
+import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
+
+/** Entity query result from database */
+interface EntityQueryResult {
+  id: string;
+  name: string;
+  category: string;
+  importance_score: number;
+  description: string | null;
+}
+
+/** Simple entity reference with id and name */
+interface EntityRef {
+  id: string;
+  name: string;
+}
+
+/** Count query result */
+interface CountResult {
+  count: number;
+}
 
 /**
  * MCP tools for 3D graph visualization control
@@ -11,7 +32,7 @@ export function useMCPGraph3DTools() {
   // Get the 3D API from window (set by KG3D component)
   const getApi = (): KG3DApi | null => {
     if (typeof window !== "undefined") {
-      return (window as any).KG3D || null;
+      return window.KG3D ?? null;
     }
     return null;
   };
@@ -59,13 +80,13 @@ Example queries:
         LIMIT 100
       `;
 
-      const { rows } = await pg_lite.query(query);
+      const { rows } = await pg_lite.query<EntityQueryResult>(query);
       if (!rows?.length) return "No entities found matching query";
 
-      const ids = rows.map((r: any) => r.id);
+      const ids = rows.map((r) => r.id);
 
       // Highlight matching nodes
-      api.highlightWhere((n: any) => ids.includes(n.id));
+      api.highlightWhere((n: GraphNode) => ids.includes(n.id));
 
       // Always zoom to show highlighted entities for better visibility
       // Use the zoom parameter to control padding
@@ -75,7 +96,7 @@ Example queries:
       if (emit_particles) {
         setTimeout(() => {
           api.emitParticlesOnPath(
-            (l: any) => ids.includes(l.source?.id || l.source) && ids.includes(l.target?.id || l.target)
+            (l: GraphLink) => ids.includes(l.source) && ids.includes(l.target)
           );
         }, 500);
       }
@@ -85,12 +106,12 @@ Example queries:
         setTimeout(() => api.cameraOrbit(3000), 1500);
       }
 
-      const categories = [...new Set(rows.map((r: any) => r.category))];
+      const categories = [...new Set(rows.map((r) => r.category))];
       return `🌟 Highlighted ${rows.length} entities in 3D:
-${categories.map(cat => `• ${rows.filter((r: any) => r.category === cat).length} ${cat}(s)`).join('\n')}
+${categories.map(cat => `• ${rows.filter((r) => r.category === cat).length} ${cat}(s)`).join('\n')}
 
 Top matches:
-${rows.slice(0, 5).map((e: any) => `• ${e.name} (${e.category})`).join('\n')}
+${rows.slice(0, 5).map((e) => `• ${e.name} (${e.category})`).join('\n')}
 
 ${zoom ? "📹 Camera zoomed to results" : ""}
 ${emit_particles ? "✨ Particle effects active" : ""}
@@ -127,14 +148,14 @@ Creates a dramatic focus effect:
       if (!api) return "3D graph not initialized";
 
       // Find entity
-      const { rows } = await pg_lite.query(
+      const { rows } = await pg_lite.query<EntityQueryResult>(
         `SELECT id, name, category, importance_score FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
         [`%${name}%`]
       );
 
       if (!rows?.length) throw new Error(`Entity "${name}" not found`);
 
-      const entity = rows[0] as any;
+      const entity = rows[0];
       const id = entity.id;
 
       // Focus with camera animation
@@ -149,12 +170,12 @@ Creates a dramatic focus effect:
       if (show_connections) {
         setTimeout(() => {
           api.emitParticlesOnPath(
-            (l: any) => l.source?.id === id || l.target?.id === id || l.source === id || l.target === id
+            (l: GraphLink) => l.source === id || l.target === id
           );
         }, 800);
 
         // Get connection count
-        const { rows: connections } = await pg_lite.query(
+        const { rows: connections } = await pg_lite.query<CountResult>(
           `SELECT COUNT(*) as count FROM entity_relationships WHERE from_entity_id = $1 OR to_entity_id = $1`,
           [id]
         );
@@ -162,7 +183,7 @@ Creates a dramatic focus effect:
         return `🎯 Focused on: ${entity.name}
 Category: ${entity.category}
 Importance: ${entity.importance_score}
-Connections: ${(connections[0] as any).count}
+Connections: ${connections[0].count}
 
 ${pulse ? "💫 Pulsing effect active" : ""}
 ${show_connections ? "✨ Connection particles flowing" : ""}`;
@@ -203,11 +224,11 @@ This creates a movie-like sequence:
       const api = getApi();
       if (!api) return "3D graph not initialized";
 
-      const tour_entities: any[] = [];
+      const tour_entities: EntityRef[] = [];
 
       // Find all entities
       for (const name of entity_names) {
-        const { rows } = await pg_lite.query(
+        const { rows } = await pg_lite.query<EntityRef>(
           `SELECT id, name FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
           [`%${name}%`]
         );
@@ -221,19 +242,17 @@ This creates a movie-like sequence:
       }
 
       // Execute tour
-      tour_entities.forEach((entity: any, index) => {
+      tour_entities.forEach((entity, index) => {
         setTimeout(() => {
           api.focusNode(entity.id, 1000);
           api.pulseNode(entity.id);
 
           // Emit particles to next entity
           if (index < tour_entities.length - 1) {
-            const nextId = (tour_entities[index + 1] as any).id;
+            const nextId = tour_entities[index + 1].id;
             setTimeout(() => {
               api.emitParticlesOnPath(
-                (l: any) =>
-                  (l.source?.id === entity.id && l.target?.id === nextId) ||
-                  (l.target?.id === entity.id && l.source?.id === nextId) ||
+                (l: GraphLink) =>
                   (l.source === entity.id && l.target === nextId) ||
                   (l.target === entity.id && l.source === nextId)
               );
@@ -244,7 +263,7 @@ This creates a movie-like sequence:
 
       return `🎬 Camera tour started!
 Visiting ${tour_entities.length} entities:
-${tour_entities.map((e: any, i) => `${i + 1}. ${e.name}`).join('\n')}
+${tour_entities.map((e, i) => `${i + 1}. ${e.name}`).join('\n')}
 
 Total duration: ${tour_entities.length * duration_per_stop / 1000} seconds`;
     },
@@ -315,20 +334,20 @@ This creates a fireworks-like effect:
       if (!api) return "3D graph not initialized";
 
       // Find high-importance nodes
-      const { rows } = await pg_lite.query(
+      const { rows } = await pg_lite.query<{ id: string }>(
         `SELECT id FROM memory_entities WHERE importance_score >= $1`,
         [min_importance]
       );
 
       if (!rows?.length) return "No nodes meet importance threshold";
 
-      const importantIds = rows.map((r: any) => r.id);
+      const importantIds = rows.map((r) => r.id);
 
       // Emit particles from all edges connected to important nodes
       api.emitParticlesOnPath(
-        (l: any) =>
-          importantIds.includes(l.source?.id || l.source) ||
-          importantIds.includes(l.target?.id || l.target)
+        (l: GraphLink) =>
+          importantIds.includes(l.source) ||
+          importantIds.includes(l.target)
       );
 
       return `🎆 Particle burst!
@@ -390,19 +409,19 @@ This creates a cascading reveal:
       categories.forEach((category, index) => {
         setTimeout(async () => {
           // Highlight this category
-          const { rows } = await pg_lite.query(
+          const { rows } = await pg_lite.query<{ id: string }>(
             `SELECT id FROM memory_entities WHERE category = $1`,
             [category]
           );
 
           if (rows?.length) {
-            const ids = rows.map((r: any) => r.id);
-            api.highlightWhere((n: any) => ids.includes(n.id));
+            const ids = rows.map((r) => r.id);
+            api.highlightWhere((n: GraphNode) => ids.includes(n.id));
 
             // Emit particles
             setTimeout(() => {
               api.emitParticlesOnPath(
-                (l: any) => ids.includes(l.source?.id || l.source) && ids.includes(l.target?.id || l.target)
+                (l: GraphLink) => ids.includes(l.source) && ids.includes(l.target)
               );
             }, 200);
           }

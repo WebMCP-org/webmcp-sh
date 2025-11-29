@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ScrollTextIcon, Bot, User, Trash2, Sparkles, Clock, Copy, Database, CheckCircle2, XCircle, Code2, FileJson } from 'lucide-react'
 import { useLiveQuery } from '@electric-sql/pglite-react'
-import type { SQLExecutionLog } from '@/lib/db/schema'
+import type { SQLExecutionLog } from '@/lib/db/types'
 import { useState, useEffect, useMemo } from 'react'
 import { highlightSQL, formatSQL } from '@/lib/syntax-highlight'
 import { toast } from 'sonner'
@@ -78,8 +78,7 @@ function SQLExecutionLogPage() {
       setFormattedQuery(formatted)
       setIsFormatted(true)
       toast.success('SQL formatted!')
-    } catch (error) {
-      console.error('Failed to format SQL:', error)
+    } catch {
       toast.error('Failed to format SQL')
     } finally {
       setIsFormatting(false)
@@ -94,8 +93,7 @@ function SQLExecutionLogPage() {
       const textToCopy = isFormatted && formattedQuery ? formattedQuery : selectedQuery.query
       await navigator.clipboard.writeText(textToCopy)
       toast.success(`${isFormatted ? 'Formatted' : 'Original'} SQL copied to clipboard!`)
-    } catch (error) {
-      console.error('Failed to copy SQL:', error)
+    } catch {
       toast.error('Failed to copy SQL')
     }
   }
@@ -115,9 +113,8 @@ function SQLExecutionLogPage() {
       setFormattedQuery('')
 
       // Don't format when highlighting - pass false to shouldFormat parameter
-      highlightSQL(selectedQuery.query, false).then(setHighlightedSQL).catch((error) => {
-        console.error('Failed to highlight SQL:', error)
-        setHighlightedSQL(`<pre>${selectedQuery.query}</pre>`)
+      highlightSQL(selectedQuery.query, false).then(setHighlightedSQL).catch(() => {
+        setHighlightedSQL(`<pre>${escapeHtml(selectedQuery.query)}</pre>`)
       })
     } else {
       setHighlightedSQL('')

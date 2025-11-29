@@ -45,7 +45,6 @@ const handleUpdate = async (id: string, field: string, value: string | number) =
       id: loadingToast,
     })
   } catch (error) {
-    console.error('Failed to update memory block:', error)
     toast.error('Failed to update', {
       id: loadingToast,
       description: error instanceof Error ? error.message : 'Please try again.',
@@ -64,7 +63,6 @@ const handleDelete = async (id: string, label: string) => {
       description: `"${label}" has been removed.`,
     })
   } catch (error) {
-    console.error('Failed to delete memory block:', error)
     toast.error('Failed to delete memory block', {
       id: loadingToast,
       description: error instanceof Error ? error.message : 'Please try again.',

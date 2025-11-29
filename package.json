@@ -33,7 +33,7 @@
     "@mcp-b/global": "^1.1.2",
     "@mcp-b/react-webmcp": "^0.1.5",
     "@mcp-b/transports": "^1.1.1",
-    "@modelcontextprotocol/sdk": "^1.19.1",
+    "@modelcontextprotocol/sdk": "^1.23.0",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.7",

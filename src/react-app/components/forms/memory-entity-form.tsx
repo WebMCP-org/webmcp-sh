@@ -66,7 +66,6 @@ export function MemoryEntityForm({ entity, onSuccess, onCancel }: MemoryEntityFo
       }
       onSuccess?.();
     } catch (error) {
-      console.error('Failed to save entity:', error);
       toast.error('Failed to save entity', {
         id: loadingToast,
         description: error instanceof Error ? error.message : 'Please try again.',

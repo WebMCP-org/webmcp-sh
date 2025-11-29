@@ -1,15 +1,39 @@
 import { useWebMCP } from "@mcp-b/react-webmcp";
 import { z } from "zod";
 import { pg_lite } from "@/lib/db";
+import type { KG3DApi } from "@/components/graph/KG3D";
+import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
+
+/** Entity with basic fields */
+interface EntityBasic {
+  id: string;
+  name: string;
+  category: string;
+}
+
+/** Entity with metrics */
+interface EntityWithMetrics extends EntityBasic {
+  importance_score: number;
+  created_at: string;
+  connection_count: number;
+}
+
+/** Entity with connection count */
+interface EntityWithConnections extends EntityBasic {
+  connection_count?: number;
+  connected_categories?: number;
+}
+
+/** Group of entities */
+interface EntityGroup {
+  group: string;
+  entities: EntityBasic[];
+}
 
 export function useMCPGraph3DAdvanced() {
   // Helper to get the 3D graph API
-  const getApi = () => {
-    const api = (window as any).KG3D;
-    if (!api) {
-      console.warn("3D graph not initialized");
-    }
-    return api;
+  const getApi = (): KG3DApi | undefined => {
+    return window.KG3D;
   };
 
   // Tool 1: Advanced Relationship Visualization
@@ -58,26 +82,26 @@ Creates dynamic particle streams that visualize:
       if (to_query) targetWhere = to_query;
 
       // Get entities
-      const { rows: sourceEntities } = await pg_lite.query(
+      const { rows: sourceEntities } = await pg_lite.query<EntityBasic>(
         `SELECT id, name, category FROM memory_entities WHERE ${sourceWhere}`
       );
-      const { rows: targetEntities } = await pg_lite.query(
+      const { rows: targetEntities } = await pg_lite.query<EntityBasic>(
         `SELECT id, name, category FROM memory_entities WHERE ${targetWhere}`
       );
 
-      const sourceIds = sourceEntities.map((e: any) => e.id);
-      const targetIds = targetEntities.map((e: any) => e.id);
+      const sourceIds = sourceEntities.map((e) => e.id);
+      const targetIds = targetEntities.map((e) => e.id);
 
       // Highlight matching entities to show the flow
-      api.highlightWhere((n: any) => {
+      api.highlightWhere((n: GraphNode) => {
         return sourceIds.includes(n.id) || targetIds.includes(n.id);
       });
 
       // Emit particles on paths between source and target
       if (sourceIds.length > 0 && targetIds.length > 0) {
-        api.emitParticlesOnPath((l: any) => {
-          const sourceMatch = sourceIds.includes(l.source?.id || l.source);
-          const targetMatch = targetIds.includes(l.target?.id || l.target);
+        api.emitParticlesOnPath((l: GraphLink) => {
+          const sourceMatch = sourceIds.includes(l.source);
+          const targetMatch = targetIds.includes(l.target);
           return sourceMatch && targetMatch;
         });
       }
@@ -128,7 +152,7 @@ Dynamically adjusts:
       if (!api) return "3D graph not initialized";
 
       // Get all entities with their metrics
-      const { rows: entities } = await pg_lite.query(`
+      const { rows: entities } = await pg_lite.query<EntityWithMetrics>(`
         SELECT
           e.id,
           e.name,
@@ -147,13 +171,13 @@ Dynamically adjusts:
 
       // Highlight nodes based on metrics
       if (color_scheme === "importance_gradient") {
-        const highImportance = entities.filter((e: any) => e.importance_score > 80);
-        const ids = highImportance.map((e: any) => e.id);
-        api.highlightWhere((n: any) => ids.includes(n.id));
+        const highImportance = entities.filter((e) => e.importance_score > 80);
+        const ids = highImportance.map((e) => e.id);
+        api.highlightWhere((n: GraphNode) => ids.includes(n.id));
       } else if (color_scheme === "connection_gradient") {
-        const highConnection = entities.filter((e: any) => e.connection_count > 3);
-        const ids = highConnection.map((e: any) => e.id);
-        api.highlightWhere((n: any) => ids.includes(n.id));
+        const highConnection = entities.filter((e) => e.connection_count > 3);
+        const ids = highConnection.map((e) => e.id);
+        api.highlightWhere((n: GraphNode) => ids.includes(n.id));
       }
 
       // Auto-zoom to show styled entities
@@ -207,7 +231,7 @@ Supports cinematic movements:
       const api = getApi();
       if (!api) return "3D graph not initialized";
 
-      const fg = (api as any).getFg?.() || (window as any).fgRef?.current;
+      const fg = api.getFg?.() || window.fgRef?.current;
       if (!fg) return "ForceGraph instance not available";
 
       let totalDuration = 0;
@@ -218,12 +242,12 @@ Supports cinematic movements:
             case "orbit_around":
               if (step.target) {
                 // Find entity
-                const { rows } = await pg_lite.query(
+                const { rows } = await pg_lite.query<{ id: string; name: string }>(
                   `SELECT id, name FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
                   [`%${step.target}%`]
                 );
                 if (rows.length > 0) {
-                  const entity = rows[0] as any;
+                  const entity = rows[0];
                   // Orbit around entity
                   api.focusNode(entity.id, step.duration / 4);
                   setTimeout(() => api.cameraOrbit(step.duration), 100);
@@ -233,23 +257,23 @@ Supports cinematic movements:
 
             case "fly_to":
               if (step.target) {
-                const { rows } = await pg_lite.query(
+                const { rows } = await pg_lite.query<{ id: string }>(
                   `SELECT id FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
                   [`%${step.target}%`]
                 );
                 if (rows.length > 0) {
-                  api.focusNode((rows[0] as any).id, step.duration);
+                  api.focusNode(rows[0].id, step.duration);
                 }
               }
               break;
 
             case "zoom_to_fit":
               if (step.filter) {
-                const { rows } = await pg_lite.query(
+                const { rows } = await pg_lite.query<{ id: string }>(
                   `SELECT id FROM memory_entities WHERE ${step.filter}`
                 );
-                const ids = rows.map((r: any) => r.id);
-                api.highlightWhere((n: any) => ids.includes(n.id));
+                const ids = rows.map((r) => r.id);
+                api.highlightWhere((n: GraphNode) => ids.includes(n.id));
                 api.zoomToFit(step.duration, 50);
               } else {
                 api.zoomToFit(step.duration, 50);
@@ -354,14 +378,14 @@ Demonstrates thought process by:
 
         if (step.query) {
           // Execute query
-          const { rows } = await pg_lite.query(
+          const { rows } = await pg_lite.query<EntityBasic>(
             `SELECT id, name, category FROM memory_entities WHERE ${step.query}`
           );
 
-          const ids = rows.map((r: any) => r.id);
+          const ids = rows.map((r) => r.id);
 
           // Apply highlighting
-          api.highlightWhere((n: any) => ids.includes(n.id));
+          api.highlightWhere((n: GraphNode) => ids.includes(n.id));
 
           // Auto-zoom to show highlighted entities
           if (ids.length > 0) {
@@ -371,9 +395,8 @@ Demonstrates thought process by:
           // Trace connections if requested
           if (step.trace_connections) {
             setTimeout(() => {
-              api.emitParticlesOnPath((l: any) =>
-                ids.includes(l.source?.id || l.source) ||
-                ids.includes(l.target?.id || l.target)
+              api.emitParticlesOnPath((l: GraphLink) =>
+                ids.includes(l.source) || ids.includes(l.target)
               );
             }, 300);
           }
@@ -381,12 +404,12 @@ Demonstrates thought process by:
           // Particle burst effect
           if (step.particle_burst) {
             // Create burst effect by pulsing nodes
-            ids.forEach((id: string) => api.pulseNode(id));
+            ids.forEach((id) => api.pulseNode(id));
           }
 
           results.push(`Step ${index + 1}: ${step.narration || step.query}
   → Found ${rows.length} entities
-  → Categories: ${[...new Set(rows.map((r: any) => r.category))].join(', ')}`);
+  → Categories: ${[...new Set(rows.map((r) => r.category))].join(', ')}`);
         }
 
         // Wait for step duration
@@ -435,14 +458,14 @@ Creates specialized layouts:
       if (!api) return "3D graph not initialized";
 
       // Get entities for each group
-      const groupEntities: any[] = [];
+      const groupEntities: EntityGroup[] = [];
       for (const group of groups) {
         const isCategory = !group.includes(' ');
         const query = isCategory
           ? `SELECT id, name, category FROM memory_entities WHERE category = '${group}'`
           : `SELECT id, name, category FROM memory_entities WHERE ${group}`;
 
-        const { rows } = await pg_lite.query(query);
+        const { rows } = await pg_lite.query<EntityBasic>(query);
         groupEntities.push({ group, entities: rows });
       }
 
@@ -497,10 +520,10 @@ Creates specialized layouts:
       // Highlight groups sequentially to show layout
       for (let i = 0; i < groupEntities.length; i++) {
         const { entities } = groupEntities[i];
-        const ids = entities.map((e: any) => e.id);
+        const ids = entities.map((e) => e.id);
 
         setTimeout(() => {
-          api.highlightWhere((n: any) => ids.includes(n.id));
+          api.highlightWhere((n: GraphNode) => ids.includes(n.id));
           // Zoom to fit the highlighted group
           api.zoomToFit(800, 100);
         }, i * 1500);
@@ -508,17 +531,17 @@ Creates specialized layouts:
 
       // Show all groups together after sequential display
       setTimeout(() => {
-        const allGroupIds = groupEntities.flatMap(g => g.entities.map((e: any) => e.id));
-        api.highlightWhere((n: any) => allGroupIds.includes(n.id));
+        const allGroupIds = groupEntities.flatMap(g => g.entities.map((e) => e.id));
+        api.highlightWhere((n: GraphNode) => allGroupIds.includes(n.id));
         api.zoomToFit(1000, 80);
       }, groupEntities.length * 1500 + 500);
 
       // Highlight inter-group connections
       if (show_inter_group_flows) {
-        const allGroupIds = groupEntities.flatMap(g => g.entities.map((e: any) => e.id));
-        api.emitParticlesOnPath((l: any) => {
-          const sourceInGroup = allGroupIds.includes(l.source?.id || l.source);
-          const targetInGroup = allGroupIds.includes(l.target?.id || l.target);
+        const allGroupIds = groupEntities.flatMap(g => g.entities.map((e) => e.id));
+        api.emitParticlesOnPath((l: GraphLink) => {
+          const sourceInGroup = allGroupIds.includes(l.source);
+          const targetInGroup = allGroupIds.includes(l.target);
           return sourceInGroup && targetInGroup;
         });
       }
@@ -526,7 +549,7 @@ Creates specialized layouts:
       // Find and highlight bridge entities
       let bridgeCount = 0;
       if (highlight_bridges) {
-        const { rows: bridges } = await pg_lite.query(`
+        const { rows: bridges } = await pg_lite.query<{ id: string; name: string }>(`
           SELECT DISTINCT e.id, e.name
           FROM memory_entities e
           JOIN entity_relationships r1 ON e.id = r1.from_entity_id OR e.id = r1.to_entity_id
@@ -538,9 +561,9 @@ Creates specialized layouts:
         `);
         bridgeCount = bridges.length;
 
-        const bridgeIds = bridges.map((b: any) => b.id);
+        const bridgeIds = bridges.map((b) => b.id);
         setTimeout(() => {
-          bridgeIds.forEach((id: string) => api.pulseNode(id));
+          bridgeIds.forEach((id) => api.pulseNode(id));
         }, 1500);
       }
 
@@ -584,12 +607,12 @@ Identifies:
       const api = getApi();
       if (!api) return "3D graph not initialized";
 
-      let patternNodes: any[] = [];
+      let patternNodes: EntityWithConnections[] = [];
       let description = "";
 
       switch (pattern_type) {
         case "hubs":
-          const { rows: hubs } = await pg_lite.query(`
+          const { rows: hubs } = await pg_lite.query<EntityWithConnections>(`
             SELECT e.id, e.name, e.category, COUNT(DISTINCT r.id) as connection_count
             FROM memory_entities e
             LEFT JOIN entity_relationships r ON e.id = r.from_entity_id OR e.id = r.to_entity_id
@@ -604,7 +627,7 @@ Identifies:
 
         case "clusters":
           // Find densely connected groups using common connections
-          const { rows: clusters } = await pg_lite.query(`
+          const { rows: clusters } = await pg_lite.query<EntityBasic>(`
             WITH entity_pairs AS (
               SELECT DISTINCT
                 LEAST(r1.from_entity_id, r1.to_entity_id) as entity1,
@@ -630,7 +653,7 @@ Identifies:
 
         case "bridges":
           // Find entities that connect different categories
-          const { rows: bridges } = await pg_lite.query(`
+          const { rows: bridges } = await pg_lite.query<EntityWithConnections>(`
             SELECT DISTINCT e.id, e.name, e.category,
               COUNT(DISTINCT e2.category) as connected_categories
             FROM memory_entities e
@@ -647,7 +670,7 @@ Identifies:
           break;
 
         case "isolated":
-          const { rows: isolated } = await pg_lite.query(`
+          const { rows: isolated } = await pg_lite.query<EntityBasic>(`
             SELECT e.id, e.name, e.category
             FROM memory_entities e
             LEFT JOIN entity_relationships r ON e.id = r.from_entity_id OR e.id = r.to_entity_id
@@ -660,7 +683,7 @@ Identifies:
 
         case "chains":
           // Find linear chains (entities with exactly 2 connections)
-          const { rows: chains } = await pg_lite.query(`
+          const { rows: chains } = await pg_lite.query<EntityWithConnections>(`
             SELECT e.id, e.name, e.category, COUNT(DISTINCT r.id) as connection_count
             FROM memory_entities e
             LEFT JOIN entity_relationships r ON e.id = r.from_entity_id OR e.id = r.to_entity_id
@@ -675,7 +698,7 @@ Identifies:
 
       // Animate discovery if requested
       if (animate_discovery && patternNodes.length > 0) {
-        const ids = patternNodes.map((n: any) => n.id);
+        const ids = patternNodes.map((n) => n.id);
 
         // Progressive highlighting
         for (let i = 0; i < Math.min(10, ids.length); i++) {
@@ -686,14 +709,14 @@ Identifies:
 
         // Highlight all after animation
         setTimeout(() => {
-          api.highlightWhere((n: any) => ids.includes(n.id));
+          api.highlightWhere((n: GraphNode) => ids.includes(n.id));
           // Auto-zoom to show pattern
           api.zoomToFit(1000, 80);
         }, Math.min(10, ids.length) * 200);
       } else {
         // Immediate highlighting
-        const ids = patternNodes.map((n: any) => n.id);
-        api.highlightWhere((n: any) => ids.includes(n.id));
+        const ids = patternNodes.map((n) => n.id);
+        api.highlightWhere((n: GraphNode) => ids.includes(n.id));
         // Auto-zoom to show pattern
         setTimeout(() => api.zoomToFit(1000, 80), 100);
       }
@@ -707,7 +730,7 @@ Identifies:
 ${description}
 
 Top patterns:
-${patternNodes.slice(0, 5).map((n: any) =>
+${patternNodes.slice(0, 5).map((n) =>
   `• ${n.name} (${n.category})${n.connection_count ? ` - ${n.connection_count} connections` : ''}`
 ).join('\n')}`;
     },
