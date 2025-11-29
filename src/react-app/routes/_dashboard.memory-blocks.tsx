@@ -84,27 +84,27 @@ function MemoryBlocksComponent() {
     <TooltipProvider>
     <div className="h-full w-full flex flex-col bg-background">
       {/* Compact Header */}
-      <div className="flex-shrink-0 border-b border-divide bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-primary flex items-center gap-2">
-              <Brain className="h-5 w-5 text-brand" />
-              Memory Blocks
+      <div className="flex-shrink-0 border-b border-divide bg-card px-4 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-xl font-bold text-primary flex items-center gap-2">
+              <Brain className="h-4 w-4 md:h-5 md:w-5 text-brand flex-shrink-0" />
+              <span className="truncate">Memory Blocks</span>
               <InfoTooltip content={tooltips.pageHeaders.memoryBlocks} />
             </h1>
-            <p className="text-xs text-muted-foreground mt-1">Always-in-context memory</p>
+            <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Always-in-context memory</p>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 size="sm"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-md hover:shadow-lg transition-all flex-shrink-0 text-xs md:text-sm"
               >
-                <Plus className="h-3 w-3 mr-1" />
-                Create
+                <Plus className="h-3 w-3 md:mr-1" />
+                <span className="hidden md:inline">Create</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
+            <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 mx-2 md:mx-0">
               <DialogHeader className="px-6 pt-6 pb-4 border-b border-divide">
                 <DialogTitle>Create Memory Block</DialogTitle>
                 <DialogDescription>
@@ -185,7 +185,7 @@ function MemoryBlocksComponent() {
       </div>
 
       {/* Data Table Container - Single scroll container */}
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-3 md:p-6">
         <MemoryBlocksDataTable columns={columns} data={blocks} mcpTools={mcpToolsConfig} />
       </div>
     </div>

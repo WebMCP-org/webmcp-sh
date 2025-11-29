@@ -29,12 +29,12 @@ function SQLReplPage() {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="flex-shrink-0 border-b px-6 py-3">
+      <div className="flex-shrink-0 border-b px-4 md:px-6 py-2.5 md:py-3">
         <div className="flex items-center gap-2">
-          <Terminal className="h-5 w-5 text-primary" />
+          <Terminal className="h-4 w-4 md:h-5 md:w-5 text-primary" />
           <div>
-            <h1 className="text-xl font-bold">SQL REPL</h1>
-            <p className="text-xs text-muted-foreground">Interactive PostgreSQL terminal</p>
+            <h1 className="text-lg md:text-xl font-bold">SQL REPL</h1>
+            <p className="text-[10px] md:text-xs text-muted-foreground">PostgreSQL terminal</p>
           </div>
         </div>
       </div>
