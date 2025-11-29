@@ -508,7 +508,7 @@ function HomePage() {
             </Link>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <a
-                href="https://docs.mcp-b.ai/introduction.md"
+                href="https://docs.mcp-b.ai/introduction"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 hidden sm:flex"
@@ -517,7 +517,7 @@ function HomePage() {
                 <span className="hidden md:inline">Docs</span>
               </a>
               <a
-                href="https://docs.mcp-b.ai/packages/react-webmcp.md"
+                href="https://docs.mcp-b.ai/packages/react-webmcp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 hidden md:flex"
@@ -581,7 +581,7 @@ function HomePage() {
               className="text-base md:text-lg text-muted-foreground mb-5 md:mb-6"
             >
               This application demonstrates how to expose website functionality to AI agents using{' '}
-              <a href="https://docs.mcp-b.ai/introduction.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">
+              <a href="https://docs.mcp-b.ai/introduction" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">
                 WebMCP
               </a>
               . Click on any tool below to see its implementation code.
@@ -599,7 +599,7 @@ function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <a href="https://docs.mcp-b.ai/quickstart.md" target="_blank" rel="noopener noreferrer">
+              <a href="https://docs.mcp-b.ai/quickstart" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   Quick Start Guide
                   <ExternalLink className="h-4 w-4" />
@@ -629,7 +629,7 @@ function HomePage() {
                 </p>
                 <p>
                   Tools are registered using the{' '}
-                  <a href="https://docs.mcp-b.ai/packages/react-webmcp.md" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+                  <a href="https://docs.mcp-b.ai/packages/react-webmcp" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
                     @mcp-b/react-webmcp
                   </a>{' '}
                   package with the <code className="text-xs md:text-sm bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> hook.
@@ -778,15 +778,15 @@ useWebMCP({
             <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Learn More</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {[
-                { title: 'Introduction to WebMCP', url: 'https://docs.mcp-b.ai/introduction.md', description: 'What WebMCP is and how it works' },
-                { title: 'Quick Start', url: 'https://docs.mcp-b.ai/quickstart.md', description: 'Add WebMCP to your website in minutes' },
-                { title: 'React Hooks', url: 'https://docs.mcp-b.ai/packages/react-webmcp.md', description: 'useWebMCP hook documentation' },
-                { title: 'Tool Design Patterns', url: 'https://docs.mcp-b.ai/concepts/tool-design.md', description: 'Best practices for designing tools' },
-                { title: 'Security', url: 'https://docs.mcp-b.ai/security.md', description: 'Input validation and safety' },
-                { title: 'Connecting Agents', url: 'https://docs.mcp-b.ai/connecting-agents.md', description: 'How AI agents connect to WebMCP' },
-                { title: 'MCP-B Extension', url: 'https://docs.mcp-b.ai/extension/index.md', description: 'Browser extension for testing' },
-                { title: 'Live Examples', url: 'https://docs.mcp-b.ai/live-tool-examples.md', description: 'Interactive tool demonstrations' },
-                { title: 'Architecture', url: 'https://docs.mcp-b.ai/concepts/architecture.md', description: 'How the pieces fit together' },
+                { title: 'Introduction to WebMCP', url: 'https://docs.mcp-b.ai/introduction', description: 'What WebMCP is and how it works' },
+                { title: 'Quick Start', url: 'https://docs.mcp-b.ai/quickstart', description: 'Add WebMCP to your website in minutes' },
+                { title: 'React Hooks', url: 'https://docs.mcp-b.ai/packages/react-webmcp', description: 'useWebMCP hook documentation' },
+                { title: 'Tool Design Patterns', url: 'https://docs.mcp-b.ai/concepts/tool-design', description: 'Best practices for designing tools' },
+                { title: 'Security', url: 'https://docs.mcp-b.ai/security', description: 'Input validation and safety' },
+                { title: 'Connecting Agents', url: 'https://docs.mcp-b.ai/connecting-agents', description: 'How AI agents connect to WebMCP' },
+                { title: 'MCP-B Extension', url: 'https://docs.mcp-b.ai/extension/index', description: 'Browser extension for testing' },
+                { title: 'Live Examples', url: 'https://docs.mcp-b.ai/live-tool-examples', description: 'Interactive tool demonstrations' },
+                { title: 'Architecture', url: 'https://docs.mcp-b.ai/concepts/architecture', description: 'How the pieces fit together' },
               ].map((link, idx) => (
                 <motion.a
                   key={link.url}
