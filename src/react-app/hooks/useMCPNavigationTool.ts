@@ -366,9 +366,6 @@ The tool will navigate the user to the specified route and return a confirmation
       }
     },
     formatOutput: (output) => output,
-    onError: (error) => {
-      console.error('[Navigation Tool] Navigation failed:', error);
-    },
   });
 
   // Current context tool

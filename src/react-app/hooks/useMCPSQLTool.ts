@@ -326,7 +326,6 @@ ORDER BY cm.created_at DESC;`
   }
 }
 
-
 /**
  * Hook to register SQL MCP tools
  *
@@ -477,8 +476,5 @@ SAFETY:
       }
     },
     formatOutput: (output) => output,
-    onError: (error) => {
-      console.error('[SQL Tool] Query failed:', error);
-    },
   });
 }

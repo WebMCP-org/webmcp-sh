@@ -140,8 +140,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
       const formatted = await formatSQL(value)
       setValue(formatted)
       toast.success('SQL formatted!')
-    } catch (error) {
-      console.error('Failed to format SQL:', error)
+    } catch {
       toast.error('Failed to format SQL')
     }
   }

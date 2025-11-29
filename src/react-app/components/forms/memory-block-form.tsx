@@ -71,7 +71,6 @@ export function MemoryBlockForm({ block, onSuccess, onCancel }: MemoryBlockFormP
       }
       onSuccess?.();
     } catch (error) {
-      console.error('Failed to save memory block:', error);
       toast.error('Failed to save memory block', {
         id: loadingToast,
         description: error instanceof Error ? error.message : 'Please try again.',

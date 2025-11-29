@@ -26,21 +26,13 @@ export function PWAUpdatePrompt() {
     offlineReady: [offlineReady, setOfflineReady],
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(r) {
-      console.log('[PWA] Service Worker registered:', r);
-    },
-    onRegisterError(error) {
-      console.error('[PWA] Service Worker registration error:', error);
-    },
-  });
+  } = useRegisterSW();
 
   const handleUpdate = async () => {
     setIsUpdating(true);
 
     try {
       // Run any pending migrations first
-      console.log('[PWA] Checking for pending migrations...');
       const migrationsRun = await runMigrations();
 
       if (migrationsRun > 0) {
@@ -48,12 +40,10 @@ export function PWAUpdatePrompt() {
       }
 
       // Update the service worker
-      console.log('[PWA] Updating service worker...');
       await updateServiceWorker(true);
 
       toast.success('App updated successfully!');
-    } catch (error) {
-      console.error('[PWA] Update failed:', error);
+    } catch {
       toast.error('Failed to update app. Please refresh manually.');
       setIsUpdating(false);
     }

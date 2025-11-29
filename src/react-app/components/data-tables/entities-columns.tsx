@@ -51,7 +51,6 @@ const handleUpdate = async (id: string, field: string, value: string | number) =
       id: loadingToast,
     })
   } catch (error) {
-    console.error('Failed to update entity:', error)
     toast.error('Failed to update', {
       id: loadingToast,
       description: error instanceof Error ? error.message : 'Please try again.',
@@ -81,7 +80,6 @@ const handleDelete = async (id: string, name: string) => {
       description: `"${name}" has been removed from your knowledge base.`,
     })
   } catch (error) {
-    console.error('Failed to delete entity:', error)
     toast.error('Failed to delete entity', {
       id: loadingToast,
       description: error instanceof Error ? error.message : 'Please try again.',

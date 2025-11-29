@@ -44,7 +44,6 @@ export function MemoryBlocksDataTable<TData extends Record<string, unknown>, TVa
         id: loadingToast,
       })
     } catch (error) {
-      console.error('Failed to update memory block:', error)
       toast.error('Failed to update', {
         id: loadingToast,
         description: error instanceof Error ? error.message : 'Please try again.',

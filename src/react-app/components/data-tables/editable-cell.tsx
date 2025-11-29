@@ -43,8 +43,7 @@ export function EditableCell({
     try {
       await onSave(editValue)
       setIsEditing(false)
-    } catch (error) {
-      console.error("Failed to save:", error)
+    } catch {
       setEditValue(value) // Reset on error
     } finally {
       setIsSaving(false)
@@ -155,8 +154,8 @@ export function EditableSelectCell({
     try {
       await onSave(newValue)
       setIsEditing(false)
-    } catch (error) {
-      console.error("Failed to save:", error)
+    } catch {
+      // Save failed, keep editing
     } finally {
       setIsSaving(false)
     }

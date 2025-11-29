@@ -11,15 +11,13 @@ export async function seedDatabase() {
     let existing_sessions = [];
     try {
       existing_sessions = await db.select().from(schema.conversation_sessions);
-    } catch (error) {
-      console.warn('[DB Seed] Could not query conversation_sessions, tables may not exist yet: ', error);
-      // If we can't query the table, it doesn't exist yet - skip seeding
+    } catch {
+      // Tables don't exist yet - skip seeding
       return;
     }
 
     if (existing_sessions.length > 0) {
-      console.log('[DB Seed] Database already seeded, skipping...');
-      return;
+      return; // Database already seeded
     }
 
     // Verify all required tables exist before seeding
@@ -27,12 +25,10 @@ export async function seedDatabase() {
       await db.select().from(schema.memory_contexts).limit(0);
       await db.select().from(schema.memory_entities).limit(0);
       await db.select().from(schema.entity_contexts).limit(0);
-    } catch (error) {
-      console.warn('[DB Seed] Required tables not ready yet, skipping seed: ', error);
+    } catch {
+      // Required tables not ready yet
       return;
     }
-
-    console.log('[DB Seed] Seeding AI memory system with example data...');
 
     const now = new Date();
     const days_ago = (days: number) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
@@ -1030,18 +1026,7 @@ export async function seedDatabase() {
       },
     ]);
 
-    console.log('[DB Seed] WebMCP memory system seeded successfully! ✅');
-    console.log('[DB Seed] Created educational WebMCP content:');
-    console.log('  - 4 memory blocks (WebMCP overview, AI agent context, learning goals)');
-    console.log('  - 5 memory contexts (WebMCP concepts, MCP protocol, browser tech, AI agents, contributors)');
-    console.log('  - 16 memory entities (WebMCP concepts, technologies, people, use cases)');
-    console.log('  - 19 entity-context mappings');
-    console.log('  - 16 entity relationships (knowledge graph showing WebMCP architecture)');
-    console.log('  - 27 memory triggers (keywords and context triggers for WebMCP)');
-    console.log('  - 8 memory episodes (learning journey about WebMCP)');
-    console.log('  - 3 conversation sessions (WebMCP introduction, tools, comparison)');
-    console.log('  - 10 conversation messages (WebMCP Q&A)');
-    console.log('  - 10 entity mentions (tracking WebMCP concept references)');
+    // Database seeded successfully - educational WebMCP content created
   } catch (error) {
     console.error('[DB Seed] Error seeding database:', error);
     throw error;

@@ -5,11 +5,7 @@ import { pg_lite } from "@/lib/db";
 export function useMCPGraph3DAdvanced() {
   // Helper to get the 3D graph API
   const getApi = () => {
-    const api = (window as any).KG3D;
-    if (!api) {
-      console.warn("3D graph not initialized");
-    }
-    return api;
+    return (window as any).KG3D;
   };
 
   // Tool 1: Advanced Relationship Visualization

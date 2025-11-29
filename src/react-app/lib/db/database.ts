@@ -99,9 +99,8 @@ export const db_utils = {
 
     const auditLogExists = (auditTableCheck.rows[0] as { exists: boolean })?.exists === true;
 
-    // Always update the audit log trigger function to fix the entity_contexts issue
+    // Update the audit log trigger function to handle entity_contexts table
     if (auditLogExists) {
-      console.log('[DB] Updating audit log trigger function to fix entity_contexts...');
       // Drop and recreate the trigger function to fix the entity_contexts issue
       await window.pg_lite.exec(`
         CREATE OR REPLACE FUNCTION audit_trigger_function()
@@ -171,12 +170,9 @@ export const db_utils = {
         END;
         $$ LANGUAGE plpgsql;
       `);
-      console.log('[DB] Audit log trigger function updated');
     } else {
-      console.log('[DB] Running audit log migration...');
       const { addAuditLog } = await import('./migrations/add-audit-log');
       await addAuditLog(window.pg_lite);
-      console.log('[DB] Audit log migration completed');
     }
   },
 
@@ -270,7 +266,6 @@ if (!window.__db_initialized) {
   dbReadyPromise = (async () => {
     await window.pg_lite.waitReady;
     await db_utils.migrate();
-    console.log('[DB] PGlite initialized with IndexedDB persistence');
   })();
 } else {
   // Already initialized, resolve immediately

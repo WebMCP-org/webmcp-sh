@@ -1,6 +1,6 @@
 import '@mcp-b/global';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { TabServerTransport } from "@mcp-b/transports"
+import { TabServerTransport } from "@mcp-b/transports";
 
 export const mcpServer = new McpServer({
   name: 'WebMCP Playground',
@@ -17,19 +17,16 @@ export const mcpServer = new McpServer({
     'notifications/resources/list_changed',
     'notifications/prompts/list_changed'
   ]
-})
+});
 
 mcpServer.registerTool('ping', {
   description: 'A simple ping tool that responds with pong',
 }, () => {
-  return { content: [{ type: 'text', text: 'pong' }] }
-})
-
+  return { content: [{ type: 'text' as const, text: 'pong' }] };
+});
 
 export const transport = new TabServerTransport({
   allowedOrigins: ["*"]
-})
+});
 
-
-
-export default mcpServer
+export default mcpServer;

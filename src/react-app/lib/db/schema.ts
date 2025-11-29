@@ -818,50 +818,30 @@ export const insert_sql_execution_log_schema = createInsertSchema(sql_execution_
 // AuditLog TypeScript type is defined manually above
 
 /**
- * Type inference from Zod schemas - DEPRECATED
- * Use types from './types.ts' instead for single source of truth
+ * Type inference exports - Use types from './types.ts' for single source of truth
+ * These are re-exported for backwards compatibility
  */
-// @ts-expect-error zod issues
-export type InsertMemoryBlock = z.infer<typeof insert_memory_block_schema>;
-// @ts-expect-error zod issues
-export type UpdateMemoryBlock = z.infer<typeof update_memory_block_schema>;
-// @ts-expect-error zod issues
-export type InsertMemoryEntity = z.infer<typeof insert_memory_entity_schema>;
-// @ts-expect-error zod issues
-export type UpdateMemoryEntity = z.infer<typeof update_memory_entity_schema>;
-// @ts-expect-error zod issues
-export type InsertEntityRelationship = z.infer<typeof insert_entity_relationship_schema>;
-// @ts-expect-error zod issues
-export type UpdateEntityRelationship = z.infer<typeof update_entity_relationship_schema>;
-// @ts-expect-error zod issues
-export type InsertConversationSession = z.infer<typeof insert_conversation_session_schema>;
-// @ts-expect-error zod issues
-export type UpdateConversationSession = z.infer<typeof update_conversation_session_schema>;
-// @ts-expect-error zod issues
-export type InsertConversationMessage = z.infer<typeof insert_conversation_message_schema>;
-// @ts-expect-error zod issues
-export type InsertEntityMention = z.infer<typeof insert_entity_mention_schema>;
-// @ts-expect-error zod issues
-export type InsertMemoryEpisode = z.infer<typeof insert_memory_episode_schema>;
-// @ts-expect-error zod issues
-export type UpdateMemoryEpisode = z.infer<typeof update_memory_episode_schema>;
-// @ts-expect-error zod issues
-export type InsertMemoryContext = z.infer<typeof insert_memory_context_schema>;
-// @ts-expect-error zod issues
-export type UpdateMemoryContext = z.infer<typeof update_memory_context_schema>;
-// @ts-expect-error zod issues
-export type InsertEntityContext = z.infer<typeof insert_entity_context_schema>;
-// @ts-expect-error zod issues
-export type InsertMemoryTrigger = z.infer<typeof insert_memory_trigger_schema>;
-// @ts-expect-error zod issues
-export type UpdateMemoryTrigger = z.infer<typeof update_memory_trigger_schema>;
-// @ts-expect-error zod issues
-export type InsertMemoryConsolidation = z.infer<typeof insert_memory_consolidation_schema>;
-// @ts-expect-error zod issues
-export type InsertMemoryConflict = z.infer<typeof insert_memory_conflict_schema>;
-// @ts-expect-error zod issues
-export type UpdateMemoryConflict = z.infer<typeof update_memory_conflict_schema>;
-// @ts-expect-error zod issues
-export type InsertMemoryBudgetLog = z.infer<typeof insert_memory_budget_log_schema>;
-// @ts-expect-error zod issues
-export type InsertSQLExecutionLog = z.infer<typeof insert_sql_execution_log_schema>;
+export type {
+  InsertMemoryBlock,
+  UpdateMemoryBlock,
+  InsertMemoryEntity,
+  UpdateMemoryEntity,
+  InsertEntityRelationship,
+  UpdateEntityRelationship,
+  InsertConversationSession,
+  UpdateConversationSession,
+  InsertConversationMessage,
+  InsertEntityMention,
+  InsertMemoryEpisode,
+  UpdateMemoryEpisode,
+  InsertMemoryContext,
+  UpdateMemoryContext,
+  InsertEntityContext,
+  InsertMemoryTrigger,
+  UpdateMemoryTrigger,
+  InsertMemoryConsolidation,
+  InsertMemoryConflict,
+  UpdateMemoryConflict,
+  InsertMemoryBudgetLog,
+  InsertSQLExecutionLog,
+} from './types';

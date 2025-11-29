@@ -26,8 +26,7 @@ export function ReplResponse({
 
   useEffect(() => {
     if (response.query) {
-      highlightSQL(response.query).then(setHighlightedSQL).catch((error) => {
-        console.error('Failed to highlight SQL:', error)
+      highlightSQL(response.query).then(setHighlightedSQL).catch(() => {
         setHighlightedSQL(`<pre>${response.query}</pre>`)
       })
     }
