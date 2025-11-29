@@ -1,4 +1,4 @@
-import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Link, Outlet, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { Home, Brain, Database, Network, Terminal, ScrollText } from 'lucide-react'
 import { Toaster } from '@/components/ui/sonner'
@@ -34,6 +34,24 @@ function RootComponent() {
   // Register navigation tools at the root level so they're always available
   useMCPNavigationTool();
 
+  // Check if we're on the home page (landing page)
+  const routerState = useRouterState();
+  const isHomePage = routerState.location.pathname === '/';
+
+  // If on the landing page, render without sidebar
+  if (isHomePage) {
+    return (
+      <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
+        <Outlet />
+        <Toaster />
+        <PWAUpdatePrompt />
+        <PWAInstallPrompt />
+        {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
+      </PGliteProvider>
+    );
+  }
+
+  // For all other pages, render with sidebar
   return (
     <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
       <div className="h-screen flex overflow-hidden bg-background">
@@ -54,7 +72,7 @@ function RootComponent() {
           {/* Navigation - More Compact */}
           <nav className="flex flex-col gap-1.5 w-full px-1.5">
             {[
-              { to: '/', icon: Home, title: 'Dashboard' },
+              { to: '/dashboard', icon: Home, title: 'Dashboard' },
               { to: '/memory-blocks', icon: Brain, title: 'Memory Blocks' },
               { to: '/entities', icon: Database, title: 'Entities' },
               { to: '/graph', icon: Network, title: 'Graph' },
