@@ -10,6 +10,22 @@ import { PWAUpdatePrompt } from '@/components/pwa-update-prompt'
 import { PWAInstallPrompt } from '@/components/pwa-install-prompt'
 import { useMCPNavigationTool } from '@/hooks/useMCPNavigationTool'
 
+// JSX type declaration for the webmcp-agent custom element
+declare module 'react' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      'webmcp-agent': {
+        'app-id'?: string
+        'api-base'?: string
+        'token-endpoint'?: string
+        'auto-connect-local'?: boolean
+        children?: React.ReactNode
+      }
+    }
+  }
+}
+
 export const Route = createRootRoute({
   component: RootComponent,
 })
@@ -82,6 +98,12 @@ function RootComponent() {
       {/* PWA Components */}
       <PWAUpdatePrompt />
       <PWAInstallPrompt />
+
+      {/* WebMCP Embedded Agent */}
+      <webmcp-agent
+        app-id="playground-webmcp"
+        api-base="https://webmcp-agent-playground.alexmnahas.workers.dev"
+      />
     </PGliteProvider>
   )
 }

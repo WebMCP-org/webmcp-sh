@@ -6,7 +6,7 @@
 
 All MCP tools have been comprehensively tested and are functioning correctly. The tools provide powerful capabilities for:
 - Navigation and context awareness
-- SQL database queries  
+- SQL database queries
 - Table manipulation and filtering
 - Advanced 3D graph visualization with cinematic effects
 
@@ -35,7 +35,7 @@ Tools tested:
   - Column definitions with types and constraints
   - 7 powerful query patterns (JOINs, CTEs, window functions)
   - Enum values and best practices
-  
+
 - `sql_query` - Registered correctly but requires page load time before MCP-B can detect it
 
 **Database Stats Retrieved**:
@@ -99,21 +99,21 @@ Tools tested on `/graph` page:
   - Particle effects on connected edges
   - Visual highlighting with glow effects
   - Result: Successfully highlighted entities across 11 categories
-  
+
 - ✅ `graph3d_focus_entity` - Focused on "WebMCP" entity:
   - Smooth camera fly-to animation
   - Pulsing effect on focused node
   - Connection particles flowing
   - Shows entity details (category, importance, connection count)
-  
+
 - ✅ `graph3d_explode_view` - Exploded graph visualization:
   - Nodes pushed apart dramatically
   - "Big bang" effect works correctly
-  
+
 - ✅ `graph3d_clear` - Reset view:
   - Successfully cleared all highlights and effects
   - Reset camera to default position
-  
+
 **Advanced Tools Available** (15 total on graph page):
 - `graph3d_focus_entity` - Cinematic camera fly-to ✅ TESTED
 - `graph3d_camera_tour` - Multi-entity tour sequence
