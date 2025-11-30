@@ -127,7 +127,7 @@ function ActionsCell({ block }: { block: MemoryBlock }) {
 
 const getBlockStyle = (blockType: string) => {
   const styles: Record<string, { color: string; bgColor: string }> = {
-    user_profile: { color: 'text-brand', bgColor: 'bg-brand/10' },
+    user_profile: { color: 'text-primary', bgColor: 'bg-primary/10' },
     agent_persona: { color: 'text-chart-2', bgColor: 'bg-chart-2/10' },
     current_goals: { color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
     context: { color: 'text-chart-4', bgColor: 'bg-chart-4/10' },

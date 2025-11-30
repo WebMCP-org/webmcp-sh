@@ -61,9 +61,9 @@ const handleUpdate = async (id: string, field: string, value: string | number) =
 
 const categoryIcons: Record<string, { icon: LucideIcon; color: string; bgColor: string }> = {
   fact: { icon: Lightbulb, color: 'text-chart-5', bgColor: 'bg-chart-5/10' },
-  preference: { icon: Heart, color: 'text-brand', bgColor: 'bg-brand/10' },
+  preference: { icon: Heart, color: 'text-primary', bgColor: 'bg-primary/10' },
   skill: { icon: Code, color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
-  rule: { icon: AlertCircle, color: 'text-brand', bgColor: 'bg-brand/10' },
+  rule: { icon: AlertCircle, color: 'text-primary', bgColor: 'bg-primary/10' },
   context: { icon: BookOpen, color: 'text-chart-2', bgColor: 'bg-chart-2/10' },
   person: { icon: User, color: 'text-chart-4', bgColor: 'bg-chart-4/10' },
   project: { icon: FolderOpen, color: 'text-chart-3', bgColor: 'bg-chart-3/10' },

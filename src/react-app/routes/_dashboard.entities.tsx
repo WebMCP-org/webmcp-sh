@@ -21,9 +21,9 @@ export const Route = createFileRoute('/_dashboard/entities')({
 
 const categoryIcons: Record<string, { icon: LucideIcon; color: string; bgColor: string }> = {
   fact: { icon: Lightbulb, color: 'text-chart-5', bgColor: 'bg-chart-5/10' },
-  preference: { icon: Heart, color: 'text-brand', bgColor: 'bg-brand/10' },
+  preference: { icon: Heart, color: 'text-primary', bgColor: 'bg-primary/10' },
   skill: { icon: Code, color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
-  rule: { icon: AlertCircle, color: 'text-brand', bgColor: 'bg-brand/10' },
+  rule: { icon: AlertCircle, color: 'text-primary', bgColor: 'bg-primary/10' },
   context: { icon: BookOpen, color: 'text-chart-2', bgColor: 'bg-chart-2/10' },
   person: { icon: User, color: 'text-chart-4', bgColor: 'bg-chart-4/10' },
   project: { icon: FolderOpen, color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
@@ -127,7 +127,7 @@ function EntitiesComponent() {
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <h1 className="text-lg md:text-xl font-bold text-primary flex items-center gap-2">
-              <Database className="h-4 w-4 md:h-5 md:w-5 text-brand flex-shrink-0" />
+              <Database className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
               <span className="truncate">Entities</span>
               <InfoTooltip content={tooltips.pageHeaders.entities} />
             </h1>

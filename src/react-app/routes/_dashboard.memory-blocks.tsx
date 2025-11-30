@@ -88,7 +88,7 @@ function MemoryBlocksComponent() {
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <h1 className="text-lg md:text-xl font-bold text-primary flex items-center gap-2">
-              <Brain className="h-4 w-4 md:h-5 md:w-5 text-brand flex-shrink-0" />
+              <Brain className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
               <span className="truncate">Memory Blocks</span>
               <InfoTooltip content={tooltips.pageHeaders.memoryBlocks} />
             </h1>

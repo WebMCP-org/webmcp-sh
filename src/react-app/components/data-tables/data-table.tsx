@@ -226,11 +226,11 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
             Active filters:
           </span>
           {globalFilter && (
-            <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-brand/10 text-brand text-xs">
+            <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary/10 text-primary text-xs">
               <span>Global: {globalFilter}</span>
               <button
                 onClick={() => setGlobalFilter("")}
-                className="hover:bg-brand/20 rounded p-0.5"
+                className="hover:bg-primary/20 rounded p-0.5"
               >
                 <X className="h-3 w-3" />
               </button>

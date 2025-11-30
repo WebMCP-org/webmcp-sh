@@ -19,9 +19,9 @@ export interface EntityNodeData {
 
 const categoryColors = {
   fact: 'bg-chart-5/10 border-chart-5 text-chart-5',
-  preference: 'bg-brand/10 border-brand text-brand',
+  preference: 'bg-primary/10 border-primary text-primary',
   skill: 'bg-chart-3/10 border-chart-3 text-chart-3',
-  rule: 'bg-brand/10 border-brand text-brand',
+  rule: 'bg-primary/10 border-primary text-primary',
   context: 'bg-chart-2/10 border-chart-2 text-chart-2',
   person: 'bg-chart-4/10 border-chart-4 text-chart-4',
   project: 'bg-chart-3/10 border-chart-3 text-chart-3',
@@ -30,9 +30,9 @@ const categoryColors = {
 
 const categoryBorderColors = {
   fact: 'border-chart-5',
-  preference: 'border-brand',
+  preference: 'border-primary',
   skill: 'border-chart-3',
-  rule: 'border-brand',
+  rule: 'border-primary',
   context: 'border-chart-2',
   person: 'border-chart-4',
   project: 'border-chart-3',
@@ -71,8 +71,8 @@ function EntityNode({ data, selected, positionAbsoluteX, positionAbsoluteY }: No
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Connection Handles */}
-      <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-brand" />
-      <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-brand" />
+      <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-primary" />
+      <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-primary" />
 
       {/* Expanded Details Toolbar - Shows on hover or click */}
       <NodeToolbar
@@ -82,11 +82,11 @@ function EntityNode({ data, selected, positionAbsoluteX, positionAbsoluteY }: No
         className="z-50"
       >
         <Card
-          className="shadow-lg border border-brand/20 bg-white overflow-hidden"
+          className="shadow-lg border border-primary/20 bg-card overflow-hidden"
           style={{ width: `${Math.min(importanceWidth * 1.2, 320)}px` }}
         >
           {/* Header - Compact */}
-          <div className="bg-brand/5 border-b border-brand/10 px-2 py-1">
+          <div className="bg-primary/5 border-b border-primary/10 px-2 py-1">
             <div className="flex items-center justify-between gap-1.5">
               <h4 className="text-[11px] font-bold text-primary truncate">{entityData.name}</h4>
               <Badge variant="outline" className={`capitalize text-[9px] font-medium px-1.5 py-0 ${categoryColors[entityData.category]}`}>
@@ -125,7 +125,7 @@ function EntityNode({ data, selected, positionAbsoluteX, positionAbsoluteY }: No
               {entityData.connection_count !== undefined && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Connections:</span>
-                  <span className="font-semibold text-brand">{entityData.connection_count}</span>
+                  <span className="font-semibold text-primary">{entityData.connection_count}</span>
                 </div>
               )}
 
@@ -170,7 +170,7 @@ function EntityNode({ data, selected, positionAbsoluteX, positionAbsoluteY }: No
 
       {/* Node Card - Compact View */}
       <div
-        className={`rounded-lg border-2 bg-white shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer ${categoryBorderColors[entityData.category]} ${selected ? 'ring-2 ring-brand ring-offset-2' : ''}`}
+        className={`rounded-lg border-2 bg-card shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer ${categoryBorderColors[entityData.category]} ${selected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
         style={{ width: `${importanceWidth}px` }}
       >
         {/* Header */}
