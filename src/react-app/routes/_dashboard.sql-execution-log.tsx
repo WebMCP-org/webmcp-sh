@@ -10,7 +10,9 @@ import { highlightSQL, formatSQL } from '@/lib/syntax-highlight'
 import { toast } from 'sonner'
 import JsonView from '@uiw/react-json-view'
 import { githubLightTheme } from '@uiw/react-json-view/githubLight'
+import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
 import { cn } from '@/lib/utils'
+import { useTheme } from '@/components/theme-provider'
 import { useMCPSQLTool } from '@/hooks/useMCPSQLTool'
 
 export const Route = createFileRoute('/_dashboard/sql-execution-log')({
@@ -35,6 +37,10 @@ function SQLExecutionLogPage() {
   const [isFormatting, setIsFormatting] = useState(false)
   const [isFormatted, setIsFormatted] = useState(false)
   const [formattedQuery, setFormattedQuery] = useState<string>('')
+  const { theme } = useTheme()
+
+  // Determine if dark mode is active
+  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   // Register SQL MCP tools for this page
   useMCPSQLTool()
@@ -320,9 +326,9 @@ function SQLExecutionLogPage() {
             </div>
 
             {/* Side by Side Content - SQL and Results */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 p-3 min-h-0 overflow-auto lg:overflow-hidden">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 p-3 min-h-0 overflow-hidden">
               {/* SQL Query Panel */}
-              <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-[200px] lg:min-h-0">
+              <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-0 overflow-hidden">
                 <div className="flex-shrink-0 px-4 py-3 border-b border-border bg-muted/50">
                   <div className="text-sm font-semibold flex items-center gap-2 text-foreground">
                     <Code2 className="h-3.5 w-3.5 text-primary" />
@@ -340,7 +346,7 @@ function SQLExecutionLogPage() {
               </div>
 
               {/* Results Panel */}
-              <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-[200px] lg:min-h-0">
+              <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-0 overflow-hidden">
                 <div className="flex-shrink-0 px-4 py-3 border-b border-border bg-muted/50">
                   <div className="text-sm font-semibold flex items-center gap-2 text-foreground">
                     <FileJson className="h-3.5 w-3.5 text-primary" />
@@ -371,10 +377,10 @@ function SQLExecutionLogPage() {
                         <JsonView
                           value={parsedResultData}
                           style={{
-                            ...githubLightTheme,
+                            ...(isDarkMode ? githubDarkTheme : githubLightTheme),
                             //@ts-expect-error - Custom properties not in type
                             ['--w-rjv-background-color']: 'transparent',
-                            ['--w-rjv-line-color']: '#d0d7de30',
+                            ['--w-rjv-line-color']: isDarkMode ? '#3d444d50' : '#d0d7de30',
                             fontSize: '12px',
                             fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace'
                           }}
