@@ -205,9 +205,15 @@ function Sidebar({
     )
   }
 
+
+  // Desktop sidebar - use inline styles to bypass Tailwind CSS issues in production
+  const isCollapsed = state === "collapsed" && collapsible === "offcanvas"
+  const sidebarWidth = 192 // 12rem in pixels
+
   return (
     <div
-      className="group peer text-sidebar-foreground hidden md:block"
+      style={{ display: "block" }}
+      className="group peer text-sidebar-foreground"
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
       data-variant={variant}
@@ -217,26 +223,29 @@ function Sidebar({
       {/* This is what handles the sidebar gap on desktop */}
       <div
         data-slot="sidebar-gap"
-        className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0",
-          "group-data-[side=right]:rotate-180",
-          variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
-        )}
+        style={{
+          width: isCollapsed ? 0 : sidebarWidth,
+          transition: "width 200ms cubic-bezier(0.4, 0, 0.2, 1)"
+        }}
+        className="relative bg-transparent"
       />
       <div
         data-slot="sidebar-container"
+        style={{
+          display: "flex",
+          position: "fixed",
+          top: 0,
+          bottom: 0,
+          left: side === "left" ? (isCollapsed ? -sidebarWidth : 0) : "auto",
+          right: side === "right" ? (isCollapsed ? -sidebarWidth : 0) : "auto",
+          width: sidebarWidth,
+          height: "100svh",
+          zIndex: 10,
+          padding: variant === "floating" || variant === "inset" ? 8 : 0,
+          transition: "left 200ms cubic-bezier(0.4, 0, 0.2, 1), right 200ms cubic-bezier(0.4, 0, 0.2, 1)"
+        }}
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
-          side === "left"
-            ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-            : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-          // Adjust the padding for floating and inset variants.
-          variant === "floating" || variant === "inset"
-            ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+          variant !== "floating" && variant !== "inset" && (side === "left" ? "border-r" : "border-l"),
           className
         )}
         {...props}
@@ -244,7 +253,16 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%"
+          }}
+          className={cn(
+            "bg-sidebar",
+            variant === "floating" && "border-sidebar-border rounded-lg border shadow-sm"
+          )}
         >
           {children}
         </div>

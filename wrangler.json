@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "webmcp-playground",
   "main": "./src/worker/index.ts",
-  "compatibility_date": "2025-04-01",
+  "compatibility_date": "2025-11-30",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
