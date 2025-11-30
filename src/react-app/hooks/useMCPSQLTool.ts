@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
+import { toast } from 'sonner';
 import { pg_lite } from '@/lib/db';
 import type { Response } from '@/components/CustomRepl';
 import { formatSQL } from '@/lib/syntax-highlight';
@@ -406,6 +407,9 @@ SAFETY:
       const analysis = analyzeQuery(query);
 
       if (analysis.isDangerous) {
+        toast.error('Dangerous query blocked', {
+          description: analysis.reason,
+        });
         throw new Error(`Dangerous query blocked: ${analysis.reason}`);
       }
 
@@ -461,6 +465,12 @@ SAFETY:
           output = `⚠️ ${analysis.reason}\n\n${output}`;
         }
 
+        // Show toast for successful query
+        const rowCount = response.results?.[0]?.rows.length || 0;
+        toast.success('SQL query executed', {
+          description: `${rowCount} row${rowCount !== 1 ? 's' : ''} returned in ${executionTime}ms`,
+        });
+
         return output;
       } catch (error) {
         const executionTime = Math.round(performance.now() - startTime);
@@ -471,6 +481,10 @@ SAFETY:
           INSERT INTO sql_execution_log (query, source, success, error_message, execution_time_ms)
           VALUES ($1, $2, $3, $4, $5)
         `, [query, 'ai', false, errorMessage, executionTime]);  // query is already formatted
+
+        toast.error('SQL query failed', {
+          description: errorMessage,
+        });
 
         throw new Error(`SQL Error: ${errorMessage}\n\nQuery: ${query}`);
       }

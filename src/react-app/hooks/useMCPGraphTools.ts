@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react';
+import { toast } from 'sonner';
 import { pg_lite } from '@/lib/db';
 
 /**
@@ -75,6 +76,7 @@ The graph will highlight matching nodes and optionally zoom to show them.`,
         }>;
 
         if (matchedEntities.length === 0) {
+          toast.info('No entities found matching the query');
           return 'No entities found matching the query.';
         }
 
@@ -126,6 +128,7 @@ The graph will highlight matching nodes and optionally zoom to show them.`,
 
         // Return summary
         const categories = [...new Set(matchedEntities.map(e => e.category))];
+        toast.success(`Graph: Highlighted ${matchedEntities.length} entities`);
         return `Found ${matchedEntities.length} entities:
 ${categories.map(cat => {
   const count = matchedEntities.filter(e => e.category === cat).length;
@@ -141,6 +144,9 @@ ${zoom_to_results ? 'Graph zoomed to show results.' : 'Results highlighted in cu
 
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
+        toast.error('Failed to query graph', {
+          description: errorMsg,
+        });
         throw new Error(`Failed to query graph: ${errorMsg}`);
       }
     },
@@ -189,6 +195,7 @@ This tool:
       `, [`%${entity_name}%`]);
 
       if (entityResult.rows.length === 0) {
+        toast.error(`Entity "${entity_name}" not found in the graph`);
         throw new Error(`Entity "${entity_name}" not found in the graph.`);
       }
 
@@ -311,6 +318,7 @@ ${connections.map(c =>
 ).join('\n')}`;
       }
 
+      toast.success(`Graph: Focused on "${entity.name}"`);
       return `Focused on: ${entity.name}
 Category: ${entity.category}
 Importance: ${entity.importance_score}
@@ -364,6 +372,7 @@ Showing ${connectedIds.size} entities within depth ${connection_depth}${details}
         duration: 500,
       });
 
+      toast.success('Graph highlights cleared');
       return 'Graph highlights cleared and view reset.';
     },
   });

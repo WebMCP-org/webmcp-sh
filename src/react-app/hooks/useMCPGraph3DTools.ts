@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { useWebMCP } from "@mcp-b/react-webmcp";
+import { toast } from "sonner";
 import { pg_lite } from "@/lib/db";
 import type { KG3DApi } from "@/components/graph/KG3D";
 import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
@@ -70,7 +71,10 @@ Example queries:
     },
     handler: async ({ where_clause, zoom, emit_particles, orbit_camera }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       const query = `
         SELECT id, name, category, importance_score, description
@@ -81,7 +85,10 @@ Example queries:
       `;
 
       const { rows } = await pg_lite.query<EntityQueryResult>(query);
-      if (!rows?.length) return "No entities found matching query";
+      if (!rows?.length) {
+        toast.info("No entities found matching query");
+        return "No entities found matching query";
+      }
 
       const ids = rows.map((r) => r.id);
 
@@ -107,6 +114,7 @@ Example queries:
       }
 
       const categories = [...new Set(rows.map((r) => r.category))];
+      toast.success(`3D Graph: Highlighted ${rows.length} entities`);
       return `🌟 Highlighted ${rows.length} entities in 3D:
 ${categories.map(cat => `• ${rows.filter((r) => r.category === cat).length} ${cat}(s)`).join('\n')}
 
@@ -145,7 +153,10 @@ Creates a dramatic focus effect:
     },
     handler: async ({ name, pulse, show_connections }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       // Find entity
       const { rows } = await pg_lite.query<EntityQueryResult>(
@@ -153,7 +164,10 @@ Creates a dramatic focus effect:
         [`%${name}%`]
       );
 
-      if (!rows?.length) throw new Error(`Entity "${name}" not found`);
+      if (!rows?.length) {
+        toast.error(`Entity "${name}" not found`);
+        throw new Error(`Entity "${name}" not found`);
+      }
 
       const entity = rows[0];
       const id = entity.id;
@@ -180,6 +194,7 @@ Creates a dramatic focus effect:
           [id]
         );
 
+        toast.success(`3D Graph: Focused on "${entity.name}"`);
         return `🎯 Focused on: ${entity.name}
 Category: ${entity.category}
 Importance: ${entity.importance_score}
@@ -189,6 +204,7 @@ ${pulse ? "💫 Pulsing effect active" : ""}
 ${show_connections ? "✨ Connection particles flowing" : ""}`;
       }
 
+      toast.success(`3D Graph: Focused on "${entity.name}"`);
       return `🎯 Focused on: ${entity.name}`;
     },
   });
@@ -222,7 +238,10 @@ This creates a movie-like sequence:
     },
     handler: async ({ entity_names, duration_per_stop }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       const tour_entities: EntityRef[] = [];
 
@@ -238,6 +257,7 @@ This creates a movie-like sequence:
       }
 
       if (tour_entities.length < 2) {
+        toast.error("Not enough entities found for tour");
         return "Not enough entities found for tour";
       }
 
@@ -261,6 +281,7 @@ This creates a movie-like sequence:
         }, index * duration_per_stop);
       });
 
+      toast.success(`3D Graph: Camera tour started with ${tour_entities.length} stops`);
       return `🎬 Camera tour started!
 Visiting ${tour_entities.length} entities:
 ${tour_entities.map((e, i) => `${i + 1}. ${e.name}`).join('\n')}
@@ -290,13 +311,18 @@ This creates a "big bang" or "collapse" effect:
     },
     handler: async ({ mode }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       if (mode === "explode") {
         api.explodeView();
+        toast.success("3D Graph: Exploded view");
         return "💥 Graph exploded! Nodes pushed apart for dramatic effect.";
       } else {
         api.contractView();
+        toast.success("3D Graph: Contracted view");
         return "🌀 Graph contracted! Nodes pulled together.";
       }
     },
@@ -331,7 +357,10 @@ This creates a fireworks-like effect:
     },
     handler: async ({ min_importance, particle_count }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       // Find high-importance nodes
       const { rows } = await pg_lite.query<{ id: string }>(
@@ -339,7 +368,10 @@ This creates a fireworks-like effect:
         [min_importance]
       );
 
-      if (!rows?.length) return "No nodes meet importance threshold";
+      if (!rows?.length) {
+        toast.info("No nodes meet importance threshold");
+        return "No nodes meet importance threshold";
+      }
 
       const importantIds = rows.map((r) => r.id);
 
@@ -350,6 +382,7 @@ This creates a fireworks-like effect:
           importantIds.includes(l.target)
       );
 
+      toast.success(`3D Graph: Particle burst from ${rows.length} nodes`);
       return `🎆 Particle burst!
 ${rows.length} high-importance nodes emitting particles
 ${particle_count} particles per edge`;
@@ -369,11 +402,15 @@ ${particle_count} particles per edge`;
     },
     handler: async () => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       api.clear();
       api.zoomToFit(800, 80);
 
+      toast.success("3D Graph: Effects cleared");
       return "🔄 3D graph reset to default view";
     },
   });
@@ -402,7 +439,10 @@ This creates a cascading reveal:
     },
     handler: async ({ duration_per_category }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       const categories = ['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'];
 
@@ -434,6 +474,7 @@ This creates a cascading reveal:
         api.zoomToFit(800, 60);
       }, categories.length * duration_per_category + 500);
 
+      toast.success(`3D Graph: Category wave started`);
       return `🌊 Category wave started!
 Highlighting ${categories.length} categories in sequence
 Total duration: ${categories.length * duration_per_category / 1000} seconds`;

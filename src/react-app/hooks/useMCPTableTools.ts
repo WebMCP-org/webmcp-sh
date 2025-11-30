@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useCallback, useMemo } from 'react';
+import { toast } from 'sonner';
 import type {
   ColumnFiltersState,
   SortingState,
@@ -823,6 +824,24 @@ All operations update the UI in real-time, providing immediate visual feedback t
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: handleOperation,
+    handler: async (input: OperationInput) => {
+      try {
+        const result = await handleOperation(input);
+        // Show toast for successful operations that modify state
+        const modifyingOps = ['filter_column', 'batch_filter', 'clear_filter', 'group_by', 'clear_grouping',
+          'expand_row', 'expand_all', 'sort', 'search', 'clear_search', 'paginate', 'set_page_size',
+          'toggle_column', 'select', 'clear_selection', 'reset'];
+        if (modifyingOps.includes(input.operation) && result && typeof result === 'object' && 'success' in result) {
+          toast.success(`Table: ${(result as { message?: string }).message || input.operation}`);
+        }
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toast.error(`Table operation failed`, {
+          description: errorMessage,
+        });
+        throw error;
+      }
+    },
   });
 }
