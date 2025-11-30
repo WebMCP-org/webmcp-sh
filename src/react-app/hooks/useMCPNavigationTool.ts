@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useRouter } from '@tanstack/react-router';
 import { useMemo } from 'react';
+import { toast } from 'sonner';
 import type { FileRoutesByTo } from '../routeTree.gen';
 
 // Type-safe route paths from the generated route tree
@@ -359,9 +360,13 @@ The tool will navigate the user to the specified route and return a confirmation
           message += `\n  Hash: #${hash}`;
         }
 
+        toast.success(`Navigated to ${to}`);
         return message;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
+        toast.error('Navigation failed', {
+          description: errorMessage,
+        });
         throw new Error(`Navigation failed: ${errorMessage}`);
       }
     },

@@ -1,5 +1,6 @@
 import { useWebMCP } from "@mcp-b/react-webmcp";
 import { z } from "zod";
+import { toast } from "sonner";
 import { pg_lite } from "@/lib/db";
 import type { KG3DApi } from "@/components/graph/KG3D";
 import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
@@ -69,7 +70,10 @@ Creates dynamic particle streams that visualize:
     },
     handler: async ({ from_category, to_category, from_query, to_query, particle_speed, particle_count, color_gradient }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       // Build query for source entities
       let sourceWhere = "1=1";
@@ -111,6 +115,7 @@ Creates dynamic particle streams that visualize:
         api.zoomToFit(1000, 80);
       }, 100);
 
+      toast.success(`3D Graph: Particle flow activated`);
       return `🌊 Particle flow activated:
 Source: ${sourceEntities.length} entities (${from_category || from_query || 'all'})
 Target: ${targetEntities.length} entities (${to_category || to_query || 'all'})
@@ -149,7 +154,10 @@ Dynamically adjusts:
     },
     handler: async ({ size_metric, size_multiplier, color_scheme, opacity_by_importance, apply_geometries }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       // Get all entities with their metrics
       const { rows: entities } = await pg_lite.query<EntityWithMetrics>(`
@@ -185,6 +193,7 @@ Dynamically adjusts:
         api.zoomToFit(1000, 80);
       }, 100);
 
+      toast.success(`3D Graph: Node styling applied`);
       return `🎨 Node styling applied:
 Size metric: ${size_metric} (×${size_multiplier})
 Color scheme: ${color_scheme}
@@ -229,10 +238,16 @@ Supports cinematic movements:
     },
     handler: async ({ sequence, loop }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       const fg = api.getFg?.() || window.fgRef?.current;
-      if (!fg) return "ForceGraph instance not available";
+      if (!fg) {
+        toast.error("ForceGraph instance not available");
+        return "ForceGraph instance not available";
+      }
 
       let totalDuration = 0;
 
@@ -321,6 +336,7 @@ Supports cinematic movements:
 
       executeSequence();
 
+      toast.success(`3D Graph: Camera sequence started`);
       return `🎬 Camera sequence started:
 ${sequence.length} movements
 Total duration: ${totalDuration}ms
@@ -365,7 +381,10 @@ Demonstrates thought process by:
     },
     handler: async ({ reasoning_steps }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       const results: string[] = [];
 
@@ -416,6 +435,7 @@ Demonstrates thought process by:
         await new Promise(resolve => setTimeout(resolve, step.duration));
       }
 
+      toast.success(`3D Graph: Visual reasoning complete`);
       return `🧠 Visual reasoning complete:
 
 ${results.join('\n\n')}
@@ -455,7 +475,10 @@ Creates specialized layouts:
     },
     handler: async ({ groups, arrangement, separation_distance, show_inter_group_flows, highlight_bridges }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       // Get entities for each group
       const groupEntities: EntityGroup[] = [];
@@ -567,6 +590,7 @@ Creates specialized layouts:
         }, 1500);
       }
 
+      toast.success(`3D Graph: Comparative layout applied`);
       return `📊 Comparative layout applied:
 Arrangement: ${arrangement}
 Groups: ${groups.join(', ')}
@@ -605,7 +629,10 @@ Identifies:
     },
     handler: async ({ pattern_type, min_connections, highlight_duration, animate_discovery }) => {
       const api = getApi();
-      if (!api) return "3D graph not initialized";
+      if (!api) {
+        toast.error("3D graph not initialized");
+        return "3D graph not initialized";
+      }
 
       let patternNodes: EntityWithConnections[] = [];
       let description = "";
@@ -726,6 +753,7 @@ Identifies:
         api.clear();
       }, highlight_duration);
 
+      toast.success(`3D Graph: Pattern detection - ${pattern_type}`);
       return `🔍 Pattern detection: ${pattern_type}
 ${description}
 

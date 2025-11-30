@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 interface EditableCellProps {
   value: string | number
@@ -43,8 +44,12 @@ export function EditableCell({
     try {
       await onSave(editValue)
       setIsEditing(false)
-    } catch {
+      toast.success("Value updated successfully")
+    } catch (error) {
       setEditValue(value) // Reset on error
+      toast.error("Failed to update value", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      })
     } finally {
       setIsSaving(false)
     }
@@ -154,8 +159,12 @@ export function EditableSelectCell({
     try {
       await onSave(newValue)
       setIsEditing(false)
-    } catch {
+      toast.success("Value updated successfully")
+    } catch (error) {
       // Save failed, keep editing
+      toast.error("Failed to update value", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      })
     } finally {
       setIsSaving(false)
     }
