@@ -20,7 +20,7 @@ function AboutComponent() {
         <Container className="px-6 py-16 text-center">
           <EnhancedBadge text="Technology Stack" />
           <Heading as="h1" className="mt-4">
-            Built with <span className="text-brand">Modern Tools</span>
+            Built with <span className="text-primary">Modern Tools</span>
           </Heading>
           <SubHeading className="mx-auto mt-4 max-w-2xl">
             A cutting-edge stack featuring TanStack Router, Dexie.js, and the latest web technologies
@@ -42,11 +42,11 @@ function AboutComponent() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-l-4 border-l-brand hover:shadow-xl transition-all duration-300">
+          <Card className="border-l-4 border-l-primary hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-brand/10 flex items-center justify-center">
-                  <Rocket className="h-6 w-6 text-brand" />
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Rocket className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">TanStack Router</CardTitle>
@@ -59,8 +59,8 @@ function AboutComponent() {
                 Type-safe routing with automatic code-splitting
               </p>
               <div className="flex flex-wrap gap-1.5">
-                <Badge variant="secondary" className="text-xs bg-brand/10 text-brand">Type-safe</Badge>
-                <Badge variant="secondary" className="text-xs bg-brand/10 text-brand">Auto-split</Badge>
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Type-safe</Badge>
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Auto-split</Badge>
               </div>
             </CardContent>
           </Card>
@@ -134,11 +134,11 @@ function AboutComponent() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-brand hover:shadow-xl transition-all duration-300">
+          <Card className="border-l-4 border-l-primary hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-brand/10 flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-brand" />
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-lg">TypeScript</CardTitle>
@@ -151,8 +151,8 @@ function AboutComponent() {
                 Full type safety from routes to database
               </p>
               <div className="flex flex-wrap gap-1.5">
-                <Badge variant="secondary" className="text-xs bg-brand/10 text-brand">Type-safe</Badge>
-                <Badge variant="secondary" className="text-xs bg-brand/10 text-brand">v5.8</Badge>
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">Type-safe</Badge>
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">v5.8</Badge>
               </div>
             </CardContent>
           </Card>
@@ -197,9 +197,9 @@ function AboutComponent() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-start gap-4 p-6 bg-card rounded-xl border border hover:border-brand transition-colors">
-              <div className="h-12 w-12 rounded-xl bg-brand/10 flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 className="h-6 w-6 text-brand" />
+            <div className="flex items-start gap-4 p-6 bg-card rounded-xl border border hover:border-primary transition-colors">
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-primary mb-2">Full Type-Safety</h3>
@@ -262,26 +262,26 @@ function AboutComponent() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="border-t-4 border-t-brand">
+          <Card className="border-t-4 border-t-primary">
             <CardHeader>
-              <CardTitle className="text-xl text-brand">Frontend</CardTitle>
+              <CardTitle className="text-xl text-primary">Frontend</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-brand"></div>
+                  <div className="h-2 w-2 rounded-full bg-primary"></div>
                   React 19
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-brand"></div>
+                  <div className="h-2 w-2 rounded-full bg-primary"></div>
                   TanStack Router
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-brand"></div>
+                  <div className="h-2 w-2 rounded-full bg-primary"></div>
                   Tailwind CSS v4
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-brand"></div>
+                  <div className="h-2 w-2 rounded-full bg-primary"></div>
                   ShadCN Components
                 </li>
               </ul>

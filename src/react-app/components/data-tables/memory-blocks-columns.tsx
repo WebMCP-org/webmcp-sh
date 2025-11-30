@@ -94,7 +94,7 @@ function ActionsCell({ block }: { block: MemoryBlock }) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-red-600"
+            className="text-destructive"
             onClick={() => setShowDeleteDialog(true)}
           >
             Delete
@@ -114,7 +114,7 @@ function ActionsCell({ block }: { block: MemoryBlock }) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => handleDelete(block.id, block.label)}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>
@@ -127,7 +127,7 @@ function ActionsCell({ block }: { block: MemoryBlock }) {
 
 const getBlockStyle = (blockType: string) => {
   const styles: Record<string, { color: string; bgColor: string }> = {
-    user_profile: { color: 'text-brand', bgColor: 'bg-brand/10' },
+    user_profile: { color: 'text-primary', bgColor: 'bg-primary/10' },
     agent_persona: { color: 'text-chart-2', bgColor: 'bg-chart-2/10' },
     current_goals: { color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
     context: { color: 'text-chart-4', bgColor: 'bg-chart-4/10' },
@@ -145,7 +145,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
       return (
         <button
           onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer text-gray-600 hover:text-gray-900:text-gray-100"
+          className="cursor-pointer text-muted-foreground hover:text-foreground"
         >
           <ChevronRight
             className={`h-4 w-4 transition-transform ${
@@ -220,7 +220,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
           options={blockTypeOptions}
           onSave={(value) => handleUpdate(block.id, 'block_type', value)}
           displayComponent={
-            <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 whitespace-nowrap">
+            <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground whitespace-nowrap">
               {blockType.replace(/_/g, ' ')}
             </span>
           }
@@ -244,8 +244,8 @@ export const columns: ColumnDef<MemoryBlock>[] = [
             type="textarea"
             onSave={(newValue) => handleUpdate(block.id, 'value', newValue)}
             displayComponent={
-              <div className="bg-gray-50 rounded p-2">
-                <p className="text-xs text-gray-900 leading-relaxed line-clamp-2" title={value}>
+              <div className="bg-muted rounded p-2">
+                <p className="text-xs text-foreground leading-relaxed line-clamp-2" title={value}>
                   {value}
                 </p>
               </div>
@@ -300,23 +300,23 @@ export const columns: ColumnDef<MemoryBlock>[] = [
       return (
         <div className="space-y-1 min-w-[120px]">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-600">
+            <span className="text-muted-foreground">
               {block.value.length}/{block.char_limit}
             </span>
             <span className={`font-medium ${
-              isOverLimit ? 'text-red-600' : isNearLimit ? 'text-orange-600' : 'text-gray-600'
+              isOverLimit ? 'text-destructive' : isNearLimit ? 'text-chart-1' : 'text-muted-foreground'
             }`}>
               {percentage.toFixed(0)}%
             </span>
           </div>
-          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all ${
                 isOverLimit
-                  ? 'bg-red-500'
+                  ? 'bg-destructive'
                   : isNearLimit
-                  ? 'bg-orange-500'
-                  : 'bg-brand'
+                  ? 'bg-chart-1'
+                  : 'bg-primary'
               }`}
               style={{ width: `${percentage}%` }}
             />
@@ -344,7 +344,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
       const isRecent = Date.now() - date.getTime() < 7 * 24 * 60 * 60 * 1000 // Less than 7 days
 
       return (
-        <span className="text-xs text-gray-600 whitespace-nowrap" title={date.toLocaleString()}>
+        <span className="text-xs text-muted-foreground whitespace-nowrap" title={date.toLocaleString()}>
           {isRecent
             ? formatDistanceToNow(date, { addSuffix: true })
             : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })

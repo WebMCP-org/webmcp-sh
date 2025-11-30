@@ -159,7 +159,7 @@ export function MemoryBlockForm({ block, onSuccess, onCancel }: MemoryBlockFormP
                   Content *
                   <InfoTooltip content={tooltips.technical.tokenCost} />
                 </FormLabel>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-muted-foreground">
                   {tokenCount} tokens ({field.value?.length || 0} chars)
                 </span>
               </div>

@@ -549,7 +549,7 @@ function HomePage() {
       <section className="relative border-b border-border py-10 md:py-16 overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-purple-500/5" />
-        <div className="absolute top-0 left-1/4 w-48 md:w-96 h-48 md:h-96 bg-brand/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-48 md:w-96 h-48 md:h-96 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-48 md:w-96 h-48 md:h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
         <Container className="px-4 md:px-6 relative">
@@ -581,7 +581,7 @@ function HomePage() {
               className="text-base md:text-lg text-muted-foreground mb-5 md:mb-6"
             >
               This application demonstrates how to expose website functionality to AI agents using{' '}
-              <a href="https://docs.mcp-b.ai/introduction" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-medium">
+              <a href="https://docs.mcp-b.ai/introduction" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
                 WebMCP
               </a>
               . Click on any tool below to see its implementation code.
@@ -629,7 +629,7 @@ function HomePage() {
                 </p>
                 <p>
                   Tools are registered using the{' '}
-                  <a href="https://docs.mcp-b.ai/packages/react-webmcp" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
+                  <a href="https://docs.mcp-b.ai/packages/react-webmcp" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     @mcp-b/react-webmcp
                   </a>{' '}
                   package with the <code className="text-xs md:text-sm bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> hook.
@@ -799,11 +799,11 @@ useWebMCP({
                   transition={{ duration: 0.2, delay: idx * 0.03 }}
                   className="block group"
                 >
-                  <Card className="h-full hover:border-brand/50 hover:shadow-md transition-all duration-300">
+                  <Card className="h-full hover:border-primary/50 hover:shadow-md transition-all duration-300">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-sm group-hover:text-brand transition-colors">{link.title}</span>
-                        <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-brand transition-colors" />
+                        <span className="font-medium text-sm group-hover:text-primary transition-colors">{link.title}</span>
+                        <ExternalLink className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
                       </div>
                       <p className="text-xs text-muted-foreground">{link.description}</p>
                     </CardContent>
@@ -820,8 +820,8 @@ useWebMCP({
         <Container className="px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="h-5 w-5 md:h-6 md:w-6 rounded bg-brand/10 flex items-center justify-center">
-                <span className="text-brand font-bold text-[10px] md:text-xs">W</span>
+              <div className="h-5 w-5 md:h-6 md:w-6 rounded bg-primary/10 flex items-center justify-center">
+                <span className="text-primary font-bold text-[10px] md:text-xs">W</span>
               </div>
               <span>WebMCP Kitchen Sink Demo</span>
             </div>

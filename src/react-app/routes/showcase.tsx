@@ -21,7 +21,7 @@ function ShowcaseComponent() {
           <EnhancedBadge text="New Design System" />
           <Heading className="mt-4">
             Beautiful UI <br />
-            <span className="text-brand">Components</span>
+            <span className="text-primary">Components</span>
           </Heading>
           <SubHeading className="mx-auto mt-6 max-w-lg">
             Inspired by modern design patterns with smooth animations and elegant styling
@@ -110,7 +110,7 @@ function ShowcaseComponent() {
               <CardTitle>Color Palette</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-3 gap-2">
-              <div className="h-12 rounded-lg bg-brand flex items-center justify-center text-white text-xs">Brand</div>
+              <div className="h-12 rounded-lg bg-primary flex items-center justify-center text-white text-xs">Brand</div>
               <div className="h-12 rounded-lg bg-charcoal-900 flex items-center justify-center text-white text-xs">Charcoal</div>
               <div className="h-12 rounded-lg bg-gray-400 flex items-center justify-center text-black text-xs">Gray</div>
             </CardContent>

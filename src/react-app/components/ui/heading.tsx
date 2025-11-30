@@ -35,7 +35,7 @@ export const SubHeading = ({
   return (
     <p
       className={cn(
-        "text-center text-base text-gray-600 dark:text-gray-300 sm:text-lg",
+        "text-center text-base text-muted-foreground sm:text-lg",
         className
       )}
     >

@@ -11,9 +11,9 @@ export const Route = createFileRoute('/_dashboard/entities/$entityId')({
 
 const categoryIcons: Record<string, { icon: LucideIcon; color: string; bgColor: string }> = {
   fact: { icon: Lightbulb, color: 'text-chart-5', bgColor: 'bg-chart-5/10' },
-  preference: { icon: Heart, color: 'text-brand', bgColor: 'bg-brand/10' },
+  preference: { icon: Heart, color: 'text-primary', bgColor: 'bg-primary/10' },
   skill: { icon: Code, color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
-  rule: { icon: AlertCircle, color: 'text-brand', bgColor: 'bg-brand/10' },
+  rule: { icon: AlertCircle, color: 'text-primary', bgColor: 'bg-primary/10' },
   context: { icon: BookOpen, color: 'text-chart-2', bgColor: 'bg-chart-2/10' },
   person: { icon: User, color: 'text-chart-4', bgColor: 'bg-chart-4/10' },
   project: { icon: FolderOpen, color: 'text-chart-3', bgColor: 'bg-chart-3/10' },
@@ -92,7 +92,7 @@ function EntityDetailComponent() {
           <Card>
             <CardHeader className="pb-2 px-4 pt-3">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-brand" />
+                <TrendingUp className="h-4 w-4 text-primary" />
                 <CardTitle className="text-xs">Importance</CardTitle>
               </div>
             </CardHeader>
@@ -104,7 +104,7 @@ function EntityDetailComponent() {
           <Card>
             <CardHeader className="pb-2 px-4 pt-3">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-brand" />
+                <Calendar className="h-4 w-4 text-primary" />
                 <CardTitle className="text-xs">Mentions</CardTitle>
               </div>
             </CardHeader>
@@ -140,7 +140,7 @@ function EntityDetailComponent() {
           <Card>
             <CardHeader className="pb-2 px-4 pt-3">
               <div className="flex items-center gap-2">
-                <Network className="h-4 w-4 text-brand" />
+                <Network className="h-4 w-4 text-primary" />
                 <CardTitle className="text-sm">Relationships ({relationships.length})</CardTitle>
               </div>
             </CardHeader>
