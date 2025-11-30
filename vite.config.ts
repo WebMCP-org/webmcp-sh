@@ -104,7 +104,7 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,wasm,data}'],
         // Exclude virtual/injected files from precaching to avoid 404 errors
-        globIgnores: ['**/registerSW.js'],
+        // globIgnores: ['**/registerSW.js'],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
         runtimeCaching: [
           {
