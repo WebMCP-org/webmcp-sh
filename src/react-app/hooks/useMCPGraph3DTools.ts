@@ -318,12 +318,16 @@ This creates a "big bang" or "collapse" effect:
 
       if (mode === "explode") {
         api.explodeView();
+        // Zoom out to show the expanded graph after explosion settles
+        setTimeout(() => api.zoomToFit(1200, 120), 500);
         toast.success("3D Graph: Exploded view");
-        return "💥 Graph exploded! Nodes pushed apart for dramatic effect.";
+        return "💥 Graph exploded! Nodes pushed apart for dramatic effect.\n📹 Camera zooming out to show expansion";
       } else {
         api.contractView();
+        // Zoom in to show the contracted graph after it settles
+        setTimeout(() => api.zoomToFit(1200, 60), 500);
         toast.success("3D Graph: Contracted view");
-        return "🌀 Graph contracted! Nodes pulled together.";
+        return "🌀 Graph contracted! Nodes pulled together.\n📹 Camera zooming in to show contraction";
       }
     },
   });
@@ -375,17 +379,27 @@ This creates a fireworks-like effect:
 
       const importantIds = rows.map((r) => r.id);
 
+      // Highlight and pulse important nodes so user can see which ones are bursting
+      api.highlightWhere((n: GraphNode) => importantIds.includes(n.id));
+      importantIds.slice(0, 5).forEach((id) => api.pulseNode(id));
+
+      // Zoom camera to show the important nodes
+      setTimeout(() => api.zoomToFit(1000, 80), 100);
+
       // Emit particles from all edges connected to important nodes
-      api.emitParticlesOnPath(
-        (l: GraphLink) =>
-          importantIds.includes(l.source) ||
-          importantIds.includes(l.target)
-      );
+      setTimeout(() => {
+        api.emitParticlesOnPath(
+          (l: GraphLink) =>
+            importantIds.includes(l.source) ||
+            importantIds.includes(l.target)
+        );
+      }, 300);
 
       toast.success(`3D Graph: Particle burst from ${rows.length} nodes`);
       return `🎆 Particle burst!
 ${rows.length} high-importance nodes emitting particles
-${particle_count} particles per edge`;
+${particle_count} particles per edge
+📹 Camera focused on important nodes`;
     },
   });
 
@@ -458,17 +472,23 @@ This creates a cascading reveal:
             const ids = rows.map((r) => r.id);
             api.highlightWhere((n: GraphNode) => ids.includes(n.id));
 
+            // Zoom camera to focus on this category's nodes
+            setTimeout(() => api.zoomToFit(600, 80), 50);
+
             // Emit particles
             setTimeout(() => {
               api.emitParticlesOnPath(
                 (l: GraphLink) => ids.includes(l.source) && ids.includes(l.target)
               );
             }, 200);
+
+            // Pulse the first few nodes for emphasis
+            ids.slice(0, 3).forEach((id) => api.pulseNode(id));
           }
         }, index * duration_per_category);
       });
 
-      // Clear at the end
+      // Clear at the end and zoom out to show entire graph
       setTimeout(() => {
         api.clear();
         api.zoomToFit(800, 60);
@@ -477,6 +497,7 @@ This creates a cascading reveal:
       toast.success(`3D Graph: Category wave started`);
       return `🌊 Category wave started!
 Highlighting ${categories.length} categories in sequence
+📹 Camera follows each category
 Total duration: ${categories.length * duration_per_category / 1000} seconds`;
     },
   });
