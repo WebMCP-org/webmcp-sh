@@ -10,6 +10,13 @@ import {
   IconHelp,
   IconSun,
   IconMoon,
+  IconBook,
+  IconCode,
+  IconRocket,
+  IconBrandGithub,
+  IconMail,
+  IconExternalLink,
+  IconDots,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -25,6 +32,14 @@ import {
   SidebarGroup,
   SidebarGroupContent,
 } from "@/components/ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/components/theme-provider"
 
 const data = {
@@ -117,6 +132,58 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Resources & Docs Dropdown */}
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuButton className="cursor-pointer">
+                      <IconDots className="h-4 w-4" />
+                      <span>Resources</span>
+                    </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="top" align="start" className="w-56">
+                    <DropdownMenuLabel>Documentation</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <a href="https://docs.mcp-b.ai/introduction" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer">
+                        <IconBook className="h-4 w-4" />
+                        <span>Introduction</span>
+                        <IconExternalLink className="h-3 w-3 ml-auto text-muted-foreground" />
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href="https://docs.mcp-b.ai/quickstart" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer">
+                        <IconRocket className="h-4 w-4" />
+                        <span>Quick Start</span>
+                        <IconExternalLink className="h-3 w-3 ml-auto text-muted-foreground" />
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href="https://docs.mcp-b.ai/packages/react-webmcp" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer">
+                        <IconCode className="h-4 w-4" />
+                        <span>React Hooks</span>
+                        <IconExternalLink className="h-3 w-3 ml-auto text-muted-foreground" />
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Connect</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <a href="https://github.com/WebMCP-org/webmcp-sh" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer">
+                        <IconBrandGithub className="h-4 w-4" />
+                        <span>GitHub</span>
+                        <IconExternalLink className="h-3 w-3 ml-auto text-muted-foreground" />
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href="mailto:alex@mcp-b.ai" className="flex items-center gap-2 cursor-pointer">
+                        <IconMail className="h-4 w-4" />
+                        <span>Contact Us</span>
+                        <span className="ml-auto text-xs text-muted-foreground">alex@mcp-b.ai</span>
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+              {/* Theme Toggle */}
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={toggleTheme}>
                   {theme === "dark" ? (

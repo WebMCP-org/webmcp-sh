@@ -22,6 +22,8 @@ import {
   ChevronRight,
   Sparkles,
   X,
+  Command,
+  Keyboard,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/')({
@@ -605,6 +607,36 @@ function HomePage() {
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               </a>
+            </motion.div>
+
+            {/* Keyboard shortcut hint */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-6 md:mt-8"
+            >
+              <div className="inline-flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 border border-primary/20">
+                <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/20">
+                  <Keyboard className="h-4 w-4 text-primary" />
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Try the embedded WebMCP agent: </span>
+                  <span className="inline-flex items-center gap-1 ml-1">
+                    <kbd className="px-2 py-0.5 rounded bg-background border border-border text-xs font-mono font-medium">
+                      <span className="hidden sm:inline">⌘</span>
+                      <span className="sm:hidden">Cmd</span>
+                    </kbd>
+                    <span className="text-muted-foreground">+</span>
+                    <kbd className="px-2 py-0.5 rounded bg-background border border-border text-xs font-mono font-medium">⇧</kbd>
+                    <span className="text-muted-foreground">+</span>
+                    <kbd className="px-2 py-0.5 rounded bg-background border border-border text-xs font-mono font-medium">K</kbd>
+                  </span>
+                  <span className="text-muted-foreground hidden md:inline ml-2">
+                    (or <kbd className="px-1.5 py-0.5 rounded bg-background border border-border text-xs font-mono">Ctrl</kbd>+<kbd className="px-1.5 py-0.5 rounded bg-background border border-border text-xs font-mono">⇧</kbd>+<kbd className="px-1.5 py-0.5 rounded bg-background border border-border text-xs font-mono">K</kbd> on Windows/Linux)
+                  </span>
+                </div>
+              </div>
             </motion.div>
           </div>
         </Container>
