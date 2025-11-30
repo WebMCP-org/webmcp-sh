@@ -12,23 +12,6 @@ import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { ThemeProvider } from '@/components/theme-provider'
 
-// JSX type declaration for the webmcp-agent custom element
-declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      'webmcp-agent': {
-        'app-id'?: string
-        'api-base'?: string
-        'token-endpoint'?: string
-        'auto-connect-local'?: boolean
-        'view-mode'?: 'pill' | 'modal'
-        children?: React.ReactNode
-      }
-    }
-  }
-}
-
 export const Route = createRootRoute({
   component: RootComponent,
 })
@@ -83,13 +66,6 @@ function RootComponent() {
         {/* PWA Components */}
         <PWAUpdatePrompt />
         <PWAInstallPrompt />
-
-        {/* WebMCP Embedded Agent */}
-        <webmcp-agent
-          app-id="playground-webmcp"
-          api-base="https://webmcp-agent-playground.alexmnahas.workers.dev"
-          view-mode="pill"
-        />
 
         {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
       </PGliteProvider>
