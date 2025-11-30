@@ -22,7 +22,6 @@ import {
   ChevronRight,
   Sparkles,
   X,
-  Command,
   Keyboard,
 } from 'lucide-react'
 

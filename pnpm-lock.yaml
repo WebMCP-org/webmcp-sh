@@ -51,8 +51,8 @@ importers:
         specifier: npm:@jsr/makisuo__pglite-drizzle@^0.0.14
         version: '@jsr/makisuo__pglite-drizzle@0.0.14(@cloudflare/workers-types@4.20251128.0)(@opentelemetry/api@1.9.0)(@types/react@19.2.2)(react@19.2.0)'
       '@mcp-b/embedded-agent':
-        specifier: ^0.0.3
-        version: 0.0.3(@cfworker/json-schema@4.1.1)(@cloudflare/workers-types@4.20251128.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.8.3)(use-sync-external-store@1.6.0(react@19.2.0))(zod@3.25.76)
+        specifier: ^0.0.4
+        version: 0.0.4(@cfworker/json-schema@4.1.1)(@cloudflare/workers-types@4.20251128.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.8.3)(use-sync-external-store@1.6.0(react@19.2.0))(zod@3.25.76)
       '@mcp-b/global':
         specifier: ^1.1.2
         version: 1.1.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
@@ -2066,8 +2066,8 @@ packages:
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
-  '@mcp-b/embedded-agent@0.0.3':
-    resolution: {integrity: sha512-KRnjpl9XpabEsfhQTTdgGBSF5Ww5QpeJU6Bg4CabgUK8Rtk6y9Z1kZj0ufXsFeOCNtTDoapp7CZV//TcY+X3lg==}
+  '@mcp-b/embedded-agent@0.0.4':
+    resolution: {integrity: sha512-OPZtsFlIgVJ7Y1Kaz7Ipu22uakOcqN6Q5ookOTxRuBYIKHiWKebh4cDtCkNhRUfogA5ZAg3248pypLecbUbpcA==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -8803,7 +8803,7 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@mcp-b/embedded-agent@0.0.3(@cfworker/json-schema@4.1.1)(@cloudflare/workers-types@4.20251128.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.8.3)(use-sync-external-store@1.6.0(react@19.2.0))(zod@3.25.76)':
+  '@mcp-b/embedded-agent@0.0.4(@cfworker/json-schema@4.1.1)(@cloudflare/workers-types@4.20251128.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.8.3)(use-sync-external-store@1.6.0(react@19.2.0))(zod@3.25.76)':
     dependencies:
       '@assistant-ui/react': 0.11.47(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
       '@assistant-ui/react-ai-sdk': 1.1.16(@assistant-ui/react@0.11.47(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0)))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
