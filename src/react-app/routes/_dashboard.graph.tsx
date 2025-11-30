@@ -163,17 +163,17 @@ function GraphComponent() {
 
   return (
     <TooltipProvider>
-    <div className="w-full h-full min-w-0 bg-slate-950">
+    <div className="w-full h-full min-w-0 bg-background dark:bg-slate-950">
       {/* Header */}
-      <div className="border-b border-slate-800 bg-slate-900 px-4 md:px-6 py-3 md:py-4">
+      <div className="border-b border-border bg-card px-4 md:px-6 py-3 md:py-4">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <h1 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-blue-400 flex-shrink-0" />
+            <h1 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
+              <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
               <span className="truncate">Knowledge Graph</span>
               <InfoTooltip content={tooltips.pageHeaders.knowledgeGraph} />
             </h1>
-            <p className="text-[10px] md:text-xs text-slate-400 mt-1">
+            <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
               {nodes3d.length} entities, {links3d.length} relationships
             </p>
           </div>
@@ -212,9 +212,9 @@ function GraphComponent() {
             />
 
             {/* 3D Controls Legend - Hidden on small mobile */}
-            <div className="absolute top-2 md:top-4 left-2 md:left-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-2 md:p-3 text-[10px] md:text-xs z-10 max-w-[140px] md:max-w-xs hidden sm:block">
-              <h4 className="font-semibold text-white mb-1.5 md:mb-2 text-xs">Controls</h4>
-              <div className="space-y-0.5 md:space-y-1 text-slate-300">
+            <div className="absolute top-2 md:top-4 left-2 md:left-4 bg-card/95 backdrop-blur-sm rounded-lg shadow-xl border border-border p-2 md:p-3 text-[10px] md:text-xs z-10 max-w-[140px] md:max-w-xs hidden sm:block">
+              <h4 className="font-semibold text-foreground mb-1.5 md:mb-2 text-xs">Controls</h4>
+              <div className="space-y-0.5 md:space-y-1 text-muted-foreground">
                 <div className="hidden md:block">🖱️ Left click + drag: Rotate</div>
                 <div className="hidden md:block">🖱️ Right click + drag: Pan</div>
                 <div className="hidden md:block">🖱️ Scroll: Zoom</div>
@@ -225,8 +225,8 @@ function GraphComponent() {
             </div>
 
             {/* Category Legend - Compact on mobile */}
-            <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg shadow-xl border border-slate-700 p-2 md:p-3 text-[10px] md:text-xs z-10">
-              <h4 className="font-semibold text-white mb-1.5 md:mb-2 text-xs hidden sm:block">Categories</h4>
+            <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-card/95 backdrop-blur-sm rounded-lg shadow-xl border border-border p-2 md:p-3 text-[10px] md:text-xs z-10">
+              <h4 className="font-semibold text-foreground mb-1.5 md:mb-2 text-xs hidden sm:block">Categories</h4>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-x-2 md:gap-x-3 gap-y-0.5 md:gap-y-1">
                 {[
                   { label: 'Fact', color: '#10b981', key: 'fact' },
@@ -242,7 +242,7 @@ function GraphComponent() {
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-1 md:gap-1.5 cursor-help">
                         <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
-                        <span className="text-slate-200 truncate">{label}</span>
+                        <span className="text-foreground truncate">{label}</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">

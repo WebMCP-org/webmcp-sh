@@ -230,8 +230,8 @@ function EntitiesComponent() {
             onClick={() => setSelectedCategory('all')}
             className={`px-2 md:px-3 py-1 md:py-1.5 rounded-md text-[10px] md:text-xs font-medium transition-all duration-150 whitespace-nowrap ${
               selectedCategory === 'all'
-                ? 'bg-blue-100 text-blue-700 border border-blue-300 shadow-sm'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent'
+                ? 'bg-primary/10 text-primary border border-primary/30 shadow-sm'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent'
             }`}
           >
             All ({totalCount})
@@ -245,8 +245,8 @@ function EntitiesComponent() {
                     onClick={() => setSelectedCategory(category)}
                     className={`px-2 md:px-3 py-1 md:py-1.5 rounded-md text-[10px] md:text-xs font-medium transition-all duration-150 flex items-center gap-1 md:gap-1.5 whitespace-nowrap ${
                       selectedCategory === category
-                        ? 'bg-blue-100 text-blue-700 border border-blue-300 shadow-sm'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent'
+                        ? 'bg-primary/10 text-primary border border-primary/30 shadow-sm'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent'
                     }`}
                   >
                     <Icon className="h-3 w-3 md:h-3.5 md:w-3.5" />
