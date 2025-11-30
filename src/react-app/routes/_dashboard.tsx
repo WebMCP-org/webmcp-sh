@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_dashboard')({
 
 function DashboardLayout() {
   return (
-    <div className="h-full w-full overflow-hidden">
+    <div className="h-full w-full min-w-0 overflow-hidden">
       <Outlet />
     </div>
   )

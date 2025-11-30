@@ -27,7 +27,7 @@ function SQLReplPage() {
   }, [])
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full min-w-0 bg-background">
       {/* Header */}
       <div className="flex-shrink-0 border-b px-4 md:px-6 py-2.5 md:py-3">
         <div className="flex items-center gap-2">
