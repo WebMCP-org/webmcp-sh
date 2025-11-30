@@ -10,6 +10,7 @@ import { useMCPNavigationTool } from '@/hooks/useMCPNavigationTool'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { ThemeProvider } from '@/components/theme-provider'
 
 // JSX type declaration for the webmcp-agent custom element
 declare module 'react' {
@@ -43,50 +44,55 @@ function RootComponent() {
   // If on the landing page, render without sidebar
   if (isHomePage) {
     return (
-      <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
-        <Outlet />
-        <Toaster />
-        <PWAUpdatePrompt />
-        <PWAInstallPrompt />
-        {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
-      </PGliteProvider>
+      <ThemeProvider defaultTheme="system" storageKey="webmcp-ui-theme">
+        <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
+          <Outlet />
+          <Toaster />
+          <PWAUpdatePrompt />
+          <PWAInstallPrompt />
+          {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
+        </PGliteProvider>
+      </ThemeProvider>
     );
   }
 
   // For all other pages, render with new dashboard sidebar layout
   return (
-    <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
-        <AppSidebar variant="inset" />
-        <SidebarInset>
-          <SiteHeader />
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <Outlet />
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+    <ThemeProvider defaultTheme="system" storageKey="webmcp-ui-theme">
+      <PGliteProvider db={pg_lite as unknown as PGliteWithLive}>
+        <SidebarProvider
+          style={
+            {
+              "--sidebar-width": "calc(var(--spacing) * 72)",
+              "--header-height": "calc(var(--spacing) * 12)",
+            } as React.CSSProperties
+          }
+        >
+          <AppSidebar variant="inset" />
+          <SidebarInset>
+            <SiteHeader />
+            <div className="flex flex-1 flex-col overflow-hidden">
+              <Outlet />
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
 
-      {/* Toast Notifications */}
-      <Toaster />
+        {/* Toast Notifications */}
+        <Toaster />
 
-      {/* PWA Components */}
-      <PWAUpdatePrompt />
-      <PWAInstallPrompt />
+        {/* PWA Components */}
+        <PWAUpdatePrompt />
+        <PWAInstallPrompt />
 
-      <webmcp-agent
-        app-id="playground-webmcp"
-        api-base="https://webmcp-agent-playground.alexmnahas.workers.dev"
-        view-mode="pill"
-      />
+        {/* WebMCP Embedded Agent */}
+        <webmcp-agent
+          app-id="playground-webmcp"
+          api-base="https://webmcp-agent-playground.alexmnahas.workers.dev"
+          view-mode="pill"
+        />
 
-      {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
-    </PGliteProvider>
+        {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
+      </PGliteProvider>
+    </ThemeProvider>
   )
 }
