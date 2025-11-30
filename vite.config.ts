@@ -102,58 +102,14 @@ export default defineConfig({
         clientsClaim: true,
         skipWaiting: true,
         cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,wasm,data}'],
-        // Exclude virtual/injected files from precaching to avoid 404 errors
-        // globIgnores: ['**/registerSW.js'],
+        // Only cache WASM and data files (PGLite) - let JS/CSS/HTML come fresh from network
+        globPatterns: ['**/*.{wasm,data}'],
+        navigateFallback: undefined,
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/unpkg\.com\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'unpkg-cache',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              },
-              networkTimeoutSeconds: 10
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
+        runtimeCaching: []
       },
       devOptions: {
-        enabled: true
+        enabled: false
       }
     })
   ],
