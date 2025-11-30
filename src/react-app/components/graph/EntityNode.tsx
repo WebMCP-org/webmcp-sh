@@ -157,7 +157,7 @@ function EntityNode({ data, selected, positionAbsoluteX, positionAbsoluteY }: No
                 {entityData.tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="px-1.5 py-0.5 rounded-sm text-[8px] font-medium bg-gray-100 text-gray-600 border border-gray-200"
+                    className="px-1.5 py-0.5 rounded-sm text-[8px] font-medium bg-muted text-muted-foreground border border-border"
                   >
                     {tag}
                   </span>
@@ -187,20 +187,20 @@ function EntityNode({ data, selected, positionAbsoluteX, positionAbsoluteY }: No
 
         {/* Description */}
         <div className="px-3 py-2">
-          <p className="text-xs text-gray-600 line-clamp-2">
+          <p className="text-xs text-muted-foreground line-clamp-2">
             {entityData.description}
           </p>
         </div>
 
         {/* Footer Stats */}
-        <div className="px-3 py-1.5 bg-gray-50 rounded-b-lg border-t border-divide">
+        <div className="px-3 py-1.5 bg-muted rounded-b-lg border-t border-border">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500">
+            <span className="text-muted-foreground">
               Importance: <span className="font-semibold text-primary">{entityData.importance_score}</span>
             </span>
             {entityData.connection_count !== undefined && (
-              <span className="text-gray-500">
-                <span className="font-semibold text-brand">{entityData.connection_count}</span> connections
+              <span className="text-muted-foreground">
+                <span className="font-semibold text-primary">{entityData.connection_count}</span> connections
               </span>
             )}
           </div>

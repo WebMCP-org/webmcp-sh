@@ -116,7 +116,7 @@ function ActionsCell({ entity }: { entity: Entity }) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-red-600"
+            className="text-destructive"
             onClick={() => setShowDeleteDialog(true)}
           >
             Delete
@@ -136,7 +136,7 @@ function ActionsCell({ entity }: { entity: Entity }) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => handleDelete(entity.id, entity.name)}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>
@@ -157,7 +157,7 @@ export const columns: ColumnDef<Entity>[] = [
       return (
         <button
           onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer text-gray-600 hover:text-gray-900:text-gray-100"
+          className="cursor-pointer text-muted-foreground hover:text-foreground"
         >
           <ChevronRight
             className={`h-4 w-4 transition-transform ${
@@ -239,7 +239,7 @@ export const columns: ColumnDef<Entity>[] = [
           options={categoryOptions}
           onSave={(value) => handleUpdate(entity.id, 'category', value)}
           displayComponent={
-            <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 capitalize whitespace-nowrap">
+            <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground capitalize whitespace-nowrap">
               {entity.category}
             </span>
           }
@@ -262,7 +262,7 @@ export const columns: ColumnDef<Entity>[] = [
             type="textarea"
             onSave={(value) => handleUpdate(entity.id, 'description', value)}
             displayComponent={
-              <div className="truncate text-sm text-gray-600" title={entity.description}>
+              <div className="truncate text-sm text-muted-foreground" title={entity.description}>
                 {entity.description}
               </div>
             }
@@ -292,13 +292,13 @@ export const columns: ColumnDef<Entity>[] = [
           {tags.slice(0, 2).map((tag, i) => (
             <span
               key={i}
-              className="px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600 whitespace-nowrap"
+              className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground whitespace-nowrap"
             >
               {tag}
             </span>
           ))}
           {tags.length > 2 && (
-            <span className="px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
+            <span className="px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground">
               +{tags.length - 2}
             </span>
           )}
@@ -380,13 +380,13 @@ export const columns: ColumnDef<Entity>[] = [
           onSave={(value) => handleUpdate(entity.id, 'importance_score', value)}
           displayComponent={
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+              <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden flex-shrink-0">
                 <div
-                  className="h-full bg-brand rounded-full"
+                  className="h-full bg-primary rounded-full"
                   style={{ width: `${entity.importance_score}%` }}
                 />
               </div>
-              <span className="text-xs text-gray-600 whitespace-nowrap">{entity.importance_score}</span>
+              <span className="text-xs text-muted-foreground whitespace-nowrap">{entity.importance_score}</span>
             </div>
           }
         />
@@ -412,7 +412,7 @@ export const columns: ColumnDef<Entity>[] = [
       const isRecent = Date.now() - date.getTime() < 7 * 24 * 60 * 60 * 1000 // Less than 7 days
 
       return (
-        <span className="text-xs text-gray-600 whitespace-nowrap" title={date.toLocaleString()}>
+        <span className="text-xs text-muted-foreground whitespace-nowrap" title={date.toLocaleString()}>
           {isRecent
             ? formatDistanceToNow(date, { addSuffix: true })
             : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })

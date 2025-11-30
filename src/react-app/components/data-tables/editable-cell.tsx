@@ -97,7 +97,7 @@ export function EditableCell({
             onClick={handleSave}
             disabled={isSaving}
           >
-            <Check className="h-3.5 w-3.5 text-green-600" />
+            <Check className="h-3.5 w-3.5 text-chart-3" />
           </Button>
           <Button
             size="sm"
@@ -106,7 +106,7 @@ export function EditableCell({
             onClick={handleCancel}
             disabled={isSaving}
           >
-            <X className="h-3.5 w-3.5 text-red-600" />
+            <X className="h-3.5 w-3.5 text-destructive" />
           </Button>
         </div>
       </div>
@@ -115,7 +115,7 @@ export function EditableCell({
 
   return (
     <div
-      className="group flex items-center gap-2 cursor-pointer hover:bg-gray-50:bg-charcoal-800/50 rounded px-2 py-1 -mx-2 -my-1 transition-colors"
+      className="group flex items-center gap-2 cursor-pointer hover:bg-muted rounded px-2 py-1 -mx-2 -my-1 transition-colors"
       onClick={() => setIsEditing(true)}
     >
       <div className="flex-1 min-w-0">
@@ -191,7 +191,7 @@ export function EditableSelectCell({
 
   return (
     <div
-      className="group flex items-center gap-2 cursor-pointer hover:bg-gray-50:bg-charcoal-800/50 rounded px-2 py-1 -mx-2 -my-1 transition-colors"
+      className="group flex items-center gap-2 cursor-pointer hover:bg-muted rounded px-2 py-1 -mx-2 -my-1 transition-colors"
       onClick={() => setIsEditing(true)}
     >
       <div className="flex-1 min-w-0">

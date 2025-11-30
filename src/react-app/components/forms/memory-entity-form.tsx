@@ -187,13 +187,13 @@ export function MemoryEntityForm({ entity, onSuccess, onCancel }: MemoryEntityFo
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2 py-1 bg-gray-100 text-sm rounded flex items-center gap-1"
+                      className="px-2 py-1 bg-muted text-sm rounded flex items-center gap-1"
                     >
                       {tag}
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="text-gray-500 hover:text-gray-700:text-gray-300"
+                        className="text-muted-foreground hover:text-foreground"
                       >
                         ×
                       </button>

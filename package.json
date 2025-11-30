@@ -91,6 +91,7 @@
     "drizzle-orm": "^0.44.6",
     "drizzle-zod": "^0.8.3",
     "embla-carousel-react": "^8.6.0",
+    "geist": "^1.5.1",
     "gpt-tokenizer": "^3.0.1",
     "hast-util-to-html": "^9.0.5",
     "hast-util-to-jsx-runtime": "^2.3.6",

@@ -134,13 +134,13 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
       {/* Global Search and Controls */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input
             type="text"
             placeholder="Fuzzy search across all columns..."
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-divide bg-white text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/50"
+            className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50"
           />
         </div>
 
@@ -222,7 +222,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
       {/* Active Filters Display */}
       {(columnFilters.length > 0 || globalFilter) && (
         <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-muted-foreground">
             Active filters:
           </span>
           {globalFilter && (
@@ -239,7 +239,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
           {columnFilters.map((filter) => (
             <div
               key={filter.id}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded bg-muted text-muted-foreground text-xs"
             >
               <span className="capitalize">{filter.id}: </span>
               <span className="font-medium">
@@ -249,7 +249,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                 onClick={() => {
                   table.getColumn(filter.id)?.setFilterValue(undefined)
                 }}
-                className="hover:bg-gray-200:bg-charcoal-700 rounded p-0.5"
+                className="hover:bg-accent rounded p-0.5"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -271,7 +271,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
 
       {/* Grouping Display */}
       {grouping.length > 0 && (
-        <div className="flex items-center gap-2 text-xs text-gray-600">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Group className="h-4 w-4" />
           <span>Grouped by:</span>
           {grouping.map((group, index) => (
@@ -284,7 +284,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
       )}
 
       {/* Table */}
-      <div className="rounded-lg border border-divide bg-white overflow-hidden">
+      <div className="rounded-lg border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -353,7 +353,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                   {/* Expanded Row Details */}
                   {row.getIsExpanded() && !row.getIsGrouped() && renderExpandedRow && (
                     <TableRow>
-                      <TableCell colSpan={row.getVisibleCells().length} className="bg-gray-50">
+                      <TableCell colSpan={row.getVisibleCells().length} className="bg-muted">
                         {renderExpandedRow(row)}
                       </TableCell>
                     </TableRow>
@@ -376,7 +376,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length} row(s)
           {table.getFilteredRowModel().rows.length !== data.length &&
             ` (filtered from ${data.length})`}
@@ -390,7 +390,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
           >
             Previous
           </Button>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </div>
