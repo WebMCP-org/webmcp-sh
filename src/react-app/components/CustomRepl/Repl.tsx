@@ -150,6 +150,14 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     executeQuery: async (query: string): Promise<Response> => {
       const response = await runQuery(query, pg)
       setOutput((prev) => [...prev, response])
+      // Show toast notification for query result
+      if (response.error) {
+        toast.error(response.error)
+      } else {
+        const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
+        toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
+      }
+      // Auto-scroll to bottom
       if (outputRef.current) {
         setTimeout(() => {
           outputRef.current!.scrollTop = outputRef.current!.scrollHeight
@@ -173,6 +181,14 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
             if (value.trim() === '') return false // Do nothing if the input is empty
             runQuery(value, pg).then((response) => {
               setOutput((prev) => [...prev, response])
+              // Show toast notification for query result
+              if (response.error) {
+                toast.error(response.error)
+              } else {
+                const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
+                toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
+              }
+              // Auto-scroll to bottom
               if (outputRef.current) {
                 setTimeout(() => {
                   outputRef.current!.scrollTop = outputRef.current!.scrollHeight
