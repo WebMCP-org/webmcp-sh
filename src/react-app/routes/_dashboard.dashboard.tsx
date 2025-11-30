@@ -263,7 +263,7 @@ function DashboardHome() {
 
   return (
     <TooltipProvider>
-      <div className="@container/main flex flex-1 flex-col gap-2 overflow-auto p-4 md:gap-4 md:p-6">
+      <div className="@container/main flex flex-1 flex-col min-w-0 gap-2 overflow-auto p-4 md:gap-4 md:p-6">
         {/* Stats Cards Row */}
         <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-2 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:grid-cols-5">
           <Card className="@container/card">

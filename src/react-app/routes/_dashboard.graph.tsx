@@ -163,7 +163,7 @@ function GraphComponent() {
 
   return (
     <TooltipProvider>
-    <div className="w-full h-full bg-slate-950">
+    <div className="w-full h-full min-w-0 bg-slate-950">
       {/* Header */}
       <div className="border-b border-slate-800 bg-slate-900 px-4 md:px-6 py-3 md:py-4">
         <div className="flex items-center justify-between gap-2">

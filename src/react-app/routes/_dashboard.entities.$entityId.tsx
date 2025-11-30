@@ -48,7 +48,7 @@ function EntityDetailComponent() {
   const Icon = categoryConfig.icon
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full min-w-0 bg-background">
       {/* Compact Header */}
       <div className="border-b border-divide px-6 py-4">
         <Link to="/entities">

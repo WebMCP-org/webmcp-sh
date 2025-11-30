@@ -82,7 +82,7 @@ function MemoryBlocksComponent() {
 
   return (
     <TooltipProvider>
-    <div className="h-full w-full flex flex-col bg-background">
+    <div className="h-full w-full min-w-0 flex flex-col bg-background">
       {/* Compact Header */}
       <div className="flex-shrink-0 border-b border-divide bg-card px-4 md:px-6 py-3 md:py-4">
         <div className="flex items-center justify-between gap-2">

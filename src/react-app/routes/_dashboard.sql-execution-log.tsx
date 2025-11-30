@@ -140,7 +140,7 @@ function SQLExecutionLogPage() {
   }, [selectedQuery])
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-zinc-50 to-zinc-100">
+    <div className="flex flex-col h-full min-w-0 bg-gradient-to-br from-zinc-50 to-zinc-100">
       {/* Header */}
       <div className="flex-shrink-0 border-b backdrop-blur-xl bg-white/70 z-10">
         <div className="px-4 md:px-6 py-3 md:py-4">
