@@ -21,6 +21,7 @@ declare module 'react' {
         'api-base'?: string
         'token-endpoint'?: string
         'auto-connect-local'?: boolean
+        'view-mode'?: 'pill' | 'modal'
         children?: React.ReactNode
       }
     }
@@ -79,10 +80,10 @@ function RootComponent() {
       <PWAUpdatePrompt />
       <PWAInstallPrompt />
 
-      {/* WebMCP Embedded Agent */}
       <webmcp-agent
         app-id="playground-webmcp"
         api-base="https://webmcp-agent-playground.alexmnahas.workers.dev"
+        view-mode="pill"
       />
 
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
