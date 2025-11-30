@@ -309,7 +309,7 @@ function SQLExecutionLogPage() {
                     size="sm"
                     variant={isFormatted ? "secondary" : "brand"}
                     onClick={handleFormatSQL}
-                    loading={isFormatting}
+                    disabled={isFormatting}
                     className="h-7 text-xs"
                   >
                     <Sparkles className="h-3 w-3 sm:mr-1" />

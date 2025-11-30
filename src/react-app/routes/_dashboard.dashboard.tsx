@@ -1,18 +1,28 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, CardAction } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Brain, Database, Network, Activity, Chrome, Clock, Shield, PlusCircle, Edit, Trash2 } from 'lucide-react'
+import { Brain, Database, Network, Activity, Plus, Shield, PlusCircle, Edit, Trash2, Clock, Chrome } from 'lucide-react'
+import { IconTrendingUp } from "@tabler/icons-react"
 import { useLiveQuery, usePGlite } from '@electric-sql/pglite-react'
 import { memory_blocks, memory_entities, entity_relationships, conversation_sessions } from '@/lib/db'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
-import { motion } from "motion/react"
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { InfoTooltip } from '@/components/ui/info-tooltip'
 import { tooltips } from '@/lib/tooltip-content'
 import type { AuditLog } from '@/lib/db/types'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { highlightCode } from '@/lib/syntax-highlight'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { MemoryBlockForm } from '@/components/forms/memory-block-form'
+import { MemoryEntityForm } from '@/components/forms/memory-entity-form'
+import { MemoryBlocksDataTable } from '@/components/data-tables/memory-blocks-data-table'
+import { columns as memoryBlocksColumns } from '@/components/data-tables/memory-blocks-columns'
+import { EntitiesDataTable } from '@/components/data-tables/entities-data-table'
+import { columns as entitiesColumns } from '@/components/data-tables/entities-columns'
+import type { MCPToolsConfig } from '@/types/mcp-tools'
+import type { UpdateMemoryBlock } from '@/lib/db/types'
 
 export const Route = createFileRoute('/_dashboard/dashboard')({
   component: DashboardHome,
@@ -30,6 +40,18 @@ function DashboardHome() {
   const [highlightedJson, setHighlightedJson] = useState<{ [key: string]: { old?: string; new?: string } }>({});
   const offsetRef = useRef(0);
   const PAGE_SIZE = 10;
+
+  // Memory blocks state
+  const [isCreateBlockDialogOpen, setIsCreateBlockDialogOpen] = useState(false)
+  const [isEditBlockDialogOpen, setIsEditBlockDialogOpen] = useState(false)
+  const [isDuplicateBlockDialogOpen, setIsDuplicateBlockDialogOpen] = useState(false)
+  const [selectedBlock, setSelectedBlock] = useState<memory_blocks.GetAllMemoryBlocksResult | null>(null)
+  const [editingBlock, setEditingBlock] = useState<memory_blocks.GetAllMemoryBlocksResult | null>(null)
+  const [duplicateBlockData, setDuplicateBlockData] = useState<UpdateMemoryBlock | null>(null)
+
+  // Entities state
+  const [isCreateEntityDialogOpen, setIsCreateEntityDialogOpen] = useState(false)
+  const [selectedEntity, setSelectedEntity] = useState<memory_entities.GetAllMemoryEntitiesResult | null>(null)
 
   // Get counts
   const blocksQuery = memory_blocks.getMemoryBlocksCountQuerySQL();
@@ -52,6 +74,15 @@ function DashboardHome() {
   const tierTokensResult = useLiveQuery<memory_entities.GetMemoryEntityTokensByTierResult>(tierTokensQuery.sql, tierTokensQuery.params);
   const blockTypeTokensResult = useLiveQuery<memory_blocks.GetMemoryBlockTokensByTypeResult>(blockTypeTokensQuery.sql, blockTypeTokensQuery.params);
 
+  // Data for tables
+  const allBlocksQuery = memory_blocks.getAllMemoryBlocksQuerySQL()
+  const blocksDataResult = useLiveQuery<memory_blocks.GetAllMemoryBlocksResult>(allBlocksQuery.sql, allBlocksQuery.params)
+  const blocksData = blocksDataResult?.rows ?? []
+
+  const allEntitiesQuery = memory_entities.getAllMemoryEntitiesQuerySQL()
+  const entitiesDataResult = useLiveQuery<memory_entities.GetAllMemoryEntitiesResult>(allEntitiesQuery.sql, allEntitiesQuery.params)
+  const entitiesData = entitiesDataResult?.rows ?? []
+
   const blockCount = memoryBlocksResult?.rows?.[0]?.count ?? 0;
   const entityCount = memoryEntitiesResult?.rows?.[0]?.count ?? 0;
   const relationshipCount = relationshipsResult?.rows?.[0]?.count ?? 0;
@@ -61,7 +92,6 @@ function DashboardHome() {
   const categoryTokensData = categoryTokensResult?.rows ?? [];
   const tierTokensData = tierTokensResult?.rows ?? [];
   const blockTypeTokensData = blockTypeTokensResult?.rows ?? [];
-
 
   // Calculate total tokens from all sources (handle null/undefined/NaN)
   const totalEntityTokens = categoryTokensData.reduce((sum, item) => {
@@ -73,7 +103,6 @@ function DashboardHome() {
     return sum + (isNaN(tokens) ? 0 : tokens);
   }, 0);
   const totalTokens = totalEntityTokens + totalBlockTokens;
-
 
   // Prepare chart data (using token counts as the primary value, filter out NaN/zero values)
   const categoryChartData = categoryTokensData
@@ -94,12 +123,58 @@ function DashboardHome() {
     }))
     .filter(item => item.value > 0);
 
+  // MCP Tools configuration for Memory Blocks
+  const memoryBlocksMcpConfig: MCPToolsConfig<memory_blocks.GetAllMemoryBlocksResult> = {
+    tableName: 'memory_blocks',
+    tableDescription: 'Always-in-context memory blocks that are core to the AI system',
+    selectedItem: selectedBlock,
+    onSelectItem: setSelectedBlock,
+    searchableFields: ['value', 'label'],
+    getItemId: (item: memory_blocks.GetAllMemoryBlocksResult) => item.id,
+    getItemDisplayName: (item: memory_blocks.GetAllMemoryBlocksResult) => `${item.block_type}: ${item.label || item.value.substring(0, 30)}`,
+    customActions: {
+      edit_block: {
+        description: 'Open the edit dialog for this memory block',
+        handler: async (item) => {
+          setEditingBlock(item)
+          setIsEditBlockDialogOpen(true)
+          return `Opening edit dialog for ${item.label}`
+        }
+      },
+      duplicate_block: {
+        description: 'Open the create dialog with pre-filled data from this block',
+        handler: async (item) => {
+          setDuplicateBlockData({
+            block_type: item.block_type,
+            value: item.value,
+            label: `${item.label} (Copy)`,
+            priority: item.priority,
+            char_limit: item.char_limit,
+            metadata: item.metadata
+          } as UpdateMemoryBlock)
+          setIsDuplicateBlockDialogOpen(true)
+          return `Opening duplicate dialog for ${item.label}`
+        }
+      },
+    }
+  }
+
+  // MCP Tools configuration for Entities
+  const entitiesMcpConfig: MCPToolsConfig<memory_entities.GetAllMemoryEntitiesResult> = {
+    tableName: 'entities',
+    tableDescription: 'Structured knowledge entities (facts, preferences, skills, people, projects, goals)',
+    selectedItem: selectedEntity,
+    onSelectItem: setSelectedEntity,
+    searchableFields: ['name', 'description', 'tags'],
+    getItemId: (item: memory_entities.GetAllMemoryEntitiesResult) => item.id,
+    getItemDisplayName: (item: memory_entities.GetAllMemoryEntitiesResult) => `${item.name} (${item.category})`,
+    customActions: {}
+  }
+
   // Load initial audit logs and check if we need to load more to fill the container
   useEffect(() => {
     const loadInitial = async () => {
       await loadMoreAuditLogs();
-
-      // After initial load, check if we need more items to fill the scroll area
       setTimeout(() => {
         const container = document.querySelector('.audit-log-container') as HTMLDivElement;
         if (container && container.scrollHeight <= container.clientHeight && hasMore) {
@@ -107,7 +182,6 @@ function DashboardHome() {
         }
       }, 100);
     };
-
     loadInitial();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -118,32 +192,24 @@ function DashboardHome() {
       for (const log of auditLogs) {
         if (!highlightedJson[log.id]) {
           const highlighted: { old?: string; new?: string } = {};
-
           if (log.old_data) {
             try {
               const oldJson = JSON.stringify(log.old_data, null, 2);
               highlighted.old = await highlightCode(oldJson, 'json');
-            } catch {
-              // Highlighting failed, will fall back to plain JSON
-            }
+            } catch { /* ignore */ }
           }
-
           if (log.new_data) {
             try {
               const newJson = JSON.stringify(log.new_data, null, 2);
               highlighted.new = await highlightCode(newJson, 'json');
-            } catch {
-              // Highlighting failed, will fall back to plain JSON
-            }
+            } catch { /* ignore */ }
           }
-
           if (highlighted.old || highlighted.new) {
             setHighlightedJson(prev => ({ ...prev, [log.id]: highlighted }));
           }
         }
       }
     };
-
     if (auditLogs.length > 0) {
       highlightAuditLogJson();
     }
@@ -151,53 +217,29 @@ function DashboardHome() {
 
   // Function to load more audit logs
   const loadMoreAuditLogs = useCallback(async () => {
-    if (isLoading || !hasMore) {
-      return;
-    }
-
+    if (isLoading || !hasMore) return;
     const currentOffset = offsetRef.current;
     setIsLoading(true);
     try {
-      // Check if audit_log table exists
       const tableCheck = await db.query<{ exists: boolean }>(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables
-          WHERE table_schema = 'public'
-          AND table_name = 'audit_log'
+          WHERE table_schema = 'public' AND table_name = 'audit_log'
         ) as exists;
       `);
-
       if (!tableCheck.rows[0]?.exists) {
         setHasMore(false);
         setIsLoading(false);
         return;
       }
-
       const result = await db.query<AuditLog>(`
-        SELECT
-          id,
-          operation,
-          table_name,
-          record_id,
-          old_data,
-          new_data,
-          changed_fields,
-          operation_type,
-          session_id,
-          timestamp
-        FROM audit_log
-        ORDER BY timestamp DESC
-        LIMIT $1 OFFSET $2
+        SELECT id, operation, table_name, record_id, old_data, new_data, changed_fields, operation_type, session_id, timestamp
+        FROM audit_log ORDER BY timestamp DESC LIMIT $1 OFFSET $2
       `, [PAGE_SIZE, currentOffset]);
-
       const newLogs = result.rows;
-
       setAuditLogs(prev => [...prev, ...newLogs]);
       offsetRef.current = currentOffset + newLogs.length;
-
-      if (newLogs.length < PAGE_SIZE) {
-        setHasMore(false);
-      }
+      if (newLogs.length < PAGE_SIZE) setHasMore(false);
     } catch {
       setHasMore(false);
     } finally {
@@ -208,14 +250,7 @@ function DashboardHome() {
   // Handle scroll for infinite loading
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    const scrollTop = target.scrollTop;
-    const scrollHeight = target.scrollHeight;
-    const clientHeight = target.clientHeight;
-
-    // Calculate how close we are to the bottom (in pixels)
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-
-    // Load more when within 200px of the bottom
+    const distanceFromBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
     if (distanceFromBottom < 200 && !isLoading && hasMore) {
       loadMoreAuditLogs();
     }
@@ -228,443 +263,250 @@ function DashboardHome() {
 
   return (
     <TooltipProvider>
-    <div className="flex flex-col h-full bg-background">
-      {/* Compact Header */}
-      <div className="flex-shrink-0 border-b px-4 md:px-6 py-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-lg md:text-xl font-bold truncate">WebMCP Memory</h1>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span className="hidden sm:inline">SQL-first AI memory · No embeddings</span>
-              <span className="sm:hidden">SQL-first AI memory</span>
-              <InfoTooltip content={tooltips.technical.sqlFirst} side="right" />
-            </p>
-          </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-              <a href="https://mcp-b.ai" target="_blank" rel="noopener noreferrer" className="text-xs">
-                MCP-B.AI
-              </a>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <a href="https://chromewebstore.google.com/detail/mcp-b-extension/daohopfhkdelnpemnhlekblhnikhdhfa?pli=1" target="_blank" rel="noopener noreferrer" className="text-xs">
-                <Chrome className="h-3 w-3 sm:mr-1" />
-                <span className="hidden sm:inline">Extension</span>
-              </a>
-            </Button>
-          </div>
-        </div>
-      </div>
+      <div className="@container/main flex flex-1 flex-col gap-2 overflow-auto p-4 md:gap-4 md:p-6">
+        {/* Stats Cards Row */}
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-2 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:grid-cols-5">
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription className="flex items-center gap-1">
+                <Brain className="h-3.5 w-3.5" />
+                Memory Blocks
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {blockCount}
+              </CardTitle>
+              <CardAction>
+                <InfoTooltip content={tooltips.stats.memoryBlocks} />
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="text-muted-foreground">Core memories</div>
+            </CardFooter>
+          </Card>
 
-      {/* Main Content - Single Screen */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Fixed Top Stats */}
-        <div className="flex-shrink-0 p-3 md:p-4 pb-2">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-blue overflow-hidden relative hover:shadow-xl transition-all duration-300 border-blue-200">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xs font-medium text-chart-2 flex items-center gap-1">
-                        Memory Blocks
-                        <InfoTooltip content={tooltips.stats.memoryBlocks} />
-                      </CardTitle>
-                      <Brain className="h-4 w-4 text-chart-2" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-2xl font-bold">{blockCount}</div>
-                    <p className="text-xs text-muted-foreground">Core memories</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription className="flex items-center gap-1">
+                <Database className="h-3.5 w-3.5" />
+                Entities
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {entityCount}
+              </CardTitle>
+              <CardAction>
+                <InfoTooltip content={tooltips.stats.entities} />
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="text-muted-foreground">Knowledge items</div>
+            </CardFooter>
+          </Card>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-purple relative overflow-hidden hover:shadow-xl transition-all duration-300 border-purple-200">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xs font-medium text-purple-600 flex items-center gap-1">
-                        Entities
-                        <InfoTooltip content={tooltips.stats.entities} />
-                      </CardTitle>
-                      <Database className="h-4 w-4 text-purple-500" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-2xl font-bold">{entityCount}</div>
-                    <p className="text-xs text-muted-foreground">Knowledge items</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription className="flex items-center gap-1">
+                <Network className="h-3.5 w-3.5" />
+                Relations
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {relationshipCount}
+              </CardTitle>
+              <CardAction>
+                <InfoTooltip content={tooltips.stats.relations} />
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="text-muted-foreground">Connections</div>
+            </CardFooter>
+          </Card>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-pink relative overflow-hidden hover:shadow-xl transition-all duration-300 border-pink-200">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-pink-500/10 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xs font-medium text-pink-600 flex items-center gap-1">
-                        Relations
-                        <InfoTooltip content={tooltips.stats.relations} />
-                      </CardTitle>
-                      <Network className="h-4 w-4 text-pink-500" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-2xl font-bold">{relationshipCount}</div>
-                    <p className="text-xs text-muted-foreground">Connections</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+          <Card className="@container/card">
+            <CardHeader>
+              <CardDescription className="flex items-center gap-1">
+                <Activity className="h-3.5 w-3.5" />
+                Sessions
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {sessionCount}
+              </CardTitle>
+              <CardAction>
+                <InfoTooltip content={tooltips.stats.sessions} />
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="text-muted-foreground">Conversations</div>
+            </CardFooter>
+          </Card>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.3 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-green relative overflow-hidden hover:shadow-xl transition-all duration-300 border-green-200">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xs font-medium text-green-600 flex items-center gap-1">
-                        Sessions
-                        <InfoTooltip content={tooltips.stats.sessions} />
-                      </CardTitle>
-                      <Activity className="h-4 w-4 text-green-500" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-2xl font-bold">{sessionCount}</div>
-                    <p className="text-xs text-muted-foreground">Conversations</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-amber relative overflow-hidden hover:shadow-xl transition-all duration-300 border-amber-200">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-amber-500/20 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 2 }}
-                  />
-                  <motion.div
-                    className="absolute bottom-0 left-0 w-16 h-16 bg-orange-500/10 rounded-full -ml-8 -mb-8"
-                    animate={{ scale: [1, 1.15, 1] }}
-                    transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xs font-medium text-amber-600 flex items-center gap-1">
-                        Tokens
-                        <InfoTooltip content={tooltips.stats.totalTokens} />
-                      </CardTitle>
-                      <Brain className="h-4 w-4 text-amber-500" />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-2xl font-bold">{totalTokens.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">Context budget</p>
-                  </CardContent>
-                </Card>
-            </motion.div>
-          </div>
+          <Card className="@container/card col-span-2 lg:col-span-1">
+            <CardHeader>
+              <CardDescription className="flex items-center gap-1">
+                <Brain className="h-3.5 w-3.5" />
+                Total Tokens
+              </CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                {totalTokens.toLocaleString()}
+              </CardTitle>
+              <CardAction>
+                <Badge variant="outline">
+                  <IconTrendingUp className="h-3 w-3" />
+                  {totalTokens > 0 ? `${((totalTokens / 200000) * 100).toFixed(1)}%` : '0%'}
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className="flex-col items-start gap-1.5 text-sm">
+              <div className="text-muted-foreground">of 200K budget</div>
+            </CardFooter>
+          </Card>
         </div>
 
-        {/* Main scrollable content area */}
-        <div className="flex-1 p-3 md:p-4 pt-2 overflow-auto md:overflow-hidden">
-          <div className="h-full flex flex-col lg:grid lg:grid-cols-12 gap-4">
-            {/* Left Column - Token Summary & Charts */}
-            <div className="lg:col-span-8 flex flex-col gap-3 md:gap-4 lg:h-full lg:overflow-hidden">
-              {/* Token Budget Summary */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 flex-shrink-0">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.5 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-slate border-slate-200 relative overflow-hidden hover:shadow-xl transition-all duration-300">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-slate-500/10 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 2.5 }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <CardTitle className="text-xs font-medium text-slate-600 flex items-center gap-1">
-                      Core Memory (Blocks)
-                      <InfoTooltip content={tooltips.tokenBudget.coreMemory} />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-xl font-bold">{totalBlockTokens.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">Always-in-context tokens</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.6 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-slate border-slate-200 relative overflow-hidden hover:shadow-xl transition-all duration-300">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-slate-500/10 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 3 }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <CardTitle className="text-xs font-medium text-slate-600 flex items-center gap-1">
-                      Entity Memory
-                      <InfoTooltip content={tooltips.tokenBudget.entityMemory} />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-xl font-bold">{totalEntityTokens.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">Retrieved knowledge tokens</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.7 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <Card className="p-0 card-gradient-amber border-amber-200 relative overflow-hidden hover:shadow-xl transition-all duration-300">
-                  <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-amber-500/20 rounded-full -mr-10 -mt-10"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, delay: 3.5 }}
-                  />
-                  <CardHeader className="p-3 pb-2 relative">
-                    <CardTitle className="text-xs font-medium text-amber-600 flex items-center gap-1">
-                      Total Context
-                      <InfoTooltip content={tooltips.tokenBudget.totalContext} />
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 pt-0 relative">
-                    <div className="text-xl font-bold">{totalTokens.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">
-                      {totalTokens > 0 ? `${((totalTokens / 200000) * 100).toFixed(1)}% of 200K budget` : 'No tokens calculated yet'}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-              </div>
+        {/* Main Content Area with Tabs for Tables */}
+        <Tabs defaultValue="overview" className="flex-1 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="memory-blocks">
+                Memory Blocks <Badge variant="secondary" className="ml-1">{blockCount}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="entities">
+                Entities <Badge variant="secondary" className="ml-1">{entityCount}</Badge>
+              </TabsTrigger>
+            </TabsList>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                <a href="https://chromewebstore.google.com/detail/mcp-b-extension/daohopfhkdelnpemnhlekblhnikhdhfa" target="_blank" rel="noopener noreferrer">
+                  <Chrome className="h-3.5 w-3.5 mr-1" />
+                  Extension
+                </a>
+              </Button>
+            </div>
+          </div>
 
-              {/* Doughnut Charts */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 flex-1 min-h-0 md:max-h-[400px] overflow-visible md:overflow-hidden">
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="flex-1 grid gap-4 lg:grid-cols-12">
+            {/* Charts Column */}
+            <div className="lg:col-span-8 grid gap-4 md:grid-cols-2">
               {/* Entity Categories Chart */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="min-h-[280px] md:h-full"
-              >
-                <Card className="h-full p-0 flex flex-col card-gradient-slate hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader className="p-4 pb-3">
-                    <CardTitle className="text-sm font-semibold">Token Distribution by Category</CardTitle>
-                    <p className="text-xs text-muted-foreground">Memory usage by entity type</p>
-                  </CardHeader>
-                <CardContent className="p-4 pt-0 flex-1 flex flex-col items-center justify-center min-h-0">
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold">Tokens by Category</CardTitle>
+                  <CardDescription>Memory usage by entity type</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex items-center justify-center min-h-[200px]">
                   {categoryChartData.length > 0 ? (
-                    <div className="w-full h-full flex items-center justify-center min-h-0">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={categoryChartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="55%"
-                            outerRadius="75%"
-                            paddingAngle={3}
-                            dataKey="value"
-                            label={({ value }) => value.toLocaleString()}
-                            labelLine={false}
-                          >
-                            {categoryChartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: 'hsl(var(--popover))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '6px',
-                              fontSize: '11px'
-                            }}
-                            formatter={(value: number, _name: string, props) => {
-                              const total = categoryChartData.reduce((sum, item) => sum + item.value, 0);
-                              const percent = ((value / total) * 100).toFixed(1);
-                              return [
-                                <>
-                                  <div>{value.toLocaleString()} tokens</div>
-                                  <div>{percent}% ({props.payload.count} items)</div>
-                                </>,
-                                props.payload.name
-                              ];
-                            }}
-                          />
-                          <Legend
-                            iconSize={10}
-                            wrapperStyle={{ fontSize: '11px' }}
-                            layout="horizontal"
-                            align="center"
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={categoryChartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius="50%"
+                          outerRadius="70%"
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {categoryChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--popover))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px',
+                            fontSize: '11px'
+                          }}
+                          formatter={(value: number, _name: string, props) => [
+                            `${value.toLocaleString()} tokens (${props.payload.count} items)`,
+                            props.payload.name
+                          ]}
+                        />
+                        <Legend iconSize={10} wrapperStyle={{ fontSize: '11px' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
                   ) : (
                     <div className="text-sm text-muted-foreground">No entities yet</div>
                   )}
                 </CardContent>
-                </Card>
-              </motion.div>
+              </Card>
 
               {/* Memory Tiers Chart */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-                className="min-h-[280px] md:h-full"
-              >
-                <Card className="h-full p-0 flex flex-col card-gradient-blue hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader className="p-4 pb-3">
-                    <CardTitle className="text-sm font-semibold">Token Distribution by Memory Tier</CardTitle>
-                    <p className="text-xs text-muted-foreground">Short-term vs long-term usage</p>
-                  </CardHeader>
-                <CardContent className="p-4 pt-0 flex-1 flex flex-col items-center justify-center min-h-0">
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold">Tokens by Memory Tier</CardTitle>
+                  <CardDescription>Short-term vs long-term usage</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex items-center justify-center min-h-[200px]">
                   {tierChartData.length > 0 ? (
-                    <div className="w-full h-full flex items-center justify-center min-h-0">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={tierChartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="55%"
-                            outerRadius="75%"
-                            paddingAngle={3}
-                            dataKey="value"
-                            label={({ value }) => value.toLocaleString()}
-                            labelLine={false}
-                          >
-                            {tierChartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: 'hsl(var(--popover))',
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '6px',
-                              fontSize: '11px'
-                            }}
-                            formatter={(value: number, _name: string, props) => {
-                              const total = tierChartData.reduce((sum, item) => sum + item.value, 0);
-                              const percent = ((value / total) * 100).toFixed(1);
-                              return [
-                                <>
-                                  <div>{value.toLocaleString()} tokens</div>
-                                  <div>{percent}% ({props.payload.count} items)</div>
-                                </>,
-                                props.payload.name
-                              ];
-                            }}
-                          />
-                          <Legend
-                            iconSize={10}
-                            wrapperStyle={{ fontSize: '11px' }}
-                            layout="horizontal"
-                            align="center"
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={tierChartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius="50%"
+                          outerRadius="70%"
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {tierChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--popover))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px',
+                            fontSize: '11px'
+                          }}
+                          formatter={(value: number, _name: string, props) => [
+                            `${value.toLocaleString()} tokens (${props.payload.count} items)`,
+                            props.payload.name
+                          ]}
+                        />
+                        <Legend iconSize={10} wrapperStyle={{ fontSize: '11px' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
                   ) : (
                     <div className="text-sm text-muted-foreground">No tier data</div>
                   )}
                 </CardContent>
-                </Card>
-              </motion.div>
-              </div>
+              </Card>
             </div>
 
-            {/* Right Column - Audit Log */}
-            <div className="lg:col-span-4 min-h-[300px] lg:h-full lg:min-h-0">
-            <Card className="h-full flex flex-col p-0 card-gradient-slate overflow-hidden">
-              <CardHeader className="p-4 pb-3 flex-shrink-0 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-blue-500" />
-                    Audit Log
-                  </CardTitle>
-                  <div className="flex gap-1">
-                    <Badge variant="outline" className="text-green-600 border-green-200 text-xs h-5 px-1.5">
-                      <PlusCircle className="h-2.5 w-2.5 mr-0.5" />
-                      {insertCount}
-                    </Badge>
-                    <Badge variant="outline" className="text-blue-600 border-blue-200 text-xs h-5 px-1.5">
-                      <Edit className="h-2.5 w-2.5 mr-0.5" />
-                      {updateCount}
-                    </Badge>
-                    <Badge variant="outline" className="text-red-600 border-red-200 text-xs h-5 px-1.5">
-                      <Trash2 className="h-2.5 w-2.5 mr-0.5" />
-                      {deleteCount}
-                    </Badge>
+            {/* Audit Log Column */}
+            <div className="lg:col-span-4">
+              <Card className="h-full flex flex-col">
+                <CardHeader className="flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-blue-500" />
+                      Audit Log
+                    </CardTitle>
+                    <div className="flex gap-1">
+                      <Badge variant="outline" className="text-green-600 border-green-200 text-xs h-5 px-1.5">
+                        <PlusCircle className="h-2.5 w-2.5 mr-0.5" />{insertCount}
+                      </Badge>
+                      <Badge variant="outline" className="text-blue-600 border-blue-200 text-xs h-5 px-1.5">
+                        <Edit className="h-2.5 w-2.5 mr-0.5" />{updateCount}
+                      </Badge>
+                      <Badge variant="outline" className="text-red-600 border-red-200 text-xs h-5 px-1.5">
+                        <Trash2 className="h-2.5 w-2.5 mr-0.5" />{deleteCount}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Protected database changes</p>
-              </CardHeader>
-              <CardContent className="p-3 pt-3 flex-1 min-h-0 overflow-hidden">
-                <div className="h-full overflow-y-auto audit-log-container" onScroll={handleScroll}>
-                  {auditLogs.length > 0 ? (
-                    <div className="space-y-2">
-                        {auditLogs.map((entry, idx) => {
-                          // Determine icon and colors based on operation
-                          let icon = <PlusCircle className="h-3.5 w-3.5" />;
+                  <CardDescription>Protected database changes</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 min-h-0 overflow-hidden">
+                  <div className="h-full max-h-[400px] overflow-y-auto audit-log-container" onScroll={handleScroll}>
+                    {auditLogs.length > 0 ? (
+                      <div className="space-y-2">
+                        {auditLogs.map((entry) => {
                           let iconBgColor = 'bg-green-500/10';
                           let iconColor = 'text-green-600';
                           let borderColor = 'border-green-500/20';
+                          let icon = <PlusCircle className="h-3.5 w-3.5" />;
 
                           if (entry.operation === 'UPDATE') {
                             icon = <Edit className="h-3.5 w-3.5" />;
@@ -684,56 +526,31 @@ function DashboardHome() {
                                 <p className="font-semibold">Operation Details</p>
                                 <div className="text-sm font-medium">{entry.operation} on {entry.table_name}</div>
                                 <p className="text-muted-foreground">Record ID: {entry.record_id}</p>
-                                {entry.session_id && (
-                                  <p className="text-muted-foreground">Session: {entry.session_id.substring(0, 8)}...</p>
-                                )}
                               </div>
-
                               {entry.old_data && (
                                 <div>
                                   <p className="font-semibold">Old Data</p>
                                   <div className="text-xs bg-slate-800 p-2 rounded overflow-auto max-h-32 border border-slate-700">
                                     {highlightedJson[entry.id]?.old ? (
-                                      <div
-                                        className="[&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0 [&_code]:text-xs"
-                                        dangerouslySetInnerHTML={{ __html: highlightedJson[entry.id].old || '' }}
-                                      />
+                                      <div className="[&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0 [&_code]:text-xs" dangerouslySetInnerHTML={{ __html: highlightedJson[entry.id].old || '' }} />
                                     ) : (
                                       <pre className="text-slate-300">{JSON.stringify(entry.old_data, null, 2)}</pre>
                                     )}
                                   </div>
                                 </div>
                               )}
-
                               {entry.new_data && (
                                 <div>
                                   <p className="font-semibold">New Data</p>
                                   <div className="text-xs bg-slate-800 p-2 rounded overflow-auto max-h-32 border border-slate-700">
                                     {highlightedJson[entry.id]?.new ? (
-                                      <div
-                                        className="[&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0 [&_code]:text-xs"
-                                        dangerouslySetInnerHTML={{ __html: highlightedJson[entry.id].new || '' }}
-                                      />
+                                      <div className="[&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0 [&_code]:text-xs" dangerouslySetInnerHTML={{ __html: highlightedJson[entry.id].new || '' }} />
                                     ) : (
                                       <pre className="text-slate-300">{JSON.stringify(entry.new_data, null, 2)}</pre>
                                     )}
                                   </div>
                                 </div>
                               )}
-
-                              {entry.changed_fields && entry.changed_fields.length > 0 && (
-                                <div>
-                                  <p className="font-semibold">Changed Fields</p>
-                                  <div className="flex flex-wrap gap-1">
-                                    {entry.changed_fields.map((field) => (
-                                      <Badge key={field} variant="secondary" className="text-xs bg-slate-700 text-slate-200 border-slate-600">
-                                        {field}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
                               <p className="text-muted-foreground pt-2 border-t border-slate-600">
                                 {new Date(entry.timestamp).toLocaleString()}
                               </p>
@@ -741,12 +558,8 @@ function DashboardHome() {
                           );
 
                           return (
-                            <motion.div
+                            <div
                               key={entry.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3, delay: Math.min(idx * 0.02, 0.5) }}
-                              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                               className={`flex items-start gap-3 p-3 rounded-lg border ${borderColor} bg-card hover:shadow-md transition-shadow duration-200 cursor-pointer relative group`}
                             >
                               <div className={`flex-shrink-0 w-8 h-8 rounded-full ${iconBgColor} ${iconColor} flex items-center justify-center`}>
@@ -762,44 +575,138 @@ function DashboardHome() {
                                   </Badge>
                                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                     <Clock className="h-3 w-3" />
-                                    {new Date(entry.timestamp).toLocaleTimeString([], {
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })}
+                                    {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </div>
                                 </div>
                               </div>
                               <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <InfoTooltip content={tooltipContent} side="left" maxWidth="450px" />
                               </div>
-                            </motion.div>
+                            </div>
                           );
                         })}
                         {isLoading && (
-                          <div className="text-center py-2 text-xs text-muted-foreground">
-                            Loading more...
-                          </div>
+                          <div className="text-center py-2 text-xs text-muted-foreground">Loading more...</div>
                         )}
                       </div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="h-full flex flex-col items-center justify-center text-muted-foreground"
-                    >
-                      <Shield className="h-8 w-8 mb-2 opacity-20" />
-                      <div className="text-sm">No audit entries yet</div>
-                      <div className="text-xs mt-1">Changes will appear here</div>
-                    </motion.div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                        <Shield className="h-8 w-8 mb-2 opacity-20" />
+                        <div className="text-sm">No audit entries yet</div>
+                        <div className="text-xs mt-1">Changes will appear here</div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+
+          {/* Memory Blocks Tab */}
+          <TabsContent value="memory-blocks" className="flex-1 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-brand" />
+                  Memory Blocks
+                </h2>
+                <p className="text-sm text-muted-foreground">Always-in-context memory</p>
+              </div>
+              <Dialog open={isCreateBlockDialogOpen} onOpenChange={setIsCreateBlockDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700">
+                    <Plus className="h-3 w-3 mr-1" />
+                    Create
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
+                  <DialogHeader className="px-6 pt-6 pb-4 border-b">
+                    <DialogTitle>Create Memory Block</DialogTitle>
+                    <DialogDescription>Add a new always-in-context memory block.</DialogDescription>
+                  </DialogHeader>
+                  <div className="overflow-y-auto px-6 py-4">
+                    <MemoryBlockForm onSuccess={() => setIsCreateBlockDialogOpen(false)} onCancel={() => setIsCreateBlockDialogOpen(false)} />
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* Edit Dialog */}
+              <Dialog open={isEditBlockDialogOpen} onOpenChange={setIsEditBlockDialogOpen}>
+                <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
+                  <DialogHeader className="px-6 pt-6 pb-4 border-b">
+                    <DialogTitle>Edit Memory Block</DialogTitle>
+                    <DialogDescription>Update the details of this memory block.</DialogDescription>
+                  </DialogHeader>
+                  <div className="overflow-y-auto px-6 py-4">
+                    {editingBlock && (
+                      <MemoryBlockForm
+                        block={{ id: editingBlock.id, block_type: editingBlock.block_type, label: editingBlock.label, value: editingBlock.value, priority: editingBlock.priority, char_limit: editingBlock.char_limit, metadata: editingBlock.metadata }}
+                        onSuccess={() => { setIsEditBlockDialogOpen(false); setEditingBlock(null); }}
+                        onCancel={() => { setIsEditBlockDialogOpen(false); setEditingBlock(null); }}
+                      />
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* Duplicate Dialog */}
+              <Dialog open={isDuplicateBlockDialogOpen} onOpenChange={setIsDuplicateBlockDialogOpen}>
+                <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
+                  <DialogHeader className="px-6 pt-6 pb-4 border-b">
+                    <DialogTitle>Duplicate Memory Block</DialogTitle>
+                    <DialogDescription>Create a new block based on an existing one.</DialogDescription>
+                  </DialogHeader>
+                  <div className="overflow-y-auto px-6 py-4">
+                    {duplicateBlockData && (
+                      <MemoryBlockForm
+                        block={duplicateBlockData}
+                        onSuccess={() => { setIsDuplicateBlockDialogOpen(false); setDuplicateBlockData(null); }}
+                        onCancel={() => { setIsDuplicateBlockDialogOpen(false); setDuplicateBlockData(null); }}
+                      />
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <MemoryBlocksDataTable columns={memoryBlocksColumns} data={blocksData} mcpTools={memoryBlocksMcpConfig} />
+            </div>
+          </TabsContent>
+
+          {/* Entities Tab */}
+          <TabsContent value="entities" className="flex-1 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Database className="h-5 w-5 text-brand" />
+                  Entities
+                </h2>
+                <p className="text-sm text-muted-foreground">Structured knowledge</p>
+              </div>
+              <Dialog open={isCreateEntityDialogOpen} onOpenChange={setIsCreateEntityDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700">
+                    <Plus className="h-3 w-3 mr-1" />
+                    Create
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
+                  <DialogHeader className="px-6 pt-6 pb-4 border-b">
+                    <DialogTitle>Create Memory Entity</DialogTitle>
+                    <DialogDescription>Add a new structured piece of knowledge.</DialogDescription>
+                  </DialogHeader>
+                  <div className="overflow-y-auto px-6 py-4">
+                    <MemoryEntityForm onSuccess={() => setIsCreateEntityDialogOpen(false)} onCancel={() => setIsCreateEntityDialogOpen(false)} />
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <EntitiesDataTable columns={entitiesColumns} data={entitiesData} mcpTools={entitiesMcpConfig} />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
     </TooltipProvider>
   )
 }
