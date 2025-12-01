@@ -9,36 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ShowcaseRouteImport } from './routes/showcase'
-import { Route as AboutRouteImport } from './routes/about'
+import { Route as LandingRouteImport } from './routes/_landing'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as LandingIndexRouteImport } from './routes/_landing.index'
 import { Route as DashboardSqlReplRouteImport } from './routes/_dashboard.sql-repl'
 import { Route as DashboardSqlExecutionLogRouteImport } from './routes/_dashboard.sql-execution-log'
+import { Route as DashboardShowcaseRouteImport } from './routes/_dashboard.showcase'
 import { Route as DashboardMemoryBlocksRouteImport } from './routes/_dashboard.memory-blocks'
 import { Route as DashboardGraphRouteImport } from './routes/_dashboard.graph'
 import { Route as DashboardEntitiesRouteImport } from './routes/_dashboard.entities'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
+import { Route as DashboardAboutRouteImport } from './routes/_dashboard.about'
 import { Route as DashboardEntitiesEntityIdRouteImport } from './routes/_dashboard.entities.$entityId'
 
-const ShowcaseRoute = ShowcaseRouteImport.update({
-  id: '/showcase',
-  path: '/showcase',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
+const LandingRoute = LandingRouteImport.update({
+  id: '/_landing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/_dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const LandingIndexRoute = LandingIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LandingRoute,
 } as any)
 const DashboardSqlReplRoute = DashboardSqlReplRouteImport.update({
   id: '/sql-repl',
@@ -51,6 +46,11 @@ const DashboardSqlExecutionLogRoute =
     path: '/sql-execution-log',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardShowcaseRoute = DashboardShowcaseRouteImport.update({
+  id: '/showcase',
+  path: '/showcase',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardMemoryBlocksRoute = DashboardMemoryBlocksRouteImport.update({
   id: '/memory-blocks',
   path: '/memory-blocks',
@@ -71,6 +71,11 @@ const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAboutRoute = DashboardAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardEntitiesEntityIdRoute =
   DashboardEntitiesEntityIdRouteImport.update({
     id: '/$entityId',
@@ -79,104 +84,97 @@ const DashboardEntitiesEntityIdRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/showcase': typeof ShowcaseRoute
+  '/about': typeof DashboardAboutRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/entities': typeof DashboardEntitiesRouteWithChildren
   '/graph': typeof DashboardGraphRoute
   '/memory-blocks': typeof DashboardMemoryBlocksRoute
+  '/showcase': typeof DashboardShowcaseRoute
   '/sql-execution-log': typeof DashboardSqlExecutionLogRoute
   '/sql-repl': typeof DashboardSqlReplRoute
+  '/': typeof LandingIndexRoute
   '/entities/$entityId': typeof DashboardEntitiesEntityIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about': typeof AboutRoute
-  '/showcase': typeof ShowcaseRoute
+  '/about': typeof DashboardAboutRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/entities': typeof DashboardEntitiesRouteWithChildren
   '/graph': typeof DashboardGraphRoute
   '/memory-blocks': typeof DashboardMemoryBlocksRoute
+  '/showcase': typeof DashboardShowcaseRoute
   '/sql-execution-log': typeof DashboardSqlExecutionLogRoute
   '/sql-repl': typeof DashboardSqlReplRoute
+  '/': typeof LandingIndexRoute
   '/entities/$entityId': typeof DashboardEntitiesEntityIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_dashboard': typeof DashboardRouteWithChildren
-  '/about': typeof AboutRoute
-  '/showcase': typeof ShowcaseRoute
+  '/_landing': typeof LandingRouteWithChildren
+  '/_dashboard/about': typeof DashboardAboutRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_dashboard/entities': typeof DashboardEntitiesRouteWithChildren
   '/_dashboard/graph': typeof DashboardGraphRoute
   '/_dashboard/memory-blocks': typeof DashboardMemoryBlocksRoute
+  '/_dashboard/showcase': typeof DashboardShowcaseRoute
   '/_dashboard/sql-execution-log': typeof DashboardSqlExecutionLogRoute
   '/_dashboard/sql-repl': typeof DashboardSqlReplRoute
+  '/_landing/': typeof LandingIndexRoute
   '/_dashboard/entities/$entityId': typeof DashboardEntitiesEntityIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/about'
-    | '/showcase'
     | '/dashboard'
     | '/entities'
     | '/graph'
     | '/memory-blocks'
+    | '/showcase'
     | '/sql-execution-log'
     | '/sql-repl'
+    | '/'
     | '/entities/$entityId'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/about'
-    | '/showcase'
     | '/dashboard'
     | '/entities'
     | '/graph'
     | '/memory-blocks'
+    | '/showcase'
     | '/sql-execution-log'
     | '/sql-repl'
+    | '/'
     | '/entities/$entityId'
   id:
     | '__root__'
-    | '/'
     | '/_dashboard'
-    | '/about'
-    | '/showcase'
+    | '/_landing'
+    | '/_dashboard/about'
     | '/_dashboard/dashboard'
     | '/_dashboard/entities'
     | '/_dashboard/graph'
     | '/_dashboard/memory-blocks'
+    | '/_dashboard/showcase'
     | '/_dashboard/sql-execution-log'
     | '/_dashboard/sql-repl'
+    | '/_landing/'
     | '/_dashboard/entities/$entityId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
-  AboutRoute: typeof AboutRoute
-  ShowcaseRoute: typeof ShowcaseRoute
+  LandingRoute: typeof LandingRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/showcase': {
-      id: '/showcase'
-      path: '/showcase'
-      fullPath: '/showcase'
-      preLoaderRoute: typeof ShowcaseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+    '/_landing': {
+      id: '/_landing'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof LandingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_dashboard': {
@@ -186,12 +184,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_landing/': {
+      id: '/_landing/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof LandingIndexRouteImport
+      parentRoute: typeof LandingRoute
     }
     '/_dashboard/sql-repl': {
       id: '/_dashboard/sql-repl'
@@ -205,6 +203,13 @@ declare module '@tanstack/react-router' {
       path: '/sql-execution-log'
       fullPath: '/sql-execution-log'
       preLoaderRoute: typeof DashboardSqlExecutionLogRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/showcase': {
+      id: '/_dashboard/showcase'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof DashboardShowcaseRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/_dashboard/memory-blocks': {
@@ -235,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/about': {
+      id: '/_dashboard/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof DashboardAboutRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/entities/$entityId': {
       id: '/_dashboard/entities/$entityId'
       path: '/$entityId'
@@ -257,19 +269,23 @@ const DashboardEntitiesRouteWithChildren =
   DashboardEntitiesRoute._addFileChildren(DashboardEntitiesRouteChildren)
 
 interface DashboardRouteChildren {
+  DashboardAboutRoute: typeof DashboardAboutRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
   DashboardEntitiesRoute: typeof DashboardEntitiesRouteWithChildren
   DashboardGraphRoute: typeof DashboardGraphRoute
   DashboardMemoryBlocksRoute: typeof DashboardMemoryBlocksRoute
+  DashboardShowcaseRoute: typeof DashboardShowcaseRoute
   DashboardSqlExecutionLogRoute: typeof DashboardSqlExecutionLogRoute
   DashboardSqlReplRoute: typeof DashboardSqlReplRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAboutRoute: DashboardAboutRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
   DashboardEntitiesRoute: DashboardEntitiesRouteWithChildren,
   DashboardGraphRoute: DashboardGraphRoute,
   DashboardMemoryBlocksRoute: DashboardMemoryBlocksRoute,
+  DashboardShowcaseRoute: DashboardShowcaseRoute,
   DashboardSqlExecutionLogRoute: DashboardSqlExecutionLogRoute,
   DashboardSqlReplRoute: DashboardSqlReplRoute,
 }
@@ -278,11 +294,20 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface LandingRouteChildren {
+  LandingIndexRoute: typeof LandingIndexRoute
+}
+
+const LandingRouteChildren: LandingRouteChildren = {
+  LandingIndexRoute: LandingIndexRoute,
+}
+
+const LandingRouteWithChildren =
+  LandingRoute._addFileChildren(LandingRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
-  AboutRoute: AboutRoute,
-  ShowcaseRoute: ShowcaseRoute,
+  LandingRoute: LandingRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

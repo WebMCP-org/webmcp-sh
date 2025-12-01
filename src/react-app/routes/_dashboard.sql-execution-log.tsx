@@ -178,12 +178,18 @@ function SQLExecutionLogPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col md:flex-row min-h-0">
-        {/* Sidebar - Query List (Collapsible on mobile) */}
-        <div className="w-full md:w-72 lg:w-80 flex-shrink-0 border-b md:border-b-0 md:border-r border-border bg-card/50 flex flex-col h-48 md:h-auto md:min-h-0">
-          <div className="flex-shrink-0 p-3 border-b border-border bg-card/70 backdrop-blur">
-            <h2 className="font-medium text-sm text-foreground">Recent Queries</h2>
+      {/* Main Content - Three Column Layout */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3 p-3 min-h-0 overflow-hidden">
+        {/* Query List Panel */}
+        <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-shrink-0 px-4 py-3 border-b border-border bg-muted/50">
+            <div className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <ScrollTextIcon className="h-3.5 w-3.5 text-primary" />
+              Recent Queries
+              <Badge variant="glass" className="text-[10px] ml-auto px-1.5 py-0">
+                {queryHistory.length}
+              </Badge>
+            </div>
           </div>
 
           {queryHistory.length === 0 ? (
@@ -217,7 +223,7 @@ function SQLExecutionLogPage() {
                           <User className="h-3 w-3 text-muted-foreground" />
                         )}
                         <span className="text-[11px] font-medium text-foreground">
-                          {item.source === 'ai' ? 'AI Generated' : 'Manual'}
+                          {item.source === 'ai' ? 'AI' : 'Manual'}
                         </span>
                         {item.execution_time_ms && (
                           <span className="text-[10px] text-muted-foreground">
@@ -249,163 +255,149 @@ function SQLExecutionLogPage() {
           )}
         </div>
 
-        {/* Main Content Area */}
-        {!selectedQuery ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="p-5 bg-muted rounded-3xl mb-4 inline-block">
-                <Database className="h-12 w-12 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">Select a query to view details</h3>
-              <p className="text-sm text-muted-foreground/70">Choose from the list on the left</p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col min-h-0">
-            {/* Query Info Bar */}
-            <div className="flex-shrink-0 px-3 md:px-4 py-2 md:py-3 border-b border-border bg-card/70 backdrop-blur-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                  <div className={cn(
-                    "p-1.5 rounded-lg flex-shrink-0",
-                    selectedQuery.source === 'ai'
-                      ? 'bg-primary/10'
-                      : 'bg-muted'
-                  )}>
-                    {selectedQuery.source === 'ai' ? (
-                      <Bot className="h-3.5 w-3.5 text-primary" />
-                    ) : (
-                      <User className="h-3.5 w-3.5 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
-                      <span className="font-medium text-xs md:text-sm text-foreground">
-                        {selectedQuery.source === 'ai' ? 'AI' : 'Manual'}
-                      </span>
-                      <Badge variant={selectedQuery.success ? 'success' : 'destructive'} className="text-[10px] px-1.5 py-0.5">
-                        {selectedQuery.success ? '✓' : '✗'}
-                      </Badge>
-                      {selectedQuery.execution_time_ms && (
-                        <Badge variant="glass" className="text-[10px] px-1.5 py-0.5">
-                          {selectedQuery.execution_time_ms}ms
-                        </Badge>
-                      )}
-                      {selectedQuery.rows_affected !== null && selectedQuery.rows_affected !== undefined && (
-                        <span className="text-[10px] md:text-xs text-muted-foreground">{selectedQuery.rows_affected} rows</span>
-                      )}
-                    </div>
-                    <div className="text-[10px] md:text-[11px] text-muted-foreground mt-0.5 truncate">
-                      {new Date(selectedQuery.executed_at).toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 flex-shrink-0">
+        {/* SQL Query Panel */}
+        <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-shrink-0 px-4 py-3 border-b border-border bg-muted/50">
+            <div className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Code2 className="h-3.5 w-3.5 text-primary" />
+              SQL Query
+              {selectedQuery && (
+                <div className="flex items-center gap-1.5 ml-auto">
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="ghost"
                     onClick={handleCopySQL}
-                    className="h-7 text-xs"
+                    className="h-6 w-6 p-0"
                   >
-                    <Copy className="h-3 w-3 sm:mr-1" />
-                    <span className="hidden sm:inline">Copy</span>
+                    <Copy className="h-3 w-3" />
                   </Button>
                   <Button
                     size="sm"
-                    variant={isFormatted ? "secondary" : "brand"}
+                    variant="ghost"
                     onClick={handleFormatSQL}
                     disabled={isFormatting}
-                    className="h-7 text-xs"
+                    className="h-6 w-6 p-0"
                   >
-                    <Sparkles className="h-3 w-3 sm:mr-1" />
-                    <span className="hidden sm:inline">{isFormatted ? "Original" : "Format"}</span>
+                    <Sparkles className="h-3 w-3" />
                   </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          {!selectedQuery ? (
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="text-center">
+                <Code2 className="h-8 w-8 mb-2 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-xs text-muted-foreground">Select a query</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col min-h-0">
+              {/* Query Info Bar */}
+              <div className="flex-shrink-0 px-3 py-2 border-b border-border bg-card/70">
+                <div className="flex items-center gap-2">
+                  <div className={cn(
+                    "p-1 rounded flex-shrink-0",
+                    selectedQuery.source === 'ai' ? 'bg-primary/10' : 'bg-muted'
+                  )}>
+                    {selectedQuery.source === 'ai' ? (
+                      <Bot className="h-3 w-3 text-primary" />
+                    ) : (
+                      <User className="h-3 w-3 text-muted-foreground" />
+                    )}
+                  </div>
+                  <Badge variant={selectedQuery.success ? 'success' : 'destructive'} className="text-[10px] px-1.5 py-0">
+                    {selectedQuery.success ? '✓' : '✗'}
+                  </Badge>
+                  {selectedQuery.execution_time_ms && (
+                    <Badge variant="glass" className="text-[10px] px-1.5 py-0">
+                      {selectedQuery.execution_time_ms}ms
+                    </Badge>
+                  )}
+                  <span className="text-[10px] text-muted-foreground ml-auto">
+                    {new Date(selectedQuery.executed_at).toLocaleTimeString()}
+                  </span>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-3">
+                <div className="rounded-lg bg-muted border border-border p-3">
+                  <div
+                    className="font-mono text-xs text-foreground [&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0 [&_pre]:whitespace-pre [&_pre]:overflow-x-auto"
+                    dangerouslySetInnerHTML={{ __html: highlightedSQL || `<pre style="white-space: pre; overflow-x: auto;">${escapeHtml(selectedQuery.query)}</pre>` }}
+                  />
                 </div>
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Side by Side Content - SQL and Results */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 p-3 min-h-0 overflow-hidden">
-              {/* SQL Query Panel */}
-              <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-0 overflow-hidden">
-                <div className="flex-shrink-0 px-4 py-3 border-b border-border bg-muted/50">
-                  <div className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                    <Code2 className="h-3.5 w-3.5 text-primary" />
-                    SQL Query
+        {/* Results Panel */}
+        <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-shrink-0 px-4 py-3 border-b border-border bg-muted/50">
+            <div className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <FileJson className="h-3.5 w-3.5 text-primary" />
+              Results
+              {selectedQuery && parsedResultData && Array.isArray(parsedResultData) && (
+                <Badge variant="glass" className="text-[10px] ml-auto px-1.5 py-0">
+                  {parsedResultData.length} rows
+                </Badge>
+              )}
+            </div>
+          </div>
+          {!selectedQuery ? (
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="text-center">
+                <FileJson className="h-8 w-8 mb-2 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-xs text-muted-foreground">Results will appear here</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto">
+              {selectedQuery.error_message ? (
+                <div className="p-3">
+                  <div className="p-3 rounded-lg border border-destructive/30 bg-destructive/10">
+                    <div className="flex items-center gap-2 mb-1">
+                      <XCircle className="h-3.5 w-3.5 text-destructive" />
+                      <span className="font-medium text-xs text-destructive">Error</span>
+                    </div>
+                    <pre className="text-[11px] text-destructive whitespace-pre-wrap font-mono">
+                      {selectedQuery.error_message}
+                    </pre>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4">
+              ) : parsedResultData ? (
+                <div className="p-3">
                   <div className="rounded-lg bg-muted border border-border p-3">
-                    <div
-                      className="font-mono text-xs text-foreground [&_pre]:bg-transparent [&_pre]:m-0 [&_pre]:p-0 [&_pre]:whitespace-pre [&_pre]:overflow-x-auto"
-                      dangerouslySetInnerHTML={{ __html: highlightedSQL || `<pre style="white-space: pre; overflow-x: auto;">${escapeHtml(selectedQuery.query)}</pre>` }}
+                    <JsonView
+                      value={parsedResultData}
+                      style={{
+                        ...(isDarkMode ? githubDarkTheme : githubLightTheme),
+                        //@ts-expect-error - Custom properties not in type
+                        ['--w-rjv-background-color']: 'transparent',
+                        ['--w-rjv-line-color']: isDarkMode ? '#3d444d50' : '#d0d7de30',
+                        fontSize: '11px',
+                        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace'
+                      }}
+                      collapsed={false}
+                      displayDataTypes={false}
+                      displayObjectSize={true}
+                      enableClipboard={true}
+                      shortenTextAfterLength={80}
                     />
                   </div>
                 </div>
-              </div>
-
-              {/* Results Panel */}
-              <div className="bg-card rounded-xl border border-border shadow-sm flex flex-col min-h-0 overflow-hidden">
-                <div className="flex-shrink-0 px-4 py-3 border-b border-border bg-muted/50">
-                  <div className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                    <FileJson className="h-3.5 w-3.5 text-primary" />
-                    Results
-                    {parsedResultData && Array.isArray(parsedResultData) && (
-                      <Badge variant="glass" className="text-[10px] ml-auto px-1.5 py-0">
-                        {parsedResultData.length} rows
-                      </Badge>
-                    )}
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground p-4">
+                  <div className="text-center">
+                    <Database className="h-6 w-6 mb-2 mx-auto opacity-50" />
+                    <p className="text-xs">No data returned</p>
+                    <p className="text-[10px] mt-0.5 text-muted-foreground/70">Query executed successfully</p>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto">
-                  {selectedQuery.error_message ? (
-                    <div className="p-4">
-                      <div className="p-3 rounded-lg border border-destructive/30 bg-destructive/10">
-                        <div className="flex items-center gap-2 mb-1">
-                          <XCircle className="h-3.5 w-3.5 text-destructive" />
-                          <span className="font-medium text-xs text-destructive">Error</span>
-                        </div>
-                        <pre className="text-[11px] text-destructive whitespace-pre-wrap font-mono">
-                          {selectedQuery.error_message}
-                        </pre>
-                      </div>
-                    </div>
-                  ) : parsedResultData ? (
-                    <div className="p-4">
-                      <div className="rounded-lg bg-muted border border-border p-3">
-                        <JsonView
-                          value={parsedResultData}
-                          style={{
-                            ...(isDarkMode ? githubDarkTheme : githubLightTheme),
-                            //@ts-expect-error - Custom properties not in type
-                            ['--w-rjv-background-color']: 'transparent',
-                            ['--w-rjv-line-color']: isDarkMode ? '#3d444d50' : '#d0d7de30',
-                            fontSize: '12px',
-                            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace'
-                          }}
-                          collapsed={false}
-                          displayDataTypes={false}
-                          displayObjectSize={true}
-                          enableClipboard={true}
-                          shortenTextAfterLength={100}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-muted-foreground p-4">
-                      <div className="text-center">
-                        <Database className="h-6 w-6 mb-2 mx-auto opacity-50" />
-                        <p className="text-xs">No data returned</p>
-                        <p className="text-[10px] mt-0.5 text-muted-foreground/70">Query executed successfully</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

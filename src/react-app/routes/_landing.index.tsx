@@ -23,9 +23,10 @@ import {
   Sparkles,
   X,
   Keyboard,
+  Command,
 } from 'lucide-react'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_landing/')({
   component: HomePage,
 })
 
@@ -622,9 +623,8 @@ function HomePage() {
                 <div className="text-sm">
                   <span className="text-muted-foreground">Try the embedded WebMCP agent: </span>
                   <span className="inline-flex items-center gap-1 ml-1">
-                    <kbd className="px-2 py-0.5 rounded bg-background border border-border text-xs font-mono font-medium">
-                      <span className="hidden sm:inline">⌘</span>
-                      <span className="sm:hidden">Cmd</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-background border border-border text-xs font-mono font-medium inline-flex items-center justify-center">
+                      <Command className="h-3 w-3" />
                     </kbd>
                     <span className="text-muted-foreground">+</span>
                     <kbd className="px-2 py-0.5 rounded bg-background border border-border text-xs font-mono font-medium">⇧</kbd>

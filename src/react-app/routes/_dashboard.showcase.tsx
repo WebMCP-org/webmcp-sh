@@ -7,7 +7,7 @@ import { DivideX } from '@/components/ui/divide'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MeshGradient } from '@/components/ui/mesh-gradient'
 
-export const Route = createFileRoute('/showcase')({
+export const Route = createFileRoute('/_dashboard/showcase')({
   component: ShowcaseComponent,
 })
 
