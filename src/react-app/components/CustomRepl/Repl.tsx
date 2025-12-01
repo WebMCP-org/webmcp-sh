@@ -320,9 +320,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
       <div className="PGliteRepl-output" ref={outputRef}>
         {loading && <div className="PGliteRepl-loading-msg">Loading...</div>}
         {output.map((response) => (
-          <div key={`${response.query}-${response.time}`}>
-            <ReplResponse response={response || []} showTime={showTime} />
-          </div>
+          <ReplResponse key={`${response.query}-${response.time}`} response={response || []} showTime={showTime} />
         ))}
       </div>
       {showToolbar && value.trim() && (

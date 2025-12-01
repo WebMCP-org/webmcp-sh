@@ -5,7 +5,7 @@ import { highlightSQL } from '@/lib/syntax-highlight'
 
 function OutLine({ result }: { result: Results }) {
   return (
-    <div className="PGliteRepl-line">
+    <div className="PGliteRepl-result-line">
       {result.fields.length > 0 ? (
         <ReplTable result={result} />
       ) : (
@@ -32,37 +32,56 @@ export function ReplResponse({
     }
   }, [response.query])
 
-  let out
+  const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
+
+  let resultContent
   if (response.error) {
-    out = (
-      <div className="PGliteRepl-line PGliteRepl-error">{response.error}</div>
+    resultContent = (
+      <div className="PGliteRepl-error-content">{response.error}</div>
+    )
+  } else if (response.text) {
+    resultContent = (
+      <div className="PGliteRepl-text-content">{response.text}</div>
     )
   } else {
-    out = (
-      <>
+    resultContent = (
+      <div className="PGliteRepl-results-list">
         {response.results?.map((result, i) => (
-          // eslint-disable-next-line @eslint-react/no-array-index-key
           <OutLine key={i} result={result} />
         ))}
-      </>
+      </div>
     )
   }
+
   return (
-    <>
-      <div
-        className="PGliteRepl-line PGliteRepl-query"
-        dangerouslySetInnerHTML={{ __html: highlightedSQL || `<pre>${response.query}</pre>` }}
-      />
-      {response.text && (
-        <div className="PGliteRepl-line PGliteRepl-text">{response.text}</div>
-      )}
-      {out}
-      <div className="PGliteRepl-divider">
-        <hr />
-        {showTime && (
-          <div className="PGliteRepl-time">{response.time.toFixed(1)}ms</div>
-        )}
+    <div className="PGliteRepl-response">
+      {/* Left side: Query */}
+      <div className="PGliteRepl-query-panel">
+        <div className="PGliteRepl-panel-header">
+          <span className="PGliteRepl-panel-icon">❯</span>
+          <span className="PGliteRepl-panel-label">Query</span>
+        </div>
+        <div
+          className="PGliteRepl-query-content"
+          dangerouslySetInnerHTML={{ __html: highlightedSQL || `<pre>${response.query}</pre>` }}
+        />
       </div>
-    </>
+
+      {/* Right side: Results */}
+      <div className={`PGliteRepl-results-panel ${response.error ? 'PGliteRepl-results-error' : ''}`}>
+        <div className="PGliteRepl-panel-header">
+          <span className="PGliteRepl-panel-icon">{response.error ? '!' : '❮'}</span>
+          <span className="PGliteRepl-panel-label">
+            {response.error ? 'Error' : response.text ? 'Output' : `Results (${rowCount} row${rowCount !== 1 ? 's' : ''})`}
+          </span>
+          {showTime && (
+            <span className="PGliteRepl-panel-time">{response.time.toFixed(1)}ms</span>
+          )}
+        </div>
+        <div className="PGliteRepl-results-content">
+          {resultContent}
+        </div>
+      </div>
+    </div>
   )
 }
