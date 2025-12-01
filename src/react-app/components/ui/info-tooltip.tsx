@@ -27,12 +27,19 @@ export function InfoTooltip({
     <TooltipPrimitive.Provider delayDuration={200}>
       <TooltipPrimitive.Root>
         <TooltipPrimitive.Trigger asChild>
-          <Icon
+          <button
+            type="button"
             className={cn(
-              "h-3.5 w-3.5 text-muted-foreground/70 cursor-help hover:text-muted-foreground transition-colors inline-block",
+              "inline-flex cursor-help focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm",
               iconClassName
             )}
-          />
+          >
+            <Icon
+              className="h-3.5 w-3.5 text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+              aria-hidden="true"
+            />
+            <span className="sr-only">More information</span>
+          </button>
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal>
           <TooltipPrimitive.Content
@@ -42,15 +49,15 @@ export function InfoTooltip({
             className={cn(
               "z-50 animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
               "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-              "rounded-lg border bg-slate-900 px-4 py-3 text-white shadow-lg",
+              "rounded-lg border border-border bg-popover px-4 py-3 text-popover-foreground shadow-lg",
               className
             )}
             style={{ maxWidth }}
           >
-            <div className="space-y-2 text-xs leading-relaxed [&_p.font-semibold]:text-blue-400 [&_p.font-semibold]:font-bold [&_p.font-semibold]:mb-1 [&_p.text-muted-foreground]:text-slate-400 [&_p.text-muted-foreground]:text-[11px] [&_p.text-muted-foreground]:mt-2">
+            <div className="space-y-2 text-xs leading-relaxed [&_p.font-semibold]:text-primary [&_p.font-semibold]:font-bold [&_p.font-semibold]:mb-1 [&_p.text-muted-foreground]:text-muted-foreground [&_p.text-muted-foreground]:text-[11px] [&_p.text-muted-foreground]:mt-2">
               {content}
             </div>
-            <TooltipPrimitive.Arrow className="fill-slate-900" />
+            <TooltipPrimitive.Arrow className="fill-popover" />
           </TooltipPrimitive.Content>
         </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>
