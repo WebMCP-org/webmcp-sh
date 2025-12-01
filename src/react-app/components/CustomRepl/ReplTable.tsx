@@ -88,15 +88,13 @@ export function ReplTable({ result }: { result: Results }) {
         {result.rows.length > maxRows ? `${maxRows} of ` : ''}
         {result.rows.length} rows{' '}
         {result.rows.length > maxRows && (
-          <a
-            href=""
-            onClick={(e) => {
-              e.preventDefault()
-              showMore()
-            }}
+          <button
+            type="button"
+            className="PGliteRepl-show-more-btn"
+            onClick={showMore}
           >
             Show more
-          </a>
+          </button>
         )}
       </div>
     </>

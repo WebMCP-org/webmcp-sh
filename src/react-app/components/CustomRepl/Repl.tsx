@@ -68,6 +68,8 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
   const [value, setValue] = useState('')
   const valueNoHistory = useRef('')
   const [loading, setLoading] = useState(true)
+  const [executing, setExecuting] = useState(false)
+  const executingRef = useRef(false) // Ref to avoid useMemo recreation
   const [output, setOutput] = useState<Response[]>([])
   const outputRef = useRef<HTMLDivElement | null>(null)
   const [schema, setSchema] = useState<Record<string, string[]>>({})
@@ -93,6 +95,21 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
       ignore = true
     }
   }, [pg])
+
+  // Auto-scroll to bottom when new output is added
+  useEffect(() => {
+    if (outputRef.current && output.length > 0) {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        if (outputRef.current) {
+          outputRef.current.scrollTo({
+            top: outputRef.current.scrollHeight,
+            behavior: 'smooth'
+          })
+        }
+      })
+    }
+  }, [output])
 
   useEffect(() => {
     if (theme === 'auto') {
@@ -145,29 +162,34 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     }
   }
 
+  // Helper to update both state and ref for executing
+  const setExecutingState = (value: boolean) => {
+    executingRef.current = value
+    setExecuting(value)
+  }
+
   // Expose executeQuery method to parent components
   useImperativeHandle(ref, () => ({
     executeQuery: async (query: string): Promise<Response> => {
-      const response = await runQuery(query, pg)
-      setOutput((prev) => [...prev, response])
-      // Show toast notification for query result
-      if (response.error) {
-        toast.error(response.error)
-      } else {
-        const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
-        toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
+      setExecutingState(true)
+      try {
+        const response = await runQuery(query, pg)
+        setOutput((prev) => [...prev, response])
+        // Show toast notification for query result
+        if (response.error) {
+          toast.error(response.error)
+        } else {
+          const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
+          toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
+        }
+        // Update the schema for any new tables to be used in autocompletion
+        if (!disableUpdateSchema) {
+          getSchema(pg).then(setSchema)
+        }
+        return response
+      } finally {
+        setExecutingState(false)
       }
-      // Auto-scroll to bottom
-      if (outputRef.current) {
-        setTimeout(() => {
-          outputRef.current!.scrollTop = outputRef.current!.scrollHeight
-        }, 0)
-      }
-      // Update the schema for any new tables to be used in autocompletion
-      if (!disableUpdateSchema) {
-        getSchema(pg).then(setSchema)
-      }
-      return response
     },
   }), [pg, disableUpdateSchema])
 
@@ -178,7 +200,9 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
           key: 'Enter',
           preventDefault: true,
           run: () => {
-            if (value.trim() === '') return false // Do nothing if the input is empty
+            // Use ref to check executing state to avoid useMemo recreation
+            if (value.trim() === '' || executingRef.current) return false
+            setExecutingState(true)
             runQuery(value, pg).then((response) => {
               setOutput((prev) => [...prev, response])
               // Show toast notification for query result
@@ -188,16 +212,12 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
                 const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
                 toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
               }
-              // Auto-scroll to bottom
-              if (outputRef.current) {
-                setTimeout(() => {
-                  outputRef.current!.scrollTop = outputRef.current!.scrollHeight
-                }, 0)
-              }
               // Update the schema for any new tables to be used in autocompletion
               if (!disableUpdateSchema) {
                 getSchema(pg).then(setSchema)
               }
+            }).finally(() => {
+              setExecutingState(false)
             })
             historyPos.current = -1
             valueNoHistory.current = ''
@@ -290,15 +310,20 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     const foregroundColor = cmEditorElComputedStyles.color
     const backgroundColor = cmEditorElComputedStyles.backgroundColor
 
-    const gutterElComputedStyles = window.getComputedStyle(gutterEl!)
-    const gutterBorder = gutterElComputedStyles.borderRight
-    const borderWidth = parseInt(gutterElComputedStyles.borderRightWidth) || 0
-    const borderColor = borderWidth
-      ? gutterElComputedStyles.borderRightColor
-      : foregroundColor.replace('rgb', 'rgba').replace(')', ', 0.15)')
-    const border = borderWidth
-      ? gutterElComputedStyles.borderRight
-      : `1px solid ${borderColor}`
+    // Safely get gutter styles, with fallback if gutters aren't rendered
+    let gutterBorder = ''
+    let borderColor = foregroundColor.replace('rgb', 'rgba').replace(')', ', 0.15)')
+    let border = `1px solid ${borderColor}`
+
+    if (gutterEl) {
+      const gutterElComputedStyles = window.getComputedStyle(gutterEl)
+      gutterBorder = gutterElComputedStyles.borderRight
+      const borderWidth = parseInt(gutterElComputedStyles.borderRightWidth) || 0
+      if (borderWidth) {
+        borderColor = gutterElComputedStyles.borderRightColor
+        border = gutterElComputedStyles.borderRight
+      }
+    }
 
     setStyles({
       '--PGliteRepl-foreground-color': foregroundColor,
@@ -319,10 +344,15 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     >
       <div className="PGliteRepl-output" ref={outputRef}>
         {loading && <div className="PGliteRepl-loading-msg">Loading...</div>}
-        {output.map((response) => (
-          <div key={`${response.query}-${response.time}`}>
-            <ReplResponse response={response || []} showTime={showTime} />
+        {!loading && output.length === 0 && (
+          <div className="PGliteRepl-empty-state">
+            <div className="PGliteRepl-empty-icon">❯_</div>
+            <div className="PGliteRepl-empty-text">No queries yet</div>
+            <div className="PGliteRepl-empty-hint">Type a SQL query below and press Enter to run</div>
           </div>
+        )}
+        {output.map((response, index) => (
+          <ReplResponse key={`${index}-${response.time}`} response={response} showTime={showTime} />
         ))}
       </div>
       {showToolbar && value.trim() && (
@@ -336,7 +366,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
         }}>
           <button
             onClick={handleFormat}
-            disabled={loading}
+            disabled={loading || executing}
             style={{
               padding: '4px 12px',
               fontSize: '12px',
@@ -344,8 +374,8 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
               border: `1px solid ${styles['--PGliteRepl-border-color']}`,
               background: 'transparent',
               color: String(styles['--PGliteRepl-foreground-color']),
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1,
+              cursor: (loading || executing) ? 'not-allowed' : 'pointer',
+              opacity: (loading || executing) ? 0.5 : 1,
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -355,24 +385,39 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
           </button>
         </div>
       )}
-      <CodeMirror
-        ref={rcm}
-        className={`PGliteRepl-input ${loading ? 'PGliteRepl-input-loading' : ''}`}
-        width="100%"
-        value={value}
-        basicSetup={{
-          defaultKeymap: false,
-        }}
-        extensions={extensions}
-        theme={themeToUse}
-        onChange={onChange}
-        editable={!loading}
-        onCreateEditor={() => {
-          extractStyles()
-          setTimeout(extractStyles, 0)
-          getSchema(pg).then(setSchema)
-        }}
-      />
+      <div className="PGliteRepl-input-wrapper">
+        <div
+          className={`PGliteRepl-input ${loading || executing ? 'PGliteRepl-input-loading' : ''}`}
+          onClick={() => rcm.current?.view?.focus()}
+        >
+          <CodeMirror
+            ref={rcm}
+            width="100%"
+            value={value}
+            basicSetup={{
+              defaultKeymap: false,
+            }}
+            extensions={extensions}
+            theme={themeToUse}
+            onChange={onChange}
+            editable={!loading && !executing}
+            onCreateEditor={() => {
+              extractStyles()
+              setTimeout(extractStyles, 0)
+              getSchema(pg).then(setSchema)
+            }}
+          />
+          {executing && <div className="PGliteRepl-spinner" />}
+        </div>
+        <div className="PGliteRepl-hints">
+          <span className="PGliteRepl-hint">
+            <kbd>Enter</kbd> Run query
+          </span>
+          <span className="PGliteRepl-hint">
+            <kbd>↑</kbd><kbd>↓</kbd> History
+          </span>
+        </div>
+      </div>
     </div>
   )
 })
