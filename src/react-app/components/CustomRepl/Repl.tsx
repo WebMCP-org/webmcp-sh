@@ -94,6 +94,13 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     }
   }, [pg])
 
+  // Auto-scroll to bottom when new output is added
+  useEffect(() => {
+    if (outputRef.current && output.length > 0) {
+      outputRef.current.scrollTop = outputRef.current.scrollHeight
+    }
+  }, [output])
+
   useEffect(() => {
     if (theme === 'auto') {
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
@@ -157,12 +164,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
         const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
         toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
       }
-      // Auto-scroll to bottom
-      if (outputRef.current) {
-        setTimeout(() => {
-          outputRef.current!.scrollTop = outputRef.current!.scrollHeight
-        }, 0)
-      }
       // Update the schema for any new tables to be used in autocompletion
       if (!disableUpdateSchema) {
         getSchema(pg).then(setSchema)
@@ -187,12 +188,6 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
               } else {
                 const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
                 toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
-              }
-              // Auto-scroll to bottom
-              if (outputRef.current) {
-                setTimeout(() => {
-                  outputRef.current!.scrollTop = outputRef.current!.scrollHeight
-                }, 0)
               }
               // Update the schema for any new tables to be used in autocompletion
               if (!disableUpdateSchema) {
