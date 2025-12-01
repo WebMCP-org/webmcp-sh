@@ -98,7 +98,15 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
   // Auto-scroll to bottom when new output is added
   useEffect(() => {
     if (outputRef.current && output.length > 0) {
-      outputRef.current.scrollTop = outputRef.current.scrollHeight
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        if (outputRef.current) {
+          outputRef.current.scrollTo({
+            top: outputRef.current.scrollHeight,
+            behavior: 'smooth'
+          })
+        }
+      })
     }
   }, [output])
 

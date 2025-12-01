@@ -30,10 +30,9 @@
 }
 
 .PGliteRepl-output {
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 0;
+  min-height: 100px;
   overflow-y: auto;
-  scroll-behavior: smooth;
   padding: 0.75em;
   border-bottom: var(--border);
   display: flex;
