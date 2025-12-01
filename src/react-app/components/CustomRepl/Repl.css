@@ -101,10 +101,17 @@
 
 .PGliteRepl-input .cm-editor .cm-scroller {
   min-height: 60px;
+  flex: 1;
 }
 
 .PGliteRepl-input .cm-editor .cm-content {
-  min-width: 100%;
+  flex: 1;
+  min-height: 60px;
+  cursor: text;
+}
+
+.PGliteRepl-input .cm-editor .cm-line {
+  padding-right: 1em;
 }
 
 .PGliteRepl-input .cm-editor.cm-focused {

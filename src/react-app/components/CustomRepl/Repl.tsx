@@ -386,7 +386,10 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
         </div>
       )}
       <div className="PGliteRepl-input-wrapper">
-        <div className={`PGliteRepl-input ${loading || executing ? 'PGliteRepl-input-loading' : ''}`}>
+        <div
+          className={`PGliteRepl-input ${loading || executing ? 'PGliteRepl-input-loading' : ''}`}
+          onClick={() => rcm.current?.view?.focus()}
+        >
           <CodeMirror
             ref={rcm}
             width="100%"
