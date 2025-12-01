@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { TruncatedTooltip, DateTooltip } from "@/components/ui/truncated-tooltip"
 import { memory_entities } from '@/lib/db'
 import { formatDistanceToNow } from 'date-fns'
 import { Link } from '@tanstack/react-router'
@@ -199,14 +200,15 @@ export const columns: ColumnDef<Entity>[] = [
               <div className={`h-7 w-7 rounded-lg ${categoryConfig.bgColor} flex items-center justify-center flex-shrink-0`}>
                 <Icon className={`h-3.5 w-3.5 ${categoryConfig.color}`} />
               </div>
-              <Link
-                to="/entities/$entityId"
-                params={{ entityId: entity.id }}
-                className="hover:underline truncate font-medium"
-                title={entity.name}
-              >
-                {entity.name}
-              </Link>
+              <TruncatedTooltip content={entity.name}>
+                <Link
+                  to="/entities/$entityId"
+                  params={{ entityId: entity.id }}
+                  className="hover:underline truncate font-medium"
+                >
+                  {entity.name}
+                </Link>
+              </TruncatedTooltip>
             </div>
           }
         />
@@ -262,9 +264,11 @@ export const columns: ColumnDef<Entity>[] = [
             type="textarea"
             onSave={(value) => handleUpdate(entity.id, 'description', value)}
             displayComponent={
-              <div className="truncate text-sm text-muted-foreground" title={entity.description}>
-                {entity.description}
-              </div>
+              <TruncatedTooltip content={entity.description} maxWidth={400}>
+                <div className="truncate text-sm text-muted-foreground">
+                  {entity.description}
+                </div>
+              </TruncatedTooltip>
             }
           />
         </div>
@@ -410,14 +414,16 @@ export const columns: ColumnDef<Entity>[] = [
     cell: ({ row }) => {
       const date = new Date(row.getValue("last_mentioned"))
       const isRecent = Date.now() - date.getTime() < 7 * 24 * 60 * 60 * 1000 // Less than 7 days
+      const displayText = isRecent
+        ? formatDistanceToNow(date, { addSuffix: true })
+        : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 
       return (
-        <span className="text-xs text-muted-foreground whitespace-nowrap" title={date.toLocaleString()}>
-          {isRecent
-            ? formatDistanceToNow(date, { addSuffix: true })
-            : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-          }
-        </span>
+        <DateTooltip
+          date={date}
+          displayText={displayText}
+          className="text-xs text-muted-foreground whitespace-nowrap"
+        />
       )
     },
   },

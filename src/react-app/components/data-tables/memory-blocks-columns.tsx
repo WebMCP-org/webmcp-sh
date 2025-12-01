@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { TruncatedTooltip, DateTooltip } from "@/components/ui/truncated-tooltip"
 import { memory_blocks } from '@/lib/db'
 import { formatDistanceToNow } from 'date-fns'
 import { useState } from "react"
@@ -186,7 +187,7 @@ export const columns: ColumnDef<MemoryBlock>[] = [
               <div className={`h-7 w-7 rounded-lg ${style.bgColor} flex items-center justify-center flex-shrink-0`}>
                 <Brain className={`h-3.5 w-3.5 ${style.color}`} />
               </div>
-              <span className="font-medium truncate" title={block.label}>{block.label}</span>
+              <TruncatedTooltip content={block.label} className="font-medium" />
             </div>
           }
         />
@@ -244,11 +245,13 @@ export const columns: ColumnDef<MemoryBlock>[] = [
             type="textarea"
             onSave={(newValue) => handleUpdate(block.id, 'value', newValue)}
             displayComponent={
-              <div className="bg-muted rounded p-2">
-                <p className="text-xs text-foreground leading-relaxed line-clamp-2" title={value}>
-                  {value}
-                </p>
-              </div>
+              <TruncatedTooltip content={value} maxWidth={400} side="bottom">
+                <div className="bg-muted rounded p-2">
+                  <p className="text-xs text-foreground leading-relaxed line-clamp-2">
+                    {value}
+                  </p>
+                </div>
+              </TruncatedTooltip>
             }
           />
         </div>
@@ -342,14 +345,16 @@ export const columns: ColumnDef<MemoryBlock>[] = [
     cell: ({ row }) => {
       const date = new Date(row.getValue("updated_at"))
       const isRecent = Date.now() - date.getTime() < 7 * 24 * 60 * 60 * 1000 // Less than 7 days
+      const displayText = isRecent
+        ? formatDistanceToNow(date, { addSuffix: true })
+        : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 
       return (
-        <span className="text-xs text-muted-foreground whitespace-nowrap" title={date.toLocaleString()}>
-          {isRecent
-            ? formatDistanceToNow(date, { addSuffix: true })
-            : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-          }
-        </span>
+        <DateTooltip
+          date={date}
+          displayText={displayText}
+          className="text-xs text-muted-foreground whitespace-nowrap"
+        />
       )
     },
   },
