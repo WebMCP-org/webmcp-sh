@@ -8,7 +8,7 @@ import { EnhancedBadge } from '@/components/ui/enhanced-badge'
 import { DivideX } from '@/components/ui/divide'
 import { Button } from '@/components/ui/button'
 
-export const Route = createFileRoute('/about')({
+export const Route = createFileRoute('/_dashboard/about')({
   component: AboutComponent,
 })
 
