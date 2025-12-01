@@ -52,14 +52,21 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  max-height: 40%;
 }
 
 .PGliteRepl-input {
   display: flex;
   min-height: 60px;
-  max-height: 50%;
+  max-height: 100%;
   width: 100%;
   position: relative;
+  overflow: hidden;
+}
+
+.PGliteRepl-input .cm-editor {
+  max-height: 100%;
+  overflow: auto;
 }
 
 .PGliteRepl-input .cm-editor.cm-focused {

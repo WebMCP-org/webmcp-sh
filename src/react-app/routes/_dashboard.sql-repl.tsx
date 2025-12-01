@@ -40,7 +40,7 @@ function SQLReplPage() {
       </div>
 
       {/* Full-screen REPL */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <Repl ref={localReplRef} key="repl" pg={pg_lite} disableUpdateSchema={true} border={false} theme="auto" />
       </div>
     </div>
