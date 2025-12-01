@@ -134,6 +134,8 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
-    sourcemap: true,
+    // Only generate source maps when SENTRY_AUTH_TOKEN is set (for CI/CD uploads)
+    // Using 'hidden' so sourceMappingURL comments aren't included in production bundles
+    sourcemap: process.env.SENTRY_AUTH_TOKEN ? 'hidden' : false,
   },
 });
