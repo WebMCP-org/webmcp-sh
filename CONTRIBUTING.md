@@ -71,8 +71,8 @@ export const TOOL_CATEGORIES = ['memory', 'navigation', 'sql'];
 
 **This applies to documentation too:**
 - README.md has the project overview
-- AGENTS.md links to other documentation (not duplicating it)
-- docs/ folder contains detailed implementation documentation
+- AGENTS.md links to source code (not duplicating it)
+- Keep documentation close to the code it describes
 
 ### 3. Modularity
 
@@ -185,7 +185,7 @@ export async function executeTool(toolName: string, params: unknown) {
 
 **Before writing code:**
 1. Check existing patterns in the codebase
-2. Review relevant documentation (README.md, docs/ folder)
+2. Review relevant source code and README.md
 3. Ensure the feature fits the existing architecture
 4. Identify where types, logic, and UI should live
 
@@ -238,7 +238,7 @@ All tests must pass before your PR can be merged.
 - Update the canonical source (e.g., README.md, not AGENTS.md)
 - AGENTS.md should only link, never duplicate
 - Keep documentation close to code when possible
-- Implementation-specific docs go in the docs/ folder
+- Prefer code comments over separate doc files
 
 ### Testing
 
@@ -325,8 +325,7 @@ try {
 
 ### Primary Documentation
 - [README.md](./README.md) - Project overview and quick start
-- [AGENTS.md](./AGENTS.md) - Navigation hub for all documentation
-- [docs/](./docs/) - Implementation details and architecture
+- [AGENTS.md](./AGENTS.md) - Navigation hub pointing to source code
 
 ### External Resources
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
@@ -340,9 +339,8 @@ try {
 
 If you're unsure about a pattern or approach:
 1. Check existing code for similar patterns
-2. Review the docs/ folder for design decisions
-3. Look at existing components for complete examples
-4. When in doubt, prioritize clarity and type safety
+2. Look at existing components for complete examples
+3. When in doubt, prioritize clarity and type safety
 
 ---
 
