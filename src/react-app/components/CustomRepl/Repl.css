@@ -150,6 +150,7 @@
   overflow: hidden;
   background: var(--bg);
   animation: PGliteRepl-fadeIn 0.2s ease-out;
+  flex-shrink: 0;
 }
 
 /* Collapsed state */
@@ -249,8 +250,7 @@
 .PGliteRepl-query-content {
   padding: 0.75em;
   overflow: auto;
-  flex: 1;
-  min-height: 0;
+  max-height: 200px;
 }
 
 .PGliteRepl-query-content pre {
@@ -284,8 +284,7 @@
 .PGliteRepl-results-content {
   padding: 0.75em;
   overflow: auto;
-  flex: 1;
-  min-height: 0;
+  max-height: 300px;
 }
 
 .PGliteRepl-results-list {
@@ -314,8 +313,6 @@
 /* Table styles */
 .PGliteRepl-table-scroll {
   overflow-x: auto;
-  max-height: 300px;
-  overflow-y: auto;
 }
 
 .PGliteRepl-table {
