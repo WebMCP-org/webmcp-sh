@@ -279,7 +279,7 @@ AI agents have direct SQL access to the memory database through MCP tools with s
 ❌ **Blocked**: DROP, TRUNCATE, ALTER, CREATE, SQL injection patterns
 ⚠️ **Warned**: UPDATE without WHERE, DELETE without WHERE
 
-See **[SQL Tools Guide](../../../docs/SQL_TOOLS_GUIDE.md)** for comprehensive documentation.
+See the MCP tool hooks in `src/react-app/hooks/` for implementation details.
 
 ## Future Enhancements
 
