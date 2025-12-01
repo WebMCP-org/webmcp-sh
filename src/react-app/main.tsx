@@ -15,35 +15,34 @@ import { routeTree } from "./routeTree.gen";
 const router = createRouter({ routeTree });
 
 // Initialize Sentry
-const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN || 'https://e3b200304186fa2f0f2efa1a0ccabe4b@o4510053563891712.ingest.us.sentry.io/4510460950347776';
 const environment = import.meta.env.VITE_SENTRY_ENVIRONMENT || import.meta.env.MODE;
 const isDevelopment = environment === 'development';
 
-if (sentryDsn) {
-  Sentry.init({
-    dsn: sentryDsn,
-    environment,
-    sendDefaultPii: true,
-    integrations: [
-      Sentry.tanstackRouterBrowserTracingIntegration(router),
-      Sentry.replayIntegration(),
-    ],
-    tracesSampleRate: isDevelopment ? 1.0 : 0.2,
-    tracePropagationTargets: [
-      /^\/api\//,
-      /^https:\/\/.*\.workers\.dev/,
-      /^https:\/\/webmcp\.sh/,
-    ],
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-    ignoreErrors: [
-      /^chrome-extension:\/\//,
-      /^moz-extension:\/\//,
-      'NetworkError',
-      'Failed to fetch',
-    ],
-  });
-}
+Sentry.init({
+  dsn: sentryDsn,
+  environment,
+  sendDefaultPii: true,
+  integrations: [
+    Sentry.tanstackRouterBrowserTracingIntegration(router),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: isDevelopment ? 1.0 : 0.2,
+  tracePropagationTargets: [
+    'localhost',
+    /^\/api\//,
+    /^https:\/\/.*\.workers\.dev/,
+    /^https:\/\/webmcp\.sh/,
+  ],
+  replaysSessionSampleRate: isDevelopment ? 1.0 : 0.1,
+  replaysOnErrorSampleRate: 1.0,
+  ignoreErrors: [
+    /^chrome-extension:\/\//,
+    /^moz-extension:\/\//,
+    'NetworkError',
+    'Failed to fetch',
+  ],
+});
 
 // Wrap everything in an async IIFE to handle initialization
 (async () => {
