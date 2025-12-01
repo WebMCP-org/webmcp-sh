@@ -3,6 +3,16 @@ import { ReplTable } from './ReplTable'
 import { useEffect, useState } from 'react'
 import { highlightSQL } from '@/lib/syntax-highlight'
 
+// Escape HTML to prevent XSS
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 function OutLine({ result }: { result: Results }) {
   return (
     <div className="PGliteRepl-result-line">
@@ -28,7 +38,8 @@ export function ReplResponse({
   useEffect(() => {
     if (response.query) {
       highlightSQL(response.query).then(setHighlightedSQL).catch(() => {
-        setHighlightedSQL(`<pre>${response.query}</pre>`)
+        // Escape HTML to prevent XSS when syntax highlighting fails
+        setHighlightedSQL(`<pre>${escapeHtml(response.query)}</pre>`)
       })
     }
   }, [response.query])
@@ -77,7 +88,7 @@ export function ReplResponse({
         </div>
         <div
           className="PGliteRepl-query-content"
-          dangerouslySetInnerHTML={{ __html: highlightedSQL || `<pre>${response.query}</pre>` }}
+          dangerouslySetInnerHTML={{ __html: highlightedSQL || `<pre>${escapeHtml(response.query)}</pre>` }}
         />
       </div>
 

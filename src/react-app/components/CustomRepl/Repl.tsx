@@ -69,6 +69,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
   const valueNoHistory = useRef('')
   const [loading, setLoading] = useState(true)
   const [executing, setExecuting] = useState(false)
+  const executingRef = useRef(false) // Ref to avoid useMemo recreation
   const [output, setOutput] = useState<Response[]>([])
   const outputRef = useRef<HTMLDivElement | null>(null)
   const [schema, setSchema] = useState<Record<string, string[]>>({})
@@ -161,10 +162,16 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     }
   }
 
+  // Helper to update both state and ref for executing
+  const setExecutingState = (value: boolean) => {
+    executingRef.current = value
+    setExecuting(value)
+  }
+
   // Expose executeQuery method to parent components
   useImperativeHandle(ref, () => ({
     executeQuery: async (query: string): Promise<Response> => {
-      setExecuting(true)
+      setExecutingState(true)
       try {
         const response = await runQuery(query, pg)
         setOutput((prev) => [...prev, response])
@@ -181,7 +188,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
         }
         return response
       } finally {
-        setExecuting(false)
+        setExecutingState(false)
       }
     },
   }), [pg, disableUpdateSchema])
@@ -193,8 +200,9 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
           key: 'Enter',
           preventDefault: true,
           run: () => {
-            if (value.trim() === '' || executing) return false // Do nothing if empty or already executing
-            setExecuting(true)
+            // Use ref to check executing state to avoid useMemo recreation
+            if (value.trim() === '' || executingRef.current) return false
+            setExecutingState(true)
             runQuery(value, pg).then((response) => {
               setOutput((prev) => [...prev, response])
               // Show toast notification for query result
@@ -209,7 +217,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
                 getSchema(pg).then(setSchema)
               }
             }).finally(() => {
-              setExecuting(false)
+              setExecutingState(false)
             })
             historyPos.current = -1
             valueNoHistory.current = ''
@@ -288,7 +296,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
         defaultSchema: 'public',
       }),
     ],
-    [pg, schema, value, output, disableUpdateSchema, executing],
+    [pg, schema, value, output, disableUpdateSchema],
   )
 
   const extractStyles = () => {
@@ -302,15 +310,20 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     const foregroundColor = cmEditorElComputedStyles.color
     const backgroundColor = cmEditorElComputedStyles.backgroundColor
 
-    const gutterElComputedStyles = window.getComputedStyle(gutterEl!)
-    const gutterBorder = gutterElComputedStyles.borderRight
-    const borderWidth = parseInt(gutterElComputedStyles.borderRightWidth) || 0
-    const borderColor = borderWidth
-      ? gutterElComputedStyles.borderRightColor
-      : foregroundColor.replace('rgb', 'rgba').replace(')', ', 0.15)')
-    const border = borderWidth
-      ? gutterElComputedStyles.borderRight
-      : `1px solid ${borderColor}`
+    // Safely get gutter styles, with fallback if gutters aren't rendered
+    let gutterBorder = ''
+    let borderColor = foregroundColor.replace('rgb', 'rgba').replace(')', ', 0.15)')
+    let border = `1px solid ${borderColor}`
+
+    if (gutterEl) {
+      const gutterElComputedStyles = window.getComputedStyle(gutterEl)
+      gutterBorder = gutterElComputedStyles.borderRight
+      const borderWidth = parseInt(gutterElComputedStyles.borderRightWidth) || 0
+      if (borderWidth) {
+        borderColor = gutterElComputedStyles.borderRightColor
+        border = gutterElComputedStyles.borderRight
+      }
+    }
 
     setStyles({
       '--PGliteRepl-foreground-color': foregroundColor,
@@ -331,8 +344,8 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     >
       <div className="PGliteRepl-output" ref={outputRef}>
         {loading && <div className="PGliteRepl-loading-msg">Loading...</div>}
-        {output.map((response) => (
-          <ReplResponse key={`${response.query}-${response.time}`} response={response || []} showTime={showTime} />
+        {output.map((response, index) => (
+          <ReplResponse key={`${index}-${response.time}`} response={response} showTime={showTime} />
         ))}
       </div>
       {showToolbar && value.trim() && (
