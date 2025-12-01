@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 
 export default defineConfig({
@@ -111,7 +112,17 @@ export default defineConfig({
       devOptions: {
         enabled: false
       }
-    })
+    }),
+    // Sentry plugin for source map uploads (only active when SENTRY_AUTH_TOKEN is set)
+    sentryVitePlugin({
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      disable: !process.env.SENTRY_AUTH_TOKEN,
+      sourcemaps: {
+        filesToDeleteAfterUpload: ["./dist/**/*.map"],
+      },
+    }),
   ],
   resolve: {
     alias: {
@@ -123,5 +134,8 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    // Only generate source maps when SENTRY_AUTH_TOKEN is set (for CI/CD uploads)
+    // Using 'hidden' so sourceMappingURL comments aren't included in production bundles
+    sourcemap: process.env.SENTRY_AUTH_TOKEN ? 'hidden' : false,
   },
 });

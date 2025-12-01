@@ -11,5 +11,26 @@
   "assets": {
     "directory": "./dist/client",
     "not_found_handling": "single-page-application"
+  },
+  "vars": {
+    "SENTRY_ORG": "webmcp",
+    "SENTRY_PROJECT": "webmcp-playground"
+  },
+  "env": {
+    "production": {
+      "vars": {
+        "VITE_SENTRY_ENVIRONMENT": "production"
+      }
+    },
+    "staging": {
+      "vars": {
+        "VITE_SENTRY_ENVIRONMENT": "staging"
+      }
+    },
+    "development": {
+      "vars": {
+        "VITE_SENTRY_ENVIRONMENT": "development"
+      }
+    }
   }
 }
