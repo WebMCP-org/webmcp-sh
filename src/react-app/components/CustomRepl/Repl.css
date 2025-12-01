@@ -33,6 +33,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scroll-behavior: smooth;
   padding: 0.75em;
   border-bottom: var(--border);
   display: flex;
@@ -46,11 +47,19 @@
   border-top: var(--border);
 }
 
+/* Input area */
+.PGliteRepl-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
 .PGliteRepl-input {
   display: flex;
   min-height: 60px;
   max-height: 50%;
   width: 100%;
+  position: relative;
 }
 
 .PGliteRepl-input .cm-editor.cm-focused {
@@ -59,6 +68,70 @@
 
 .PGliteRepl-input-loading {
   pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Keyboard hints */
+.PGliteRepl-hints {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5em;
+  padding: 0.4em 0.75em;
+  font-size: 0.75em;
+  color: var(--border-color);
+  background: color-mix(in srgb, var(--fg) 3%, var(--bg));
+  border-top: var(--border);
+}
+
+.PGliteRepl-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.PGliteRepl-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15em 0.4em;
+  font-size: 0.9em;
+  font-family: inherit;
+  background: var(--bg);
+  border: var(--border);
+  border-radius: 3px;
+  box-shadow: 0 1px 0 var(--border-color);
+}
+
+/* Loading spinner */
+.PGliteRepl-spinner {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--fg);
+  border-radius: 50%;
+  animation: PGliteRepl-spin 0.8s linear infinite;
+  z-index: 10;
+}
+
+@keyframes PGliteRepl-spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Fade-in animation for new responses */
+@keyframes PGliteRepl-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Side-by-side response layout */
@@ -70,6 +143,24 @@
   border-radius: 6px;
   overflow: hidden;
   background: var(--bg);
+  animation: PGliteRepl-fadeIn 0.2s ease-out;
+}
+
+/* Collapsed state */
+.PGliteRepl-response.collapsed {
+  grid-template-columns: 1fr;
+}
+
+.PGliteRepl-response.collapsed .PGliteRepl-query-panel {
+  border-right: none;
+}
+
+.PGliteRepl-response.collapsed .PGliteRepl-results-panel {
+  display: none;
+}
+
+.PGliteRepl-response.collapsed .PGliteRepl-query-content {
+  display: none;
 }
 
 /* Query panel (left side) */
@@ -89,6 +180,13 @@
   border-bottom: var(--border);
   font-size: 0.85em;
   font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.PGliteRepl-panel-header:hover {
+  background: color-mix(in srgb, var(--fg) 8%, var(--bg));
 }
 
 .PGliteRepl-panel-icon {
@@ -98,12 +196,48 @@
 
 .PGliteRepl-panel-label {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+/* Status icons */
+.PGliteRepl-status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 50%;
+  font-size: 0.75em;
+  font-weight: bold;
+}
+
+.PGliteRepl-status-success {
+  background: color-mix(in srgb, #2a2 20%, var(--bg));
+  color: #2a2;
+}
+
+.PGliteRepl-status-error {
+  background: color-mix(in srgb, #c33 20%, var(--bg));
+  color: #c33;
 }
 
 .PGliteRepl-panel-time {
   font-size: 0.85em;
   color: var(--border-color);
   font-variant-numeric: tabular-nums;
+}
+
+/* Collapse indicator */
+.PGliteRepl-collapse-icon {
+  color: var(--border-color);
+  font-size: 0.8em;
+  transition: transform 0.2s ease;
+}
+
+.PGliteRepl-response.collapsed .PGliteRepl-collapse-icon {
+  transform: rotate(-90deg);
 }
 
 .PGliteRepl-query-content {
@@ -130,6 +264,10 @@
 
 .PGliteRepl-results-error .PGliteRepl-panel-header {
   background: color-mix(in srgb, #c33 10%, var(--bg));
+}
+
+.PGliteRepl-results-error .PGliteRepl-panel-header:hover {
+  background: color-mix(in srgb, #c33 15%, var(--bg));
 }
 
 .PGliteRepl-results-error .PGliteRepl-panel-icon,
@@ -170,6 +308,8 @@
 /* Table styles */
 .PGliteRepl-table-scroll {
   overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .PGliteRepl-table {
@@ -177,10 +317,16 @@
   width: 100%;
 }
 
+.PGliteRepl-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .PGliteRepl-table th {
   text-align: center;
   font-weight: 600;
-  background: color-mix(in srgb, var(--fg) 3%, var(--bg));
+  background: color-mix(in srgb, var(--fg) 8%, var(--bg));
 }
 
 .PGliteRepl-table td {
@@ -188,6 +334,15 @@
   max-width: 400px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Alternating row colors */
+.PGliteRepl-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--fg) 2%, var(--bg));
+}
+
+.PGliteRepl-table tbody tr:hover {
+  background: color-mix(in srgb, var(--fg) 5%, var(--bg));
 }
 
 .PGliteRepl-table .PGliteRepl-number {
@@ -205,7 +360,7 @@
 
 .PGliteRepl-table th,
 .PGliteRepl-table td {
-  padding: 0.25em 0.5em;
+  padding: 0.35em 0.6em;
   border: var(--border);
 }
 
@@ -241,5 +396,10 @@
 
   .PGliteRepl-query-content {
     max-height: 150px;
+  }
+
+  .PGliteRepl-hints {
+    flex-wrap: wrap;
+    gap: 0.5em 1em;
   }
 }

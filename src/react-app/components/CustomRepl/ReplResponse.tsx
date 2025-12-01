@@ -23,6 +23,7 @@ export function ReplResponse({
   showTime: boolean
 }) {
   const [highlightedSQL, setHighlightedSQL] = useState<string>('')
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
     if (response.query) {
@@ -33,6 +34,8 @@ export function ReplResponse({
   }, [response.query])
 
   const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
+  const isError = !!response.error
+  const isSuccess = !isError
 
   let resultContent
   if (response.error) {
@@ -53,13 +56,24 @@ export function ReplResponse({
     )
   }
 
+  const toggleCollapse = () => setCollapsed(!collapsed)
+
   return (
-    <div className="PGliteRepl-response">
+    <div className={`PGliteRepl-response ${collapsed ? 'collapsed' : ''}`}>
       {/* Left side: Query */}
       <div className="PGliteRepl-query-panel">
-        <div className="PGliteRepl-panel-header">
+        <div className="PGliteRepl-panel-header" onClick={toggleCollapse}>
+          <span className="PGliteRepl-collapse-icon">▼</span>
           <span className="PGliteRepl-panel-icon">❯</span>
-          <span className="PGliteRepl-panel-label">Query</span>
+          <span className="PGliteRepl-panel-label">
+            Query
+            <span className={`PGliteRepl-status-icon ${isSuccess ? 'PGliteRepl-status-success' : 'PGliteRepl-status-error'}`}>
+              {isSuccess ? '✓' : '✗'}
+            </span>
+          </span>
+          {showTime && (
+            <span className="PGliteRepl-panel-time">{response.time.toFixed(1)}ms</span>
+          )}
         </div>
         <div
           className="PGliteRepl-query-content"
@@ -68,15 +82,12 @@ export function ReplResponse({
       </div>
 
       {/* Right side: Results */}
-      <div className={`PGliteRepl-results-panel ${response.error ? 'PGliteRepl-results-error' : ''}`}>
+      <div className={`PGliteRepl-results-panel ${isError ? 'PGliteRepl-results-error' : ''}`}>
         <div className="PGliteRepl-panel-header">
-          <span className="PGliteRepl-panel-icon">{response.error ? '!' : '❮'}</span>
+          <span className="PGliteRepl-panel-icon">{isError ? '!' : '❮'}</span>
           <span className="PGliteRepl-panel-label">
-            {response.error ? 'Error' : response.text ? 'Output' : `Results (${rowCount} row${rowCount !== 1 ? 's' : ''})`}
+            {isError ? 'Error' : response.text ? 'Output' : `Results (${rowCount} row${rowCount !== 1 ? 's' : ''})`}
           </span>
-          {showTime && (
-            <span className="PGliteRepl-panel-time">{response.time.toFixed(1)}ms</span>
-          )}
         </div>
         <div className="PGliteRepl-results-content">
           {resultContent}

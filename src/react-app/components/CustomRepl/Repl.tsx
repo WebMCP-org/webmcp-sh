@@ -68,6 +68,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
   const [value, setValue] = useState('')
   const valueNoHistory = useRef('')
   const [loading, setLoading] = useState(true)
+  const [executing, setExecuting] = useState(false)
   const [output, setOutput] = useState<Response[]>([])
   const outputRef = useRef<HTMLDivElement | null>(null)
   const [schema, setSchema] = useState<Record<string, string[]>>({})
@@ -155,20 +156,25 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
   // Expose executeQuery method to parent components
   useImperativeHandle(ref, () => ({
     executeQuery: async (query: string): Promise<Response> => {
-      const response = await runQuery(query, pg)
-      setOutput((prev) => [...prev, response])
-      // Show toast notification for query result
-      if (response.error) {
-        toast.error(response.error)
-      } else {
-        const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
-        toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
+      setExecuting(true)
+      try {
+        const response = await runQuery(query, pg)
+        setOutput((prev) => [...prev, response])
+        // Show toast notification for query result
+        if (response.error) {
+          toast.error(response.error)
+        } else {
+          const rowCount = response.results?.reduce((acc, r) => acc + (r.rows?.length ?? 0), 0) ?? 0
+          toast.success(`Query executed successfully (${rowCount} row${rowCount !== 1 ? 's' : ''})`)
+        }
+        // Update the schema for any new tables to be used in autocompletion
+        if (!disableUpdateSchema) {
+          getSchema(pg).then(setSchema)
+        }
+        return response
+      } finally {
+        setExecuting(false)
       }
-      // Update the schema for any new tables to be used in autocompletion
-      if (!disableUpdateSchema) {
-        getSchema(pg).then(setSchema)
-      }
-      return response
     },
   }), [pg, disableUpdateSchema])
 
@@ -179,7 +185,8 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
           key: 'Enter',
           preventDefault: true,
           run: () => {
-            if (value.trim() === '') return false // Do nothing if the input is empty
+            if (value.trim() === '' || executing) return false // Do nothing if empty or already executing
+            setExecuting(true)
             runQuery(value, pg).then((response) => {
               setOutput((prev) => [...prev, response])
               // Show toast notification for query result
@@ -193,6 +200,8 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
               if (!disableUpdateSchema) {
                 getSchema(pg).then(setSchema)
               }
+            }).finally(() => {
+              setExecuting(false)
             })
             historyPos.current = -1
             valueNoHistory.current = ''
@@ -271,7 +280,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
         defaultSchema: 'public',
       }),
     ],
-    [pg, schema, value, output, disableUpdateSchema],
+    [pg, schema, value, output, disableUpdateSchema, executing],
   )
 
   const extractStyles = () => {
@@ -329,7 +338,7 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
         }}>
           <button
             onClick={handleFormat}
-            disabled={loading}
+            disabled={loading || executing}
             style={{
               padding: '4px 12px',
               fontSize: '12px',
@@ -337,8 +346,8 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
               border: `1px solid ${styles['--PGliteRepl-border-color']}`,
               background: 'transparent',
               color: String(styles['--PGliteRepl-foreground-color']),
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1,
+              cursor: (loading || executing) ? 'not-allowed' : 'pointer',
+              opacity: (loading || executing) ? 0.5 : 1,
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
@@ -348,24 +357,36 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
           </button>
         </div>
       )}
-      <CodeMirror
-        ref={rcm}
-        className={`PGliteRepl-input ${loading ? 'PGliteRepl-input-loading' : ''}`}
-        width="100%"
-        value={value}
-        basicSetup={{
-          defaultKeymap: false,
-        }}
-        extensions={extensions}
-        theme={themeToUse}
-        onChange={onChange}
-        editable={!loading}
-        onCreateEditor={() => {
-          extractStyles()
-          setTimeout(extractStyles, 0)
-          getSchema(pg).then(setSchema)
-        }}
-      />
+      <div className="PGliteRepl-input-wrapper">
+        <div className={`PGliteRepl-input ${loading || executing ? 'PGliteRepl-input-loading' : ''}`}>
+          <CodeMirror
+            ref={rcm}
+            width="100%"
+            value={value}
+            basicSetup={{
+              defaultKeymap: false,
+            }}
+            extensions={extensions}
+            theme={themeToUse}
+            onChange={onChange}
+            editable={!loading && !executing}
+            onCreateEditor={() => {
+              extractStyles()
+              setTimeout(extractStyles, 0)
+              getSchema(pg).then(setSchema)
+            }}
+          />
+          {executing && <div className="PGliteRepl-spinner" />}
+        </div>
+        <div className="PGliteRepl-hints">
+          <span className="PGliteRepl-hint">
+            <kbd>Enter</kbd> Run query
+          </span>
+          <span className="PGliteRepl-hint">
+            <kbd>↑</kbd><kbd>↓</kbd> History
+          </span>
+        </div>
+      </div>
     </div>
   )
 })
