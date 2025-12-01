@@ -344,6 +344,13 @@ export const Repl = forwardRef<ReplRef, ReplProps>(function Repl({
     >
       <div className="PGliteRepl-output" ref={outputRef}>
         {loading && <div className="PGliteRepl-loading-msg">Loading...</div>}
+        {!loading && output.length === 0 && (
+          <div className="PGliteRepl-empty-state">
+            <div className="PGliteRepl-empty-icon">❯_</div>
+            <div className="PGliteRepl-empty-text">No queries yet</div>
+            <div className="PGliteRepl-empty-hint">Type a SQL query below and press Enter to run</div>
+          </div>
+        )}
         {output.map((response, index) => (
           <ReplResponse key={`${index}-${response.time}`} response={response} showTime={showTime} />
         ))}

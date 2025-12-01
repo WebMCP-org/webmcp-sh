@@ -13,6 +13,13 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#039;')
 }
 
+// Truncate query for preview in collapsed state
+function truncateQuery(query: string, maxLength = 60): string {
+  const singleLine = query.replace(/\s+/g, ' ').trim()
+  if (singleLine.length <= maxLength) return singleLine
+  return singleLine.slice(0, maxLength) + '…'
+}
+
 function OutLine({ result }: { result: Results }) {
   return (
     <div className="PGliteRepl-result-line">
@@ -70,23 +77,42 @@ export function ReplResponse({
   const toggleCollapse = () => setCollapsed(!collapsed)
 
   return (
-    <div className={`PGliteRepl-response ${collapsed ? 'collapsed' : ''}`}>
+    <div
+      className={`PGliteRepl-response ${collapsed ? 'collapsed' : ''}`}
+      role="region"
+      aria-label={`Query: ${truncateQuery(response.query, 40)}`}
+    >
       {/* Left side: Query */}
       <div className="PGliteRepl-query-panel">
-        <div className="PGliteRepl-panel-header" onClick={toggleCollapse}>
-          <span className="PGliteRepl-collapse-icon">▼</span>
-          <span className="PGliteRepl-panel-icon">❯</span>
+        <button
+          type="button"
+          className="PGliteRepl-panel-header"
+          onClick={toggleCollapse}
+          aria-expanded={!collapsed}
+          aria-controls={`query-content-${response.time}`}
+          title={collapsed ? 'Expand to see full query and results' : 'Collapse query details'}
+        >
+          <span className="PGliteRepl-collapse-icon" aria-hidden="true">▼</span>
+          <span className="PGliteRepl-panel-icon" aria-hidden="true">❯</span>
           <span className="PGliteRepl-panel-label">
             Query
-            <span className={`PGliteRepl-status-icon ${isSuccess ? 'PGliteRepl-status-success' : 'PGliteRepl-status-error'}`}>
+            <span
+              className={`PGliteRepl-status-icon ${isSuccess ? 'PGliteRepl-status-success' : 'PGliteRepl-status-error'}`}
+              role="img"
+              aria-label={isSuccess ? 'Success' : 'Error'}
+            >
               {isSuccess ? '✓' : '✗'}
             </span>
           </span>
+          {collapsed && (
+            <span className="PGliteRepl-query-preview">{truncateQuery(response.query)}</span>
+          )}
           {showTime && (
             <span className="PGliteRepl-panel-time">{response.time.toFixed(1)}ms</span>
           )}
-        </div>
+        </button>
         <div
+          id={`query-content-${response.time}`}
           className="PGliteRepl-query-content"
           dangerouslySetInnerHTML={{ __html: highlightedSQL || `<pre>${escapeHtml(response.query)}</pre>` }}
         />
@@ -94,8 +120,8 @@ export function ReplResponse({
 
       {/* Right side: Results */}
       <div className={`PGliteRepl-results-panel ${isError ? 'PGliteRepl-results-error' : ''}`}>
-        <div className="PGliteRepl-panel-header">
-          <span className="PGliteRepl-panel-icon">{isError ? '!' : '❮'}</span>
+        <div className="PGliteRepl-results-header">
+          <span className="PGliteRepl-panel-icon" aria-hidden="true">{isError ? '!' : '❮'}</span>
           <span className="PGliteRepl-panel-label">
             {isError ? 'Error' : response.text ? 'Output' : `Results (${rowCount} row${rowCount !== 1 ? 's' : ''})`}
           </span>
