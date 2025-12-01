@@ -1,178 +1,145 @@
+<div align="center">
+
+![WebMCP](./public/mcp-b-logo.png)
+
 # WebMCP.sh
 
-A modern web-based Model Context Protocol (MCP) playground for testing and developing MCP servers and clients.
+**Web-based MCP playground with in-browser PostgreSQL**
 
-## Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org)
+[![React](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev)
 
-WebMCP.sh provides a comprehensive development environment for working with the Model Context Protocol, featuring:
+[Quick Start](#quick-start) • [Features](#features) • [Tech Stack](#tech-stack) • [Contributing](#contributing)
 
-- **Interactive MCP Server Testing**: Connect to and test MCP servers directly from your browser
-- **Real-time Communication**: Live WebSocket connections for instant feedback
-- **Multi-Server Support**: Connect to multiple MCP servers simultaneously
-- **Tool Execution**: Execute server tools with custom parameters
-- **Resource Management**: Browse and manage server resources
-- **Prompt Templates**: Use and create prompt templates for common tasks
+</div>
 
-## Features
+---
 
-### Core Functionality
-- 🔌 **WebSocket-based MCP Client**: Full-featured MCP client implementation
-- 🛠️ **Tool Testing**: Interactive tool execution with parameter validation
-- 📚 **Resource Browser**: Explore available server resources
-- 📝 **Prompt Management**: Create and manage reusable prompts
-- 🔄 **Real-time Updates**: Live connection status and message streaming
+## Try It Live
 
-### Developer Experience
-- 🎨 **Modern UI**: Clean, responsive interface built with React and Tailwind CSS
-- 🌙 **Dark Mode Support**: Comfortable viewing in any lighting condition
-- 📊 **Connection Monitoring**: Real-time server connection status
-- 🔍 **Debug Mode**: Detailed logging for troubleshooting
+**Live Demo:** [webmcp.sh](https://webmcp.sh)
 
-## Tech Stack
+---
 
-- **Frontend**: React, TypeScript, Vite
-- **Styling**: Tailwind CSS, shadcn/ui components
-- **State Management**: Zustand
-- **Database**: SQLite with Drizzle ORM
-- **Build Tools**: Vite, ESBuild
-- **Package Manager**: pnpm
+## What This Does
 
-## Getting Started
+WebMCP.sh is a development playground for the Model Context Protocol. Connect to MCP servers, execute tools, browse resources, and test your implementations—all from the browser.
 
-### Prerequisites
+**Key capabilities:**
+- Connect to multiple MCP servers simultaneously
+- Execute tools with real-time parameter validation
+- Browse and manage server resources
+- In-browser PostgreSQL database (PGlite) for persistence
+- Interactive SQL REPL for database exploration
 
-- Node.js 18+
-- pnpm (recommended) or npm
+## Quick Start
 
-### Installation
-
-1. Clone the repository:
 ```bash
+# Clone and install
 git clone https://github.com/WebMCP-org/webmcp-sh.git
 cd webmcp-sh
-```
-
-2. Install dependencies:
-```bash
 pnpm install
-```
 
-3. Start the development server:
-```bash
+# Start development server
 pnpm dev
 ```
 
-The application will be available at `http://localhost:5173`
+Open http://localhost:5173
+
+### Requirements
+
+- Node.js 18+
+- pnpm 9+
+
+## Features
+
+### MCP Integration
+- **Multi-server connections** - Connect to multiple MCP servers via WebSocket
+- **Tool execution** - Run server tools with schema validation
+- **Resource browser** - Explore and manage server resources
+- **Prompt templates** - Create and reuse common prompts
+
+### In-Browser Database
+- **PGlite** - Full PostgreSQL running in the browser via WASM
+- **Drizzle ORM** - Type-safe database operations
+- **SQL REPL** - Interactive query interface with autocomplete
+- **IndexedDB persistence** - Data survives browser sessions
+
+### Developer Experience
+- **Dark mode** - Comfortable viewing in any lighting
+- **Real-time updates** - Live connection status and streaming
+- **Debug mode** - Detailed logging for troubleshooting
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Frontend | React 19, TypeScript 5.8, Vite 7 |
+| Styling | Tailwind CSS 4, shadcn/ui |
+| Database | PGlite, Drizzle ORM |
+| Testing | Playwright |
+| Deployment | Cloudflare Workers |
+
+## Commands
+
+```bash
+# Development
+pnpm dev              # Start dev server
+pnpm build            # Build for production
+pnpm preview          # Preview production build
+
+# Code Quality
+pnpm lint             # Run ESLint
+pnpm check            # Typecheck + build + dry-run deploy
+
+# Database
+pnpm db:generate      # Generate migrations
+pnpm db:studio        # Open Drizzle Studio
+
+# Testing
+pnpm test             # Run E2E tests
+pnpm test:ui          # Interactive Playwright UI
+```
 
 ## Project Structure
 
 ```
-webmcp-sh/
-├── src/
-│   ├── react-app/          # React application
-│   │   ├── components/     # UI components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── lib/            # Utilities and libraries
-│   │   │   ├── db/         # Database schemas and operations
-│   │   │   └── mcp/        # MCP client implementation
-│   │   └── pages/          # Application pages
-│   ├── server/             # Backend server (if applicable)
-│   └── shared/             # Shared types and utilities
-├── public/                 # Static assets
-├── data/                   # Local database files
-└── package.json
-```
-
-## Usage
-
-### Connecting to an MCP Server
-
-1. Navigate to the Servers page
-2. Click "Add Server"
-3. Enter the server WebSocket URL
-4. Configure any required authentication
-5. Click "Connect"
-
-### Testing Tools
-
-1. Select a connected server
-2. Browse available tools in the Tools tab
-3. Click on a tool to view its schema
-4. Fill in required parameters
-5. Click "Execute" to run the tool
-
-### Managing Resources
-
-1. Open the Resources tab for a connected server
-2. Browse available resources
-3. Click on a resource to view its contents
-4. Use the built-in editor for modifications
-
-## Development
-
-### Available Scripts
-
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm preview` - Preview production build
-- `pnpm lint` - Run ESLint
-- `pnpm typecheck` - Run TypeScript type checking
-- `pnpm db:push` - Push database schema changes
-- `pnpm db:studio` - Open Drizzle Studio for database management
-
-### Contributing
-
-We welcome contributions! Please see our contributing guidelines for more information.
-
-### Testing
-
-Run the test suite:
-```bash
-pnpm test
+src/
+├── react-app/
+│   ├── components/   # UI components
+│   ├── hooks/        # React hooks (MCP tools, etc.)
+│   ├── lib/
+│   │   ├── db/       # PGlite + Drizzle database
+│   │   └── webmcp/   # WebMCP client library
+│   └── routes/       # Application routes
+└── worker/           # Cloudflare Worker
 ```
 
 ## Deployment
 
-The application can be deployed to any static hosting service that supports SPAs:
+### Cloudflare Workers
 
-1. Build the application:
 ```bash
 pnpm build
+pnpm deploy
 ```
 
-2. Deploy the `dist` folder to your hosting service
+## Contributing
 
-### Deployment Options
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development standards.
 
-- **Vercel**: Zero-config deployment with automatic HTTPS
-- **Netlify**: Simple drag-and-drop deployment
-- **GitHub Pages**: Free hosting for public repositories
-- **Self-hosted**: Deploy to your own server with nginx/Apache
+## Resources
 
-## Security Considerations
-
-- Always use HTTPS in production
-- Implement proper authentication for MCP servers
-- Validate all user inputs
-- Keep dependencies updated
-- Use environment variables for sensitive configuration
+- [Model Context Protocol](https://modelcontextprotocol.io/) - Official MCP documentation
+- [MCP Specification](https://spec.modelcontextprotocol.io/) - Technical specification
+- [PGlite](https://pglite.dev/) - In-browser PostgreSQL
+- [Drizzle ORM](https://orm.drizzle.team/) - TypeScript ORM
 
 ## License
 
-MIT License - see LICENSE file for details
-
-## Acknowledgments
-
-- Built on the [Model Context Protocol](https://modelcontextprotocol.io) specification
-- UI components from [shadcn/ui](https://ui.shadcn.com)
-- Icons from [Lucide](https://lucide.dev)
-
-## Support
-
-For issues, questions, or suggestions, please open an issue on GitHub or contact the maintainers.
+MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Website**: [webmcp.sh](https://webmcp.sh)
-**Documentation**: [docs.webmcp.sh](https://docs.webmcp.sh)
-**GitHub**: [github.com/WebMCP-org/webmcp-sh](https://github.com/WebMCP-org/webmcp-sh)
+**Website:** [webmcp.sh](https://webmcp.sh) • **GitHub:** [WebMCP-org/webmcp-sh](https://github.com/WebMCP-org/webmcp-sh)
