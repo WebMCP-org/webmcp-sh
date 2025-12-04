@@ -13,15 +13,6 @@ interface EntityQueryResult {
   description: string | null;
 }
 
-/** Relationship result */
-interface RelationshipResult {
-  id: string;
-  from_entity_id: string;
-  to_entity_id: string;
-  relationship_type: string;
-  strength: number;
-}
-
 /** Connected entity info */
 interface ConnectedEntityInfo {
   id: string;

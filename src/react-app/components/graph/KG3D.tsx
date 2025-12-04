@@ -1,8 +1,22 @@
-import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from "react";
+import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef, useCallback } from "react";
 import ForceGraph3D, { ForceGraphMethods } from "react-force-graph-3d";
 import * as THREE from "three";
 import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
 import { getCategoryColor3D } from "@/lib/graph/adapters";
+
+/** Internal node type with 3D position data from force simulation */
+interface PositionedNode extends GraphNode {
+  x?: number;
+  y?: number;
+  z?: number;
+  val?: number;
+}
+
+/** Force graph internal data structure */
+interface ForceGraphData {
+  nodes: PositionedNode[];
+  links: GraphLink[];
+}
 
 type Props = {
   nodes: GraphNode[];
@@ -34,7 +48,7 @@ export interface KG3DApi {
 }
 
 const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 120px)", onNodeClick }, ref) => {
-  const fgRef = useRef<ForceGraphMethods<any, any> | undefined>(undefined);
+  const fgRef = useRef<ForceGraphMethods<PositionedNode, GraphLink> | undefined>(undefined);
   const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
   const [pulsingNodes, setPulsingNodes] = useState<Set<string>>(new Set());
 
@@ -44,15 +58,16 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
   }), [nodes, links]);
 
   // Helper to zoom camera to specific nodes by their IDs
-  const zoomToNodes = (nodeIds: string[], ms: number) => {
+  const zoomToNodes = useCallback((nodeIds: string[], ms: number) => {
     const fg = fgRef.current;
     if (!fg || nodeIds.length === 0) return;
 
-    const graphData = (fg as any).graphData?.() || { nodes: [], links: [] };
-    const targetNodes = graphData.nodes?.filter((n: any) => nodeIds.includes(n.id)) || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const graphData: ForceGraphData = (fg as any).graphData?.() || { nodes: [], links: [] };
+    const targetNodes = graphData.nodes.filter((n) => nodeIds.includes(n.id));
 
     // Filter to nodes that have positions
-    const positionedNodes = targetNodes.filter((n: any) => n.x !== undefined);
+    const positionedNodes = targetNodes.filter((n) => n.x !== undefined);
     if (positionedNodes.length === 0) return;
 
     // For single node, zoom in close
@@ -64,11 +79,11 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
       fg.cameraPosition(
         {
-          x: node.x + dist * Math.cos(angle),
-          y: node.y + dist * 0.5,
-          z: node.z + dist * Math.sin(angle)
+          x: (node.x ?? 0) + dist * Math.cos(angle),
+          y: (node.y ?? 0) + dist * 0.5,
+          z: (node.z ?? 0) + dist * Math.sin(angle)
         },
-        { x: node.x, y: node.y, z: node.z },
+        { x: node.x ?? 0, y: node.y ?? 0, z: node.z ?? 0 },
         ms
       );
       return;
@@ -79,10 +94,10 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
     let minY = Infinity, maxY = -Infinity;
     let minZ = Infinity, maxZ = -Infinity;
 
-    positionedNodes.forEach((n: any) => {
-      minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
-      minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
-      minZ = Math.min(minZ, n.z); maxZ = Math.max(maxZ, n.z);
+    positionedNodes.forEach((n) => {
+      minX = Math.min(minX, n.x ?? 0); maxX = Math.max(maxX, n.x ?? 0);
+      minY = Math.min(minY, n.y ?? 0); maxY = Math.max(maxY, n.y ?? 0);
+      minZ = Math.min(minZ, n.z ?? 0); maxZ = Math.max(maxZ, n.z ?? 0);
     });
 
     const centerX = (minX + maxX) / 2;
@@ -106,23 +121,20 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
       { x: centerX, y: centerY, z: centerZ },
       ms
     );
-  };
+  }, []);
 
-  // API methods for controlling the graph
-  const api: KG3DApi = {
+  // API methods for controlling the graph - memoized to avoid dependency issues
+  const api: KG3DApi = useMemo(() => ({
     focusNode: (id: string, ms = 1000) => {
-      // Just zoom to node - doesn't change highlights
       zoomToNodes([id], ms);
     },
 
     highlightAndZoom: (ids: string[], ms = 1000) => {
-      // Set highlights AND zoom to them in one call (avoids React state timing issues)
       setHighlightIds(new Set(ids));
       zoomToNodes(ids, ms);
     },
 
     highlightWhere: (predicate: (n: GraphNode) => boolean) => {
-      // Just set highlights - doesn't zoom
       const matching = data.nodes.filter(predicate).map(n => n.id);
       setHighlightIds(new Set(matching));
     },
@@ -136,7 +148,6 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
     pulseNode: (id: string) => {
       setPulsingNodes(prev => new Set([...prev, id]));
-      // Auto-clear pulse after animation completes
       setTimeout(() => {
         setPulsingNodes(prev => {
           const next = new Set(prev);
@@ -174,17 +185,17 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
       animate();
     },
-  };
+  }), [data.nodes, zoomToNodes]);
 
   // Expose API to parent component
-  useImperativeHandle(ref, () => api, [data, highlightIds, pulsingNodes]);
+  useImperativeHandle(ref, () => api, [api]);
 
   // Also expose globally for MCP tools
   useEffect(() => {
-    // @ts-ignore
+    // @ts-expect-error - attaching API to window for MCP tools
     window.KG3D = api;
     return () => {
-      // @ts-ignore
+      // @ts-expect-error - cleaning up window attachment
       delete window.KG3D;
     };
   }, [api]);
@@ -197,12 +208,15 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
         if (!fg) return;
 
         // Configure forces for better initial spacing
+        // d3Force is not in library types but exists at runtime
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const chargeForce = (fg as any).d3Force?.('charge');
         if (chargeForce) {
           chargeForce.strength(-300);
           chargeForce.distanceMax(1000);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const linkForce = (fg as any).d3Force?.('link');
         if (linkForce) {
           linkForce.distance(150);
@@ -222,14 +236,15 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
   return (
     <div style={{ width: "100%", height }} className="bg-slate-950 rounded-lg overflow-hidden">
+      {/* eslint-disable @typescript-eslint/no-explicit-any -- react-force-graph-3d callbacks have incomplete types */}
       <ForceGraph3D
-        ref={fgRef as any}
+        ref={fgRef as React.MutableRefObject<ForceGraphMethods<PositionedNode, GraphLink> | undefined>}
         graphData={data}
         controlType="orbit"
         showNavInfo={false}
         backgroundColor="rgba(2,6,23,1)"
         nodeId="id"
-        nodeLabel={(n: any) => `
+        nodeLabel={(n: PositionedNode) => `
           <div style="
             background: rgba(15,23,42,0.95);
             border: 1px solid ${getCategoryColor3D(n.category)};
@@ -246,8 +261,8 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
           </div>
         `}
         nodeRelSize={6}
-        nodeVal={(n: any) => n.val || 10}
-        nodeThreeObject={(n: any) => {
+        nodeVal={(n: PositionedNode) => n.val || 10}
+        nodeThreeObject={(n: PositionedNode) => {
           const isHighlighted = highlightIds.has(n.id);
           const isPulsing = pulsingNodes.has(n.id);
           const color = new THREE.Color(getCategoryColor3D(n.category));
@@ -297,28 +312,32 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
           return group;
         }}
-        linkColor={(l: any) => {
-          const sourceHighlighted = highlightIds.has(l.source.id || l.source);
-          const targetHighlighted = highlightIds.has(l.target.id || l.target);
+        linkColor={(l) => {
+          const sourceId = typeof l.source === 'string' ? l.source : (l.source as PositionedNode).id;
+          const targetId = typeof l.target === 'string' ? l.target : (l.target as PositionedNode).id;
+          const sourceHighlighted = highlightIds.has(sourceId);
+          const targetHighlighted = highlightIds.has(targetId);
           if (sourceHighlighted && targetHighlighted) return '#3b82f6';
           if (sourceHighlighted || targetHighlighted) return '#94a3b8';
           return '#334155';
         }}
-        linkWidth={(l: any) => {
-          const sourceHighlighted = highlightIds.has(l.source.id || l.source);
-          const targetHighlighted = highlightIds.has(l.target.id || l.target);
+        linkWidth={(l) => {
+          const sourceId = typeof l.source === 'string' ? l.source : (l.source as PositionedNode).id;
+          const targetId = typeof l.target === 'string' ? l.target : (l.target as PositionedNode).id;
+          const sourceHighlighted = highlightIds.has(sourceId);
+          const targetHighlighted = highlightIds.has(targetId);
           if (sourceHighlighted && targetHighlighted) return 2.5;
           if (sourceHighlighted || targetHighlighted) return 1.5;
-          return 0.5 + Math.min(1, l.strength * 0.3);
+          return 0.5 + Math.min(1, (l.strength ?? 1) * 0.3);
         }}
         linkOpacity={0.6}
         linkCurvature={0}
         linkDirectionalParticles={0}
-        onNodeClick={(node: any) => {
+        onNodeClick={(node: PositionedNode) => {
           api.focusNode(node.id);
           onNodeClick?.(node);
         }}
-        onNodeHover={(node: any) => {
+        onNodeHover={(node: PositionedNode | null) => {
           document.body.style.cursor = node ? 'pointer' : 'default';
         }}
         cooldownTime={3000}
@@ -332,6 +351,7 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
         onEngineStop={() => {
           const fg = fgRef.current;
           if (fg) {
+            // d3Force is not in library types but exists at runtime
             const chargeForce = (fg as any).d3Force?.('charge');
             if (chargeForce) {
               chargeForce.strength(-250);
@@ -344,6 +364,7 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
           }
         }}
       />
+      {/* eslint-enable @typescript-eslint/no-explicit-any */}
     </div>
   );
 });
