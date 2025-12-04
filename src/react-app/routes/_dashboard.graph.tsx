@@ -19,7 +19,6 @@ import { GraphWithEffects } from '@/components/graph/GraphWithEffects'
 import KG3D, { KG3DApi } from '@/components/graph/KG3D'
 import { toForceGraphData } from '@/lib/graph/adapters'
 import { useMCPGraph3DTools } from '@/hooks/useMCPGraph3DTools'
-import { useMCPGraph3DAdvanced } from '@/hooks/useMCPGraph3DAdvanced'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_dashboard/graph')({
@@ -85,9 +84,6 @@ function GraphComponent() {
 
   // Register 3D tools
   useMCPGraph3DTools();
-
-  // Register advanced 3D tools
-  useMCPGraph3DAdvanced();
 
   // Fetch all entities for graph
   const allEntitiesQuery = memory_entities.getAllMemoryEntitiesQuerySQL()
