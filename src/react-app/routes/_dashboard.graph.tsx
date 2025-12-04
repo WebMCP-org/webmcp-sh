@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Network, Sparkles, Box } from 'lucide-react'
+import { Network, Sparkles, Box, Wand2, ChevronDown, ChevronUp, Search, Navigation, PlusCircle, Link2, RotateCcw } from 'lucide-react'
 import { useLiveQuery } from '@electric-sql/pglite-react'
 import { entity_relationships, memory_entities } from '@/lib/db'
 import { useMemo, useRef, useState } from 'react'
@@ -28,6 +28,99 @@ export const Route = createFileRoute('/_dashboard/graph')({
 const nodeTypes = {
   entity: EntityNode as React.ComponentType<NodeProps>,
 };
+
+// AI Tools documentation panel
+function AIToolsPanel() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const tools = [
+    {
+      name: 'graph3d_query',
+      icon: Search,
+      title: 'Query',
+      description: 'Find entities by SQL WHERE clause',
+      example: `graph3d_query({ where_clause: "category = 'skill'" })`,
+    },
+    {
+      name: 'graph3d_navigate',
+      icon: Navigation,
+      title: 'Navigate',
+      description: 'Zoom to a specific entity by name',
+      example: `graph3d_navigate({ name: "TypeScript" })`,
+    },
+    {
+      name: 'graph3d_add_entity',
+      icon: PlusCircle,
+      title: 'Add Entity',
+      description: 'Create a new entity in the graph',
+      example: `graph3d_add_entity({ name: "React", category: "skill" })`,
+    },
+    {
+      name: 'graph3d_add_connection',
+      icon: Link2,
+      title: 'Add Connection',
+      description: 'Connect two entities',
+      example: `graph3d_add_connection({ from: "React", to: "TypeScript", type: "uses" })`,
+    },
+    {
+      name: 'graph3d_clear',
+      icon: RotateCcw,
+      title: 'Clear',
+      description: 'Reset the view',
+      example: `graph3d_clear()`,
+    },
+  ];
+
+  return (
+    <div className="absolute bottom-2 md:bottom-4 left-2 md:left-4 bg-card/95 backdrop-blur-sm rounded-lg shadow-xl border border-border z-10 max-w-[320px] md:max-w-sm overflow-hidden">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between p-2 md:p-3 hover:bg-accent/50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Wand2 className="h-4 w-4 text-primary" />
+          <span className="font-semibold text-xs md:text-sm text-foreground">AI Tools</span>
+          <span className="text-[10px] md:text-xs text-muted-foreground">({tools.length} available)</span>
+        </div>
+        {isExpanded ? (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+
+      {isExpanded && (
+        <div className="border-t border-border max-h-[50vh] overflow-y-auto">
+          <div className="p-2 md:p-3 space-y-2">
+            <p className="text-[10px] md:text-xs text-muted-foreground">
+              Ask the AI to help you explore the graph. Examples:
+            </p>
+            <div className="space-y-1 text-[10px] md:text-xs text-muted-foreground italic">
+              <p>"Where is TypeScript?"</p>
+              <p>"Show me all skills"</p>
+              <p>"Add a new project called WebMCP"</p>
+            </div>
+          </div>
+
+          <div className="border-t border-border">
+            {tools.map((tool) => (
+              <div key={tool.name} className="p-2 md:p-3 border-b border-border last:border-b-0 hover:bg-accent/30 transition-colors">
+                <div className="flex items-center gap-2 mb-1">
+                  <tool.icon className="h-3 w-3 md:h-4 md:w-4 text-primary flex-shrink-0" />
+                  <span className="font-medium text-xs md:text-sm text-foreground">{tool.title}</span>
+                </div>
+                <p className="text-[10px] md:text-xs text-muted-foreground mb-1.5">{tool.description}</p>
+                <code className="block text-[9px] md:text-[10px] bg-muted/50 px-1.5 py-1 rounded text-foreground/80 overflow-x-auto">
+                  {tool.example}
+                </code>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Wrapper component
 function GraphWrapper() {
@@ -248,6 +341,9 @@ function GraphComponent() {
                 ))}
               </div>
             </div>
+
+            {/* AI Tools Panel */}
+            <AIToolsPanel />
           </>
         ) : (
           <ReactFlowProvider>
