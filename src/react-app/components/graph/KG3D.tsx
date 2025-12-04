@@ -19,14 +19,14 @@ type Props = {
 export interface KG3DApi {
   /** Fly camera to focus on a specific node - zooms in close */
   focusNode: (id: string, ms?: number) => void;
-  /** Highlight nodes matching a predicate */
+  /** Highlight nodes matching a predicate and zoom to them */
+  highlightAndZoom: (ids: string[], ms?: number) => void;
+  /** Highlight nodes matching a predicate (no zoom) */
   highlightWhere: (predicate: (n: GraphNode) => boolean) => void;
   /** Clear all highlights and effects */
   clear: () => void;
   /** Zoom camera to fit all nodes in view */
   zoomToFit: (ms?: number, pad?: number) => void;
-  /** Zoom to fit only the highlighted nodes - much tighter framing */
-  zoomToHighlighted: (ms?: number) => void;
   /** Add a pulsing ring effect to draw attention to a node */
   pulseNode: (id: string) => void;
   /** Orbit camera around the current view center */
@@ -43,39 +43,86 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
     links: links.map(l => ({ ...l }))
   }), [nodes, links]);
 
+  // Helper to zoom camera to specific nodes by their IDs
+  const zoomToNodes = (nodeIds: string[], ms: number) => {
+    const fg = fgRef.current;
+    if (!fg || nodeIds.length === 0) return;
+
+    const graphData = (fg as any).graphData?.() || { nodes: [], links: [] };
+    const targetNodes = graphData.nodes?.filter((n: any) => nodeIds.includes(n.id)) || [];
+
+    // Filter to nodes that have positions
+    const positionedNodes = targetNodes.filter((n: any) => n.x !== undefined);
+    if (positionedNodes.length === 0) return;
+
+    // For single node, zoom in close
+    if (positionedNodes.length === 1) {
+      const node = positionedNodes[0];
+      const nodeSize = node.val || 4;
+      const dist = Math.max(nodeSize * 10, 50); // Close but not too close
+      const angle = Math.PI / 4;
+
+      fg.cameraPosition(
+        {
+          x: node.x + dist * Math.cos(angle),
+          y: node.y + dist * 0.5,
+          z: node.z + dist * Math.sin(angle)
+        },
+        { x: node.x, y: node.y, z: node.z },
+        ms
+      );
+      return;
+    }
+
+    // For multiple nodes, calculate bounding box
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
+
+    positionedNodes.forEach((n: any) => {
+      minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
+      minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
+      minZ = Math.min(minZ, n.z); maxZ = Math.max(maxZ, n.z);
+    });
+
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const centerZ = (minZ + maxZ) / 2;
+
+    // Calculate distance - tighter framing
+    const sizeX = maxX - minX;
+    const sizeY = maxY - minY;
+    const sizeZ = maxZ - minZ;
+    const maxSize = Math.max(sizeX, sizeY, sizeZ, 40);
+    const dist = maxSize * 1.2; // Tighter framing
+    const angle = Math.PI / 4;
+
+    fg.cameraPosition(
+      {
+        x: centerX + dist * Math.cos(angle),
+        y: centerY + dist * 0.5,
+        z: centerZ + dist * Math.sin(angle)
+      },
+      { x: centerX, y: centerY, z: centerZ },
+      ms
+    );
+  };
+
   // API methods for controlling the graph
   const api: KG3DApi = {
     focusNode: (id: string, ms = 1000) => {
-      const fg = fgRef.current;
-      if (!fg) return;
+      // Just zoom to node - doesn't change highlights
+      zoomToNodes([id], ms);
+    },
 
-      // Get the graph data with positions
-      const graphData = (fg as any).graphData?.() || { nodes: [], links: [] };
-      const node = graphData.nodes?.find((n: any) => n.id === id);
-      if (!node) return;
-
-      // Zoom in CLOSE - distance based on node size
-      const nodeSize = node.val || 4;
-      const dist = nodeSize * 8; // Close enough to see details
-      const angle = Math.PI / 4; // Fixed angle for consistent view
-
-      // Only focus if node has position (after initial render)
-      if (node.x !== undefined) {
-        fg.cameraPosition(
-          {
-            x: node.x + dist * Math.cos(angle),
-            y: node.y + dist * 0.4,
-            z: node.z + dist * Math.sin(angle)
-          },
-          { x: node.x, y: node.y, z: node.z },
-          ms
-        );
-      }
-
-      setHighlightIds(new Set([id]));
+    highlightAndZoom: (ids: string[], ms = 1000) => {
+      // Set highlights AND zoom to them in one call (avoids React state timing issues)
+      setHighlightIds(new Set(ids));
+      zoomToNodes(ids, ms);
     },
 
     highlightWhere: (predicate: (n: GraphNode) => boolean) => {
+      // Just set highlights - doesn't zoom
       const matching = data.nodes.filter(predicate).map(n => n.id);
       setHighlightIds(new Set(matching));
     },
@@ -86,54 +133,6 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
     },
 
     zoomToFit: (ms = 800, pad = 40) => fgRef.current?.zoomToFit(ms, pad),
-
-    zoomToHighlighted: (ms = 1000) => {
-      const fg = fgRef.current;
-      if (!fg || highlightIds.size === 0) return;
-
-      // Get positions of highlighted nodes
-      const graphData = (fg as any).graphData?.() || { nodes: [], links: [] };
-      const highlightedNodes = graphData.nodes?.filter((n: any) => highlightIds.has(n.id)) || [];
-
-      if (highlightedNodes.length === 0) return;
-
-      // Calculate center and bounds of highlighted nodes
-      let minX = Infinity, maxX = -Infinity;
-      let minY = Infinity, maxY = -Infinity;
-      let minZ = Infinity, maxZ = -Infinity;
-
-      highlightedNodes.forEach((n: any) => {
-        if (n.x !== undefined) {
-          minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
-          minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
-          minZ = Math.min(minZ, n.z); maxZ = Math.max(maxZ, n.z);
-        }
-      });
-
-      const centerX = (minX + maxX) / 2;
-      const centerY = (minY + maxY) / 2;
-      const centerZ = (minZ + maxZ) / 2;
-
-      // Calculate distance based on bounding box size
-      const sizeX = maxX - minX;
-      const sizeY = maxY - minY;
-      const sizeZ = maxZ - minZ;
-      const maxSize = Math.max(sizeX, sizeY, sizeZ, 30); // minimum distance
-
-      // Position camera to frame the highlighted nodes nicely
-      const dist = maxSize * 1.5;
-      const angle = Math.PI / 4;
-
-      fg.cameraPosition(
-        {
-          x: centerX + dist * Math.cos(angle),
-          y: centerY + dist * 0.5,
-          z: centerZ + dist * Math.sin(angle)
-        },
-        { x: centerX, y: centerY, z: centerZ },
-        ms
-      );
-    },
 
     pulseNode: (id: string) => {
       setPulsingNodes(prev => new Set([...prev, id]));

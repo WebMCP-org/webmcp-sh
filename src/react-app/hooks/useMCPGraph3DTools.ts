@@ -3,7 +3,6 @@ import { useWebMCP } from "@mcp-b/react-webmcp";
 import { toast } from "sonner";
 import { pg_lite } from "@/lib/db";
 import type { KG3DApi } from "@/components/graph/KG3D";
-import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
 
 /** Entity query result from database */
 interface EntityQueryResult {
@@ -114,16 +113,14 @@ The results are highlighted and the camera zooms to show them.`,
         });
       }
 
-      // Highlight matching nodes
-      api.highlightWhere((n: GraphNode) => ids.has(n.id));
-
-      // Zoom to show ONLY highlighted entities (not the whole graph)
-      setTimeout(() => api.zoomToHighlighted(1000), 100);
+      // Highlight AND zoom to matching nodes in one call (avoids timing issues)
+      const allIds = [...ids];
+      api.highlightAndZoom(allIds, 1000);
 
       // Pulse top results to draw attention
       setTimeout(() => {
         rows.slice(0, 3).forEach((r) => api.pulseNode(r.id));
-      }, 300);
+      }, 200);
 
       const categories = [...new Set(rows.map((r) => r.category))];
       toast.success(`Found ${rows.length} entities`);
@@ -198,13 +195,15 @@ This helps users who don't know how to navigate the 3D UI - you navigate for the
         ORDER BY e.importance_score DESC
       `, [entity.id]);
 
-      // Highlight entity and connections
-      const idsToHighlight = new Set([entity.id, ...connections.map((c) => c.id)]);
-      api.highlightWhere((n: GraphNode) => idsToHighlight.has(n.id));
+      // Highlight entity and all its connections
+      const idsToHighlight = [entity.id, ...connections.map((c) => c.id)];
+      api.highlightAndZoom(idsToHighlight, 1000);
 
-      // Focus camera on the entity and pulse it to draw attention
-      api.focusNode(entity.id, 1500);
-      api.pulseNode(entity.id);
+      // Then zoom in closer on just the main entity and pulse it
+      setTimeout(() => {
+        api.focusNode(entity.id, 800);
+        api.pulseNode(entity.id);
+      }, 100);
 
       toast.success(`Navigated to "${entity.name}"`);
 
@@ -273,14 +272,13 @@ Categories: fact, preference, skill, rule, context, person, project, goal`,
       toast.success(`Created entity "${name}"`);
 
       // If 3D graph is available, highlight, zoom, and pulse the new entity
-      // Note: The graph needs to refresh to show the new entity
+      // Note: The graph needs time to refresh with new data from the database
       if (api) {
-        // Give the graph a moment to update with new data
+        // Wait for graph to update, then highlight and zoom
         setTimeout(() => {
-          api.highlightWhere((n: GraphNode) => n.id === newId);
-          api.focusNode(newId, 1500);
+          api.highlightAndZoom([newId], 1000);
           api.pulseNode(newId);
-        }, 500);
+        }, 800);
       }
 
       return `Created new entity:
@@ -370,8 +368,7 @@ Common relationship types: uses, related_to, works_on, knows, created, part_of, 
       // If 3D graph is available, highlight, zoom, and pulse both entities
       if (api) {
         setTimeout(() => {
-          api.highlightWhere((n: GraphNode) => n.id === fromId || n.id === toId);
-          api.zoomToHighlighted(1000);
+          api.highlightAndZoom([fromId, toId], 1000);
           api.pulseNode(fromId);
           api.pulseNode(toId);
         }, 500);
