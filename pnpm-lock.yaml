@@ -54,14 +54,14 @@ importers:
         specifier: 0.0.7-beta.6
         version: 0.0.7-beta.6(@cfworker/json-schema@4.1.1)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
       '@mcp-b/global':
-        specifier: 1.1.3-beta.0
-        version: 1.1.3-beta.0(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+        specifier: 1.1.3-beta.2
+        version: 1.1.3-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
       '@mcp-b/react-webmcp':
-        specifier: 0.1.6-beta.0
-        version: 0.1.6-beta.0(react@19.2.0)(zod@3.25.76)
+        specifier: 0.1.6-beta.2
+        version: 0.1.6-beta.2(react@19.2.0)(zod@3.25.76)
       '@mcp-b/transports':
-        specifier: 1.1.2-beta.0
-        version: 1.1.2-beta.0(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+        specifier: 1.1.2-beta.2
+        version: 1.1.2-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
       '@modelcontextprotocol/sdk':
         specifier: ^1.23.0
         version: 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
@@ -2053,12 +2053,12 @@ packages:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
 
-  '@mcp-b/global@1.1.3-beta.0':
-    resolution: {integrity: sha512-GdAcL5owQHnYuy6sxNHWRYRA/GSqNJpVc9M+RSb2j8mxBTAYQNdrzhF1mQCdSxmPHfaFrCukJTjYWkZsUOCJ7A==}
+  '@mcp-b/global@1.1.3-beta.2':
+    resolution: {integrity: sha512-W1fk6t/C1I6F9g4wiJBC8vrwwXPD4zoqCHpll46zpsH8+YpjhmWKxvtNns4WvhCYTp/XHTnWeqP+FTWc6Cqh1Q==}
     engines: {node: '>=18'}
 
-  '@mcp-b/react-webmcp@0.1.6-beta.0':
-    resolution: {integrity: sha512-2h2tARRXWKnZRiS6iKJGy8FA/dY1zaTx9Gbd3s8oEBsGD8QaUSq4wd8iikra90lO8stWHVrrUQ3ErHedGvK7Jg==}
+  '@mcp-b/react-webmcp@0.1.6-beta.2':
+    resolution: {integrity: sha512-Ggtinoj6LmJqK6H8WPeYoQ9oGdzEC980HkkepE0hC8e0mBC2W2jlr1Hvld0LyCyewGKjwzRjm35X+ndANpjuiA==}
     peerDependencies:
       react: ^19.1.0
       zod: 3.25.76
@@ -2068,13 +2068,13 @@ packages:
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.15.0
 
-  '@mcp-b/transports@1.1.2-beta.0':
-    resolution: {integrity: sha512-oWOz6x8L07Jg2+7EClEh7BooCeDAvxl/3Za0AvuxSC89B6HOTQTY4IfMhjTjy+hywS0SsZWf6I8UIKEFPa3n0A==}
+  '@mcp-b/transports@1.1.2-beta.2':
+    resolution: {integrity: sha512-X+behxSa6404u9Thq9IhxvdpzuR3g9d9k4Mxj81/ANF35nTi7igx+KtyXnhH0Z+l5qEBZJx+Fbsx/D0DlSaj4A==}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.15.0
 
-  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.0':
-    resolution: {integrity: sha512-zuel3D9f6EPaCkLNCxKujD3OhCrkgN/QdgrypioDMXb3YRzIBo2PmWtp/vZ96TOFx1nZI3dZarKZM1CHfGwsKw==}
+  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.1':
+    resolution: {integrity: sha512-WQrh0aXFyXjDB5CE2WxDy6sUsE+EpNHS0hlsYpV7NxlRKSPBIanMBEfYjgOtiVpUAnTgmpMBtAmCPs1ttmEpHA==}
     engines: {node: '>=18'}
 
   '@modelcontextprotocol/sdk@1.15.0':
@@ -8882,31 +8882,33 @@ snapshots:
       - use-sync-external-store
       - utf-8-validate
 
-  '@mcp-b/global@1.1.3-beta.0(@modelcontextprotocol/sdk@1.15.0)':
+  '@mcp-b/global@1.1.3-beta.2(@modelcontextprotocol/sdk@1.15.0)':
     dependencies:
       '@composio/json-schema-to-zod': 0.1.18(zod@3.25.76)
-      '@mcp-b/transports': 1.1.2-beta.0(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.0
+      '@mcp-b/transports': 1.1.2-beta.2(@modelcontextprotocol/sdk@1.15.0)
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.1
       zod: 3.25.76
+      zod-to-json-schema: 3.25.0(zod@3.25.76)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - supports-color
 
-  '@mcp-b/global@1.1.3-beta.0(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@mcp-b/global@1.1.3-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       '@composio/json-schema-to-zod': 0.1.18(zod@3.25.76)
-      '@mcp-b/transports': 1.1.2-beta.0(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.0
+      '@mcp-b/transports': 1.1.2-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.1
       zod: 3.25.76
+      zod-to-json-schema: 3.25.0(zod@3.25.76)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - supports-color
 
-  '@mcp-b/react-webmcp@0.1.6-beta.0(react@19.2.0)(zod@3.25.76)':
+  '@mcp-b/react-webmcp@0.1.6-beta.2(react@19.2.0)(zod@3.25.76)':
     dependencies:
-      '@mcp-b/global': 1.1.3-beta.0(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/transports': 1.1.2-beta.0(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.0
+      '@mcp-b/global': 1.1.3-beta.2(@modelcontextprotocol/sdk@1.15.0)
+      '@mcp-b/transports': 1.1.2-beta.2(@modelcontextprotocol/sdk@1.15.0)
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.1
       '@modelcontextprotocol/sdk': 1.15.0
       react: 19.2.0
       zod: 3.25.76
@@ -8918,17 +8920,17 @@ snapshots:
       '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
 
-  '@mcp-b/transports@1.1.2-beta.0(@modelcontextprotocol/sdk@1.15.0)':
+  '@mcp-b/transports@1.1.2-beta.2(@modelcontextprotocol/sdk@1.15.0)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.15.0
       zod: 3.25.76
 
-  '@mcp-b/transports@1.1.2-beta.0(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@mcp-b/transports@1.1.2-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
 
-  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.0':
+  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.1':
     dependencies:
       '@modelcontextprotocol/sdk': 1.15.0
     transitivePeerDependencies:
