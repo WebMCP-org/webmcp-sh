@@ -192,10 +192,8 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
   // Also expose globally for MCP tools
   useEffect(() => {
-    // @ts-expect-error - attaching API to window for MCP tools
     window.KG3D = api;
     return () => {
-      // @ts-expect-error - cleaning up window attachment
       delete window.KG3D;
     };
   }, [api]);
