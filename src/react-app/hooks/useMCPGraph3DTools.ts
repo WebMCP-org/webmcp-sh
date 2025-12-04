@@ -120,6 +120,11 @@ The results are highlighted and the camera zooms to show them.`,
       // Zoom to show highlighted entities
       setTimeout(() => api.zoomToFit(1000, 60), 100);
 
+      // Pulse top results to draw attention
+      setTimeout(() => {
+        rows.slice(0, 3).forEach((r) => api.pulseNode(r.id));
+      }, 300);
+
       const categories = [...new Set(rows.map((r) => r.category))];
       toast.success(`Found ${rows.length} entities`);
 
@@ -197,8 +202,9 @@ This helps users who don't know how to navigate the 3D UI - you navigate for the
       const idsToHighlight = new Set([entity.id, ...connections.map((c) => c.id)]);
       api.highlightWhere((n: GraphNode) => idsToHighlight.has(n.id));
 
-      // Focus camera on the entity
+      // Focus camera on the entity and pulse it to draw attention
       api.focusNode(entity.id, 1500);
+      api.pulseNode(entity.id);
 
       toast.success(`Navigated to "${entity.name}"`);
 
@@ -266,13 +272,14 @@ Categories: fact, preference, skill, rule, context, person, project, goal`,
       const newId = rows[0].id;
       toast.success(`Created entity "${name}"`);
 
-      // If 3D graph is available, highlight and zoom to the new entity
+      // If 3D graph is available, highlight, zoom, and pulse the new entity
       // Note: The graph needs to refresh to show the new entity
       if (api) {
         // Give the graph a moment to update with new data
         setTimeout(() => {
           api.highlightWhere((n: GraphNode) => n.id === newId);
           api.focusNode(newId, 1500);
+          api.pulseNode(newId);
         }, 500);
       }
 
@@ -360,11 +367,13 @@ Common relationship types: uses, related_to, works_on, knows, created, part_of, 
 
       toast.success(`Connected "${fromName}" → "${toName}"`);
 
-      // If 3D graph is available, highlight and zoom to show the connection
+      // If 3D graph is available, highlight, zoom, and pulse both entities
       if (api) {
         setTimeout(() => {
           api.highlightWhere((n: GraphNode) => n.id === fromId || n.id === toId);
           api.zoomToFit(1000, 60);
+          api.pulseNode(fromId);
+          api.pulseNode(toId);
         }, 500);
       }
 

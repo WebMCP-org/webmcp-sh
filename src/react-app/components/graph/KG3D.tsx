@@ -11,23 +11,37 @@ type Props = {
   onNodeClick?: (node: GraphNode) => void;
 };
 
+/**
+ * API for controlling the 3D knowledge graph
+ *
+ * @see src/react-app/hooks/useMCPGraph3DTools.ts - Tools that use this API
+ */
 export interface KG3DApi {
+  /** Fly camera to focus on a specific node */
   focusNode: (id: string, ms?: number) => void;
+  /** Highlight nodes matching a predicate */
   highlightWhere: (predicate: (n: GraphNode) => boolean) => void;
+  /** Clear all highlights and effects */
   clear: () => void;
+  /** Zoom camera to fit all nodes in view */
   zoomToFit: (ms?: number, pad?: number) => void;
+  /** Add a pulsing ring effect to draw attention to a node */
+  pulseNode: (id: string) => void;
+  /** Orbit camera around the current view center */
+  cameraOrbit: (ms?: number) => void;
 }
 
 const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 120px)", onNodeClick }, ref) => {
   const fgRef = useRef<ForceGraphMethods<any, any> | undefined>(undefined);
   const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
+  const [pulsingNodes, setPulsingNodes] = useState<Set<string>>(new Set());
 
   const data = useMemo(() => ({
     nodes: nodes.map(n => ({ ...n })),
     links: links.map(l => ({ ...l }))
   }), [nodes, links]);
 
-  // API methods - simplified to just what's needed
+  // API methods for controlling the graph
   const api: KG3DApi = {
     focusNode: (id: string, ms = 1200) => {
       const fg = fgRef.current;
@@ -64,13 +78,55 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
     clear: () => {
       setHighlightIds(new Set());
+      setPulsingNodes(new Set());
     },
 
     zoomToFit: (ms = 800, pad = 40) => fgRef.current?.zoomToFit(ms, pad),
+
+    pulseNode: (id: string) => {
+      setPulsingNodes(prev => new Set([...prev, id]));
+      // Auto-clear pulse after animation completes
+      setTimeout(() => {
+        setPulsingNodes(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }, 2000);
+    },
+
+    cameraOrbit: (ms = 3000) => {
+      const fg = fgRef.current;
+      if (!fg) return;
+
+      const camera = fg.camera();
+      const startPos = camera.position.clone();
+      const radius = Math.sqrt(startPos.x ** 2 + startPos.z ** 2);
+      const startAngle = Math.atan2(startPos.z, startPos.x);
+      const startTime = Date.now();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed > ms) return;
+
+        const progress = elapsed / ms;
+        const angle = startAngle + progress * Math.PI * 2;
+
+        fg.cameraPosition({
+          x: radius * Math.cos(angle),
+          y: startPos.y,
+          z: radius * Math.sin(angle)
+        }, { x: 0, y: 0, z: 0 }, 0);
+
+        requestAnimationFrame(animate);
+      };
+
+      animate();
+    },
   };
 
   // Expose API to parent component
-  useImperativeHandle(ref, () => api, [data, highlightIds]);
+  useImperativeHandle(ref, () => api, [data, highlightIds, pulsingNodes]);
 
   // Also expose globally for MCP tools
   useEffect(() => {
@@ -142,7 +198,11 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
         nodeVal={(n: any) => n.val || 10}
         nodeThreeObject={(n: any) => {
           const isHighlighted = highlightIds.has(n.id);
+          const isPulsing = pulsingNodes.has(n.id);
           const color = new THREE.Color(getCategoryColor3D(n.category));
+
+          // Create group for node + optional pulse ring
+          const group = new THREE.Group();
 
           // Main sphere - clean styling
           const material = new THREE.MeshPhongMaterial({
@@ -157,8 +217,34 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
           const size = (n.val || 4) * (isHighlighted ? 1.2 : 1);
           const geometry = new THREE.SphereGeometry(size, 16, 16);
           const mesh = new THREE.Mesh(geometry, material);
+          group.add(mesh);
 
-          return mesh;
+          // Add pulsing ring effect
+          if (isPulsing) {
+            const ringGeometry = new THREE.TorusGeometry(size * 1.5, 1.5, 16, 32);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+              color: color,
+              transparent: true,
+              opacity: 0.6,
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+
+            // Animate the ring
+            const startTime = Date.now();
+            const animate = () => {
+              if (!pulsingNodes.has(n.id)) return;
+              const elapsed = (Date.now() - startTime) / 1000;
+              const scale = 1 + Math.sin(elapsed * 4) * 0.3;
+              ring.scale.setScalar(scale);
+              ring.material.opacity = 0.4 + Math.sin(elapsed * 4) * 0.2;
+              requestAnimationFrame(animate);
+            };
+            animate();
+
+            group.add(ring);
+          }
+
+          return group;
         }}
         linkColor={(l: any) => {
           const sourceHighlighted = highlightIds.has(l.source.id || l.source);
