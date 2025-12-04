@@ -117,8 +117,8 @@ The results are highlighted and the camera zooms to show them.`,
       // Highlight matching nodes
       api.highlightWhere((n: GraphNode) => ids.has(n.id));
 
-      // Zoom to show highlighted entities
-      setTimeout(() => api.zoomToFit(1000, 60), 100);
+      // Zoom to show ONLY highlighted entities (not the whole graph)
+      setTimeout(() => api.zoomToHighlighted(1000), 100);
 
       // Pulse top results to draw attention
       setTimeout(() => {
@@ -371,7 +371,7 @@ Common relationship types: uses, related_to, works_on, knows, created, part_of, 
       if (api) {
         setTimeout(() => {
           api.highlightWhere((n: GraphNode) => n.id === fromId || n.id === toId);
-          api.zoomToFit(1000, 60);
+          api.zoomToHighlighted(1000);
           api.pulseNode(fromId);
           api.pulseNode(toId);
         }, 500);

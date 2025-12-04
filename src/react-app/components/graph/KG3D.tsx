@@ -17,7 +17,7 @@ type Props = {
  * @see src/react-app/hooks/useMCPGraph3DTools.ts - Tools that use this API
  */
 export interface KG3DApi {
-  /** Fly camera to focus on a specific node */
+  /** Fly camera to focus on a specific node - zooms in close */
   focusNode: (id: string, ms?: number) => void;
   /** Highlight nodes matching a predicate */
   highlightWhere: (predicate: (n: GraphNode) => boolean) => void;
@@ -25,6 +25,8 @@ export interface KG3DApi {
   clear: () => void;
   /** Zoom camera to fit all nodes in view */
   zoomToFit: (ms?: number, pad?: number) => void;
+  /** Zoom to fit only the highlighted nodes - much tighter framing */
+  zoomToHighlighted: (ms?: number) => void;
   /** Add a pulsing ring effect to draw attention to a node */
   pulseNode: (id: string) => void;
   /** Orbit camera around the current view center */
@@ -43,7 +45,7 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
   // API methods for controlling the graph
   const api: KG3DApi = {
-    focusNode: (id: string, ms = 1200) => {
+    focusNode: (id: string, ms = 1000) => {
       const fg = fgRef.current;
       if (!fg) return;
 
@@ -52,15 +54,17 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
       const node = graphData.nodes?.find((n: any) => n.id === id);
       if (!node) return;
 
-      const dist = 200;
-      const angle = Date.now() * 0.001;
+      // Zoom in CLOSE - distance based on node size
+      const nodeSize = node.val || 4;
+      const dist = nodeSize * 8; // Close enough to see details
+      const angle = Math.PI / 4; // Fixed angle for consistent view
 
       // Only focus if node has position (after initial render)
       if (node.x !== undefined) {
         fg.cameraPosition(
           {
             x: node.x + dist * Math.cos(angle),
-            y: node.y + dist * 0.5,
+            y: node.y + dist * 0.4,
             z: node.z + dist * Math.sin(angle)
           },
           { x: node.x, y: node.y, z: node.z },
@@ -82,6 +86,54 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
     },
 
     zoomToFit: (ms = 800, pad = 40) => fgRef.current?.zoomToFit(ms, pad),
+
+    zoomToHighlighted: (ms = 1000) => {
+      const fg = fgRef.current;
+      if (!fg || highlightIds.size === 0) return;
+
+      // Get positions of highlighted nodes
+      const graphData = (fg as any).graphData?.() || { nodes: [], links: [] };
+      const highlightedNodes = graphData.nodes?.filter((n: any) => highlightIds.has(n.id)) || [];
+
+      if (highlightedNodes.length === 0) return;
+
+      // Calculate center and bounds of highlighted nodes
+      let minX = Infinity, maxX = -Infinity;
+      let minY = Infinity, maxY = -Infinity;
+      let minZ = Infinity, maxZ = -Infinity;
+
+      highlightedNodes.forEach((n: any) => {
+        if (n.x !== undefined) {
+          minX = Math.min(minX, n.x); maxX = Math.max(maxX, n.x);
+          minY = Math.min(minY, n.y); maxY = Math.max(maxY, n.y);
+          minZ = Math.min(minZ, n.z); maxZ = Math.max(maxZ, n.z);
+        }
+      });
+
+      const centerX = (minX + maxX) / 2;
+      const centerY = (minY + maxY) / 2;
+      const centerZ = (minZ + maxZ) / 2;
+
+      // Calculate distance based on bounding box size
+      const sizeX = maxX - minX;
+      const sizeY = maxY - minY;
+      const sizeZ = maxZ - minZ;
+      const maxSize = Math.max(sizeX, sizeY, sizeZ, 30); // minimum distance
+
+      // Position camera to frame the highlighted nodes nicely
+      const dist = maxSize * 1.5;
+      const angle = Math.PI / 4;
+
+      fg.cameraPosition(
+        {
+          x: centerX + dist * Math.cos(angle),
+          y: centerY + dist * 0.5,
+          z: centerZ + dist * Math.sin(angle)
+        },
+        { x: centerX, y: centerY, z: centerZ },
+        ms
+      );
+    },
 
     pulseNode: (id: string) => {
       setPulsingNodes(prev => new Set([...prev, id]));
