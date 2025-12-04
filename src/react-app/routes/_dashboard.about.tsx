@@ -7,12 +7,16 @@ import { Heading, SubHeading } from '@/components/ui/heading'
 import { EnhancedBadge } from '@/components/ui/enhanced-badge'
 import { DivideX } from '@/components/ui/divide'
 import { Button } from '@/components/ui/button'
+import { useMCPGlobalPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/about')({
   component: AboutComponent,
 })
 
 function AboutComponent() {
+  // Register MCP prompts for this page
+  useMCPGlobalPrompts()
+
   return (
     <div className="h-full flex flex-col overflow-auto bg-background">
       {/* Hero Header */}

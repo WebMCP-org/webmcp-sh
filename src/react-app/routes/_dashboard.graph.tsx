@@ -21,6 +21,7 @@ import { toForceGraphData } from '@/lib/graph/adapters'
 import { useMCPGraph3DTools } from '@/hooks/useMCPGraph3DTools'
 import { Button } from '@/components/ui/button'
 import { AIToolsPanel } from '@/components/graph/AIToolsPanel'
+import { useMCPGlobalPrompts, useMCPGraphPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/graph')({
   component: GraphWrapper,
@@ -86,11 +87,11 @@ function GraphComponent() {
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d');
   const kg3dRef = useRef<KG3DApi>(null);
 
-  // Register SQL tools
+  // Register MCP tools and prompts
   useMCPSQLTool();
-
-  // Register 3D tools
   useMCPGraph3DTools();
+  useMCPGlobalPrompts();
+  useMCPGraphPrompts();
 
   // Fetch all entities for graph
   const allEntitiesQuery = memory_entities.getAllMemoryEntitiesQuerySQL()
