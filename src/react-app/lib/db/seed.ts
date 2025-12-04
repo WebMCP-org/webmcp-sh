@@ -615,12 +615,12 @@ export async function seedDatabase() {
         created_at: days_ago(5),
         updated_at: days_ago(5),
       },
-      // WebMCP enables Browser-Based AI Agents
+      // WebMCP enables In-Page AI Agents
       {
         from_entity_id: entityMap['WebMCP'].id,
-        to_entity_id: entityMap['Browser-Based AI Agents'].id,
+        to_entity_id: entityMap['In-Page AI Agents'].id,
         relationship_type: 'enables',
-        description: 'WebMCP makes it possible for AI agents to run entirely in the browser',
+        description: 'WebMCP enables in-page AI agents like Char to interact with websites',
         strength: 10,
         created_at: days_ago(5),
         updated_at: days_ago(5),
@@ -635,12 +635,12 @@ export async function seedDatabase() {
         created_at: days_ago(7),
         updated_at: days_ago(7),
       },
-      // AI Agents use MCP Tools
+      // In-Page AI Agents use MCP Tools
       {
-        from_entity_id: entityMap['Browser-Based AI Agents'].id,
+        from_entity_id: entityMap['In-Page AI Agents'].id,
         to_entity_id: entityMap['MCP Tools'].id,
         relationship_type: 'invokes',
-        description: 'AI agents discover and invoke MCP tools to perform actions',
+        description: 'In-page AI agents like Char discover and invoke MCP tools to perform actions',
         strength: 9,
         created_at: days_ago(5),
         updated_at: days_ago(5),
@@ -997,9 +997,9 @@ export async function seedDatabase() {
       { entity_id: entityMap['MCP Tools'].id, trigger_type: 'keyword', trigger_value: 'tool schema', strength: 85 },
 
       // AI agents keywords
-      { entity_id: entityMap['Browser-Based AI Agents'].id, trigger_type: 'keyword', trigger_value: 'ai agent', strength: 95 },
-      { entity_id: entityMap['Browser-Based AI Agents'].id, trigger_type: 'keyword', trigger_value: 'agent', strength: 85 },
-      { entity_id: entityMap['Browser-Based AI Agents'].id, trigger_type: 'keyword', trigger_value: 'browser agent', strength: 90 },
+      { entity_id: entityMap['In-Page AI Agents'].id, trigger_type: 'keyword', trigger_value: 'ai agent', strength: 95 },
+      { entity_id: entityMap['In-Page AI Agents'].id, trigger_type: 'keyword', trigger_value: 'agent', strength: 85 },
+      { entity_id: entityMap['In-Page AI Agents'].id, trigger_type: 'keyword', trigger_value: 'browser agent', strength: 90 },
 
       // Technology keywords
       { entity_id: entityMap['Web Workers'].id, trigger_type: 'keyword', trigger_value: 'web worker', strength: 95 },
