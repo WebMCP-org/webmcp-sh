@@ -13,282 +13,163 @@ interface RouteInfo {
   description: string;
   params?: string[];
   searchParams?: string[];
-  availableTools?: string[];
-  features?: string[];
+  capabilities: string[];
 }
 
 /**
- * Hard-coded but type-safe route definitions
- * TypeScript will error if any of these paths don't exist in the route tree
+ * Route definitions describing what users can do at each location.
+ * When you navigate to a route, context-specific tools become available.
  */
 const ROUTE_DEFINITIONS: RouteInfo[] = [
   {
     path: '/',
-    description: 'Landing page - WebMCP demo overview and tool documentation',
-    features: [
-      'Overview of WebMCP capabilities',
-      'Tool code examples',
-      'Quick navigation to demo pages',
-      'Documentation links'
-    ],
-    availableTools: ['navigate', 'get_current_context', 'list_all_routes', 'app_gateway']
+    description: 'Landing page - WebMCP demo overview and documentation',
+    capabilities: [
+      'View overview of WebMCP capabilities',
+      'See tool code examples',
+      'Quick navigation to demo pages'
+    ]
   },
   {
     path: '/dashboard',
-    description: 'Dashboard - Memory overview with stats, charts, and data tables',
-    features: [
-      'Memory blocks and entities counts',
-      'Token usage by category and tier charts',
-      'Audit log of database changes',
-      'Embedded memory blocks and entities tables',
-      'Quick create dialogs for blocks and entities'
-    ],
-    availableTools: [
-      'navigate',
-      'list_memory_blocks',
-      'create_memory_block',
-      'update_memory_block',
-      'list_entities',
-      'create_entity',
-      'table_memory_blocks',
-      'table_entities'
+    description: 'Dashboard - Memory overview with stats, charts, and quick access',
+    capabilities: [
+      'View memory blocks and entities counts',
+      'See token usage charts by category and tier',
+      'Browse audit log of database changes',
+      'Quick create memory blocks and entities',
+      'Get an overview of the entire memory system'
     ]
   },
   {
     path: '/entities',
-    description: 'Browse all memory entities (facts, preferences, skills, etc.)',
+    description: 'Entities page - Browse and manage all memory entities',
     searchParams: ['filter', 'page', 'search'],
-    features: [
-      'Searchable table of all entities',
-      'Filter by category (fact, preference, skill, etc.)',
-      'Sort by name, category, or importance',
-      'Advanced filtering with multiple conditions',
-      'Grouping and pagination'
-    ],
-    availableTools: [
-      'table_entities',
-      'list_entities',
-      'search_entities',
-      'create_entity',
-      'update_entity',
-      'delete_entity'
+    capabilities: [
+      'View all entities in a searchable table',
+      'Filter by category (fact, preference, skill, person, project, goal)',
+      'Create, edit, and delete entities',
+      'Search entities by name or description',
+      'Sort and group entities'
     ]
   },
   {
     path: '/entities/$entityId',
-    description: 'View details of a specific entity',
+    description: 'Entity detail page - View and edit a specific entity',
     params: ['entityId'],
-    features: [
-      'Full entity details and metadata',
-      'Related entities and relationships',
-      'Edit capabilities',
-      'Relationship management'
-    ],
-    availableTools: [
-      'get_entity',
-      'update_entity',
-      'delete_entity',
-      'get_entity_relationships',
-      'create_relationship'
+    capabilities: [
+      'View full entity details and metadata',
+      'Edit entity properties',
+      'See related entities and relationships',
+      'Delete the entity'
     ]
   },
   {
     path: '/graph',
-    description: 'Knowledge graph visualization showing entity relationships',
+    description: 'Knowledge graph - Visualize entity relationships',
     searchParams: ['nodeId', 'depth', 'filter'],
-    features: [
-      '2D and 3D force-directed graph visualization',
-      'Interactive node exploration',
-      'Query and highlight entities',
-      'Visual effects: camera tour, particle burst, etc.',
-      'Pattern detection and analysis'
-    ],
-    availableTools: [
-      'sql_query',
-      'get_database_info',
-      'graph_query_entities',
-      'graph_focus_entity',
-      'graph_clear_highlights',
-      'graph_statistics',
-      'graph3d_camera_tour',
-      'graph3d_category_wave',
-      'graph3d_explode_view',
-      'graph3d_particle_burst',
-      'graph3d_activate_particle_flow',
-      'graph3d_pattern_detection'
+    capabilities: [
+      'View entities as an interactive 2D or 3D graph',
+      'Explore connections between entities',
+      'Focus on specific nodes and highlight paths',
+      'Run visual effects like camera tours and particle bursts',
+      'Analyze graph patterns and statistics',
+      'Execute SQL queries directly'
     ]
   },
   {
     path: '/memory-blocks',
-    description: 'View and edit always-in-context memory blocks',
-    features: [
-      'Manage core memory blocks',
-      'Edit block content and metadata',
-      'Set block priority levels',
-      'Filter and sort blocks',
-      'Create, update, delete operations'
-    ],
-    availableTools: [
-      'table_memory_blocks',
-      'list_memory_blocks',
-      'create_memory_block',
-      'update_memory_block',
-      'delete_memory_block'
+    description: 'Memory blocks - Manage always-in-context core memories',
+    capabilities: [
+      'View all memory blocks in a table',
+      'Create new memory blocks',
+      'Edit block content, labels, and priority',
+      'Delete memory blocks',
+      'Filter by block type (user_profile, agent_persona, current_goals, context)'
     ]
   },
   {
     path: '/sql-repl',
-    description: 'SQL REPL for executing direct database queries',
-    features: [
-      'Direct SQL query execution',
-      'Schema exploration with get_database_info',
-      'Query formatting and highlighting',
-      'Results displayed in REPL',
-      'Automatic query logging'
-    ],
-    availableTools: [
-      'sql_query',
-      'get_database_info'
+    description: 'SQL REPL - Execute direct database queries',
+    capabilities: [
+      'Run SQL queries against the in-browser database',
+      'Explore database schema and tables',
+      'View formatted query results',
+      'Access full database capabilities'
     ]
   },
   {
     path: '/sql-execution-log',
-    description: 'View SQL execution history and query logs',
-    features: [
-      'Complete SQL execution history',
-      'Query performance metrics',
-      'Error tracking',
+    description: 'SQL log - View query execution history',
+    capabilities: [
+      'Browse complete SQL execution history',
+      'See query performance metrics',
+      'Track errors and issues',
       'Filter by source (AI vs manual)'
-    ],
-    availableTools: [
-      'sql_query',
-      'get_database_info'
     ]
   },
   {
     path: '/about',
-    description: 'About this application and its technology stack',
-    features: [
-      'Technology stack overview',
-      'Key features documentation',
-      'Architecture information'
-    ],
-    availableTools: ['navigate']
+    description: 'About page - Technology stack and architecture info',
+    capabilities: [
+      'Learn about the technology stack',
+      'View architecture documentation'
+    ]
   },
   {
     path: '/showcase',
-    description: 'Component showcase and demo page for UI elements',
-    features: [
-      'UI component library',
-      'Interactive demos',
-      'Theming showcase'
-    ],
-    availableTools: ['navigate']
+    description: 'Showcase - UI component demos',
+    capabilities: [
+      'Browse UI component library',
+      'See interactive component demos'
+    ]
   }
 ] as const;
 
 /**
- * Format route information for AI consumption with complete context
+ * Format route information for AI consumption
  */
 function formatRouteList(): string {
-  let output = '=== 🗺️ WEBMCP APPLICATION GATEWAY ===\n\n';
+  let output = '=== WEBMCP APPLICATION NAVIGATION ===\n\n';
 
-  output += '📱 APPLICATION OVERVIEW\n';
-  output += '────────────────────────\n';
-  output += 'WebMCP is a memory and knowledge management system with the following capabilities:\n';
-  output += '• Memory block management for persistent context\n';
-  output += '• Entity tracking for facts, preferences, and skills\n';
-  output += '• Knowledge graph visualization for relationship mapping\n';
-  output += '• Direct SQL access for advanced queries\n';
-  output += '• Real-time data synchronization across tabs\n\n';
+  output += 'ABOUT THIS APP\n';
+  output += '──────────────\n';
+  output += 'WebMCP is a memory and knowledge management system with:\n';
+  output += '• Memory blocks for persistent, always-in-context data\n';
+  output += '• Entities for structured knowledge (facts, preferences, skills, etc.)\n';
+  output += '• Knowledge graph for visualizing relationships\n';
+  output += '• Direct SQL access for advanced queries\n\n';
 
-  output += '🧭 NAVIGATION MAP\n';
-  output += '─────────────────\n\n';
+  output += 'IMPORTANT: When you navigate to a route, context-specific tools become available.\n';
+  output += 'For example, entity CRUD tools appear on /entities, graph tools appear on /graph, etc.\n\n';
+
+  output += 'AVAILABLE ROUTES\n';
+  output += '────────────────\n\n';
 
   ROUTE_DEFINITIONS.forEach(route => {
-    output += `📍 ${route.path}\n`;
-    output += `   └─ ${route.description}\n`;
+    output += `${route.path}\n`;
+    output += `  ${route.description}\n`;
 
-    if (route.features && route.features.length > 0) {
-      output += `   \n   Features:\n`;
-      route.features.forEach(feature => {
-        output += `     • ${feature}\n`;
-      });
-    }
-
-    if (route.availableTools && route.availableTools.length > 0) {
-      output += `   \n   Available Tools When Here:\n`;
-      route.availableTools.forEach(tool => {
-        output += `     🔧 ${tool}\n`;
+    if (route.capabilities.length > 0) {
+      output += `  What you can do here:\n`;
+      route.capabilities.forEach(cap => {
+        output += `    • ${cap}\n`;
       });
     }
 
     if (route.params && route.params.length > 0) {
-      output += `   \n   Required Params: ${route.params.map(p => `$${p}`).join(', ')}\n`;
+      output += `  Required params: ${route.params.map(p => `$${p}`).join(', ')}\n`;
     }
 
-    if (route.searchParams && route.searchParams.length > 0) {
-      output += `   Optional Search Params: ${route.searchParams.join(', ')}\n`;
-    }
-
-    output += '\n   ────────────────────────────────────\n\n';
+    output += '\n';
   });
 
-  output += '⚡ QUICK NAVIGATION GUIDE\n';
-  output += '──────────────────────────\n\n';
-
-  output += 'Common Tasks and Where to Go:\n\n';
-  output += '📊 Data Management:\n';
-  output += '  • View/Edit Memory → /memory-blocks\n';
-  output += '  • Browse Entities → /entities\n';
-  output += '  • SQL Queries → /sql-repl\n\n';
-
-  output += '🔍 Analysis & Visualization:\n';
-  output += '  • Knowledge Graph → /graph\n';
-  output += '  • Entity Details → /entities/$entityId\n';
-  output += '  • Query History → /sql-execution-log\n\n';
-
-  output += '🏠 General:\n';
-  output += '  • Landing Page → /\n';
-  output += '  • Dashboard → /dashboard\n';
-  output += '  • About → /about\n';
-  output += '  • UI Components → /showcase\n\n';
-
-  output += '🎯 NAVIGATION INSTRUCTIONS\n';
-  output += '────────────────────────────\n\n';
-
-  output += 'To navigate, use the navigate tool with a JSON object:\n\n';
-  output += 'Required:\n';
-  output += '  • "to": The route path (e.g., "/entities")\n\n';
-
-  output += 'Optional:\n';
-  output += '  • "params": Route parameters for dynamic segments\n';
-  output += '  • "search": Query/search parameters\n';
-  output += '  • "hash": URL hash fragment\n';
-  output += '  • "replace": Replace history entry (default: false)\n\n';
-
-  output += '📝 NAVIGATION EXAMPLES\n';
-  output += '──────────────────────\n\n';
-
-  output += '// Go to entities page\n';
-  output += '{ "to": "/entities" }\n\n';
-
-  output += '// View specific entity\n';
-  output += '{ "to": "/entities/$entityId", "params": { "entityId": "abc-123" } }\n\n';
-
-  output += '// Graph with filters\n';
-  output += '{ "to": "/graph", "search": { "nodeId": "node-1", "depth": "2" } }\n\n';
-
-  output += '// Entities with search\n';
-  output += '{ "to": "/entities", "search": { "filter": "skills", "search": "python" } }\n\n';
-
-  output += '💡 PRO TIPS\n';
-  output += '────────────\n';
-  output += '• Use get_current_context to see where you are\n';
-  output += '• Each page activates specific tools for that context\n';
-  output += '• The graph page has the most visualization tools\n';
-  output += '• SQL REPL provides direct database access\n';
-  output += '• Memory blocks are always-in-context data\n';
+  output += 'NAVIGATION EXAMPLES\n';
+  output += '───────────────────\n\n';
+  output += '{ "to": "/entities" }                                    // Go to entities page\n';
+  output += '{ "to": "/entities/$entityId", "params": { "entityId": "abc-123" } }  // View entity\n';
+  output += '{ "to": "/graph" }                                       // Open knowledge graph\n';
+  output += '{ "to": "/memory-blocks" }                               // Manage memory blocks\n';
 
   return output;
 }
@@ -431,31 +312,17 @@ Useful for understanding where the user is and providing context-aware responses
   // Gateway tool - Primary navigation and app overview
   useWebMCP({
     name: 'app_gateway',
-    description: `🗺️ PRIMARY APPLICATION GATEWAY TOOL
+    description: `Application gateway - Get an overview of the app and available routes.
 
-This is the main entry point for understanding and navigating the WebMCP application.
-Use this tool FIRST when starting any task to understand the application structure and available tools.
-
-This gateway provides:
-• Complete application map and navigation
-• List of all available tools per section
-• Feature descriptions for each area
-• Quick navigation guidance
-• Context-aware tool activation info
-
-ALWAYS use this tool when:
-• Starting a new conversation
-• Asked about app capabilities
-• Unsure where to find something
-• Need to know what tools are available
-• Planning multi-step operations across different sections`,
+Use this tool to understand what areas of the app exist and what you can do in each.
+When you navigate to a route, context-specific tools will become available automatically.`,
     inputSchema: {
       query: z.string()
         .optional()
-        .describe('Optional: Specific area or feature to focus on (e.g., "graph tools", "memory management", "sql features")')
+        .describe('Optional: Search for a specific area (e.g., "graph", "memory", "sql")')
     },
     annotations: {
-      title: 'App Gateway & Navigation Hub',
+      title: 'App Gateway',
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
@@ -466,50 +333,33 @@ ALWAYS use this tool when:
       let output = formatRouteList();
 
       if (query) {
-        output += '\n\n🔍 FOCUSED QUERY RESULTS\n';
-        output += '───────────────────────\n\n';
+        output += '\n\nSEARCH RESULTS\n';
+        output += '──────────────\n\n';
 
         const queryLower = query.toLowerCase();
 
-        // Filter routes based on query
         const relevantRoutes = ROUTE_DEFINITIONS.filter(route => {
           const matchesPath = route.path.toLowerCase().includes(queryLower);
           const matchesDescription = route.description.toLowerCase().includes(queryLower);
-          const matchesFeatures = route.features?.some(f => f.toLowerCase().includes(queryLower));
-          const matchesTools = route.availableTools?.some(t => t.toLowerCase().includes(queryLower));
+          const matchesCapabilities = route.capabilities.some(c => c.toLowerCase().includes(queryLower));
 
-          return matchesPath || matchesDescription || matchesFeatures || matchesTools;
+          return matchesPath || matchesDescription || matchesCapabilities;
         });
 
         if (relevantRoutes.length > 0) {
           output += `Found ${relevantRoutes.length} relevant sections for "${query}":\n\n`;
 
           relevantRoutes.forEach(route => {
-            output += `📍 ${route.path} - ${route.description}\n`;
-            if (route.availableTools && route.availableTools.length > 0) {
-              output += `   Tools: ${route.availableTools.slice(0, 5).join(', ')}${route.availableTools.length > 5 ? '...' : ''}\n`;
-            }
-            output += '\n';
+            output += `${route.path} - ${route.description}\n`;
           });
         } else {
-          output += `No specific sections found for "${query}".\n`;
-          output += 'Try browsing the full navigation map above or use different search terms.\n';
+          output += `No sections found for "${query}". See routes above.\n`;
         }
       }
 
-      // Add current location context
+      // Add current location
       const location = router.state.location;
-      output += '\n\n📍 CURRENT LOCATION\n';
-      output += '──────────────────\n';
-      output += `You are currently at: ${location.pathname}\n`;
-
-      const currentRoute = ROUTE_DEFINITIONS.find(r => r.path === location.pathname || location.pathname.startsWith(r.path.split('$')[0]));
-      if (currentRoute && currentRoute.availableTools) {
-        output += '\nTools available at current location:\n';
-        currentRoute.availableTools.forEach(tool => {
-          output += `  🔧 ${tool}\n`;
-        });
-      }
+      output += '\n\nCURRENT LOCATION: ' + location.pathname + '\n';
 
       return output;
     },
