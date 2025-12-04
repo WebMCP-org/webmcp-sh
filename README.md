@@ -22,11 +22,20 @@
 
 ---
 
-## What This Does
+## What is WebMCP?
 
-WebMCP.sh is a development playground for the Model Context Protocol. Connect to MCP servers, execute tools, browse resources, and test your implementations—all from the browser.
+[WebMCP](https://docs.mcp-b.ai) is a **W3C web standard** currently being incubated by the Web Machine Learning Community Group. It enables websites to expose AI-callable tools through the browser's `navigator.modelContext` API, allowing AI agents to interact with web applications directly.
 
-**Key capabilities:**
+**WebMCP.sh** is a development playground demonstrating these capabilities with an in-browser PostgreSQL database (PGlite).
+
+### The Ecosystem
+
+- **WebMCP** - The W3C Web Model Context API standard for exposing website tools to AI agents
+- **MCP-B** - The reference implementation that polyfills `navigator.modelContext` and bridges WebMCP with MCP
+- **Char** - MCP-B's in-page AI agent that interacts with WebMCP-enabled websites
+
+### Key Capabilities
+
 - Connect to multiple MCP servers simultaneously
 - Execute tools with real-time parameter validation
 - Browse and manage server resources
@@ -131,8 +140,16 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for development standards.
 
 ## Resources
 
+### WebMCP & MCP-B
+- [WebMCP Documentation](https://docs.mcp-b.ai/) - Official WebMCP docs (W3C Web Model Context API)
+- [MCP-B Extension](https://mcp-b.ai/) - Browser extension with Char in-page agent
+- [W3C WebMCP Repo](https://github.com/webmachinelearning/webmcp) - W3C Web Machine Learning Community Group specification
+
+### Model Context Protocol
 - [Model Context Protocol](https://modelcontextprotocol.io/) - Official MCP documentation
 - [MCP Specification](https://spec.modelcontextprotocol.io/) - Technical specification
+
+### Technologies
 - [PGlite](https://pglite.dev/) - In-browser PostgreSQL
 - [Drizzle ORM](https://orm.drizzle.team/) - TypeScript ORM
 
