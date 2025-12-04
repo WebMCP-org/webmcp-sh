@@ -3,7 +3,6 @@ import { useWebMCP } from "@mcp-b/react-webmcp";
 import { toast } from "sonner";
 import { pg_lite } from "@/lib/db";
 import type { KG3DApi } from "@/components/graph/KG3D";
-import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
 
 /** Entity query result from database */
 interface EntityQueryResult {
@@ -14,20 +13,23 @@ interface EntityQueryResult {
   description: string | null;
 }
 
-/** Simple entity reference with id and name */
-interface EntityRef {
+/** Connected entity info */
+interface ConnectedEntityInfo {
   id: string;
   name: string;
-}
-
-/** Count query result */
-interface CountResult {
-  count: number;
+  category: string;
+  relationship_type: string;
+  direction: string;
 }
 
 /**
- * MCP tools for 3D graph visualization control
- * These tools allow AI agents to create cinematic effects and control the 3D graph
+ * Simplified MCP tools for 3D graph visualization
+ *
+ * These tools help users navigate and modify the knowledge graph:
+ * - Query and find entities (with visual zoom)
+ * - Navigate to specific entities (zoom + show connections)
+ * - Add entities and connections (with visual feedback)
+ * - Clear/reset the view
  */
 export function useMCPGraph3DTools() {
   // Get the 3D API from window (set by KG3D component)
@@ -38,42 +40,38 @@ export function useMCPGraph3DTools() {
     return null;
   };
 
-  // Tool 1: Query and highlight in 3D with visual effects
+  // Tool 1: Query and highlight entities
   useWebMCP({
-    name: "graph3d_query_highlight",
-    description: `Find entities by SQL WHERE clause and highlight them in 3D with visual effects.
+    name: "graph3d_query",
+    description: `Find and highlight entities in the 3D knowledge graph.
 
-This tool creates a cinematic highlighting effect:
-- Entities glow and scale up
-- Camera can auto-zoom to show results
-- Particles flow between connected highlighted nodes
-- Creates a dramatic reveal effect
+Use this to search for entities and visually show them to the user.
+The camera will zoom to the results so the user can see what you found.
 
 Example queries:
-- "category = 'skill'" - highlight all skills
-- "importance_score > 80" - highlight important entities
-- "name ILIKE '%AI%'" - find AI-related entities`,
+- "category = 'skill'" - find all skills
+- "importance_score > 80" - find important entities
+- "name ILIKE '%AI%'" - find AI-related entities
+- "category = 'person'" - find all people
+
+The results are highlighted and the camera zooms to show them.`,
     inputSchema: {
       where_clause: z.string().min(1)
-        .describe("SQL WHERE clause to filter entities"),
-      zoom: z.boolean().default(true)
-        .describe("Auto-zoom camera to show highlighted entities"),
-      emit_particles: z.boolean().default(true)
-        .describe("Emit particles on edges between highlighted nodes"),
-      orbit_camera: z.boolean().default(false)
-        .describe("Orbit camera around highlighted nodes for dramatic effect"),
+        .describe("SQL WHERE clause to filter entities (e.g., \"category = 'skill'\")"),
+      show_connections: z.boolean().default(true)
+        .describe("Also highlight connected entities"),
     },
     annotations: {
-      title: "3D Query & Highlight",
-      readOnlyHint: false,
+      title: "3D Query",
+      readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async ({ where_clause, zoom, emit_particles, orbit_camera }) => {
+    handler: async ({ where_clause, show_connections }) => {
       const api = getApi();
       if (!api) {
-        toast.error("3D graph not initialized");
-        return "3D graph not initialized";
+        toast.error("3D graph not initialized - please navigate to the Graph page");
+        return "3D graph not initialized. Please navigate to the Graph page first.";
       }
 
       const query = `
@@ -90,326 +88,299 @@ Example queries:
         return "No entities found matching query";
       }
 
-      const ids = rows.map((r) => r.id);
+      const ids = new Set(rows.map((r) => r.id));
 
-      // Highlight matching nodes
-      api.highlightWhere((n: GraphNode) => ids.includes(n.id));
+      // If showing connections, also get connected entities
+      if (show_connections) {
+        const { rows: connections } = await pg_lite.query<{ from_entity_id: string; to_entity_id: string }>(
+          `SELECT from_entity_id, to_entity_id FROM entity_relationships
+           WHERE from_entity_id = ANY($1) OR to_entity_id = ANY($1)`,
+          [rows.map((r) => r.id)]
+        );
 
-      // Always zoom to show highlighted entities for better visibility
-      // Use the zoom parameter to control padding
-      setTimeout(() => api.zoomToFit(1000, zoom ? 60 : 100), 100);
-
-      // Emit particles on connected edges
-      if (emit_particles) {
-        setTimeout(() => {
-          api.emitParticlesOnPath(
-            (l: GraphLink) => ids.includes(l.source) && ids.includes(l.target)
-          );
-        }, 500);
+        connections.forEach((conn) => {
+          ids.add(conn.from_entity_id);
+          ids.add(conn.to_entity_id);
+        });
       }
 
-      // Orbit camera for dramatic effect
-      if (orbit_camera) {
-        setTimeout(() => api.cameraOrbit(3000), 1500);
-      }
+      // Highlight AND zoom to matching nodes in one call (avoids timing issues)
+      const allIds = [...ids];
+      api.highlightAndZoom(allIds, 1000);
+
+      // Pulse top results to draw attention
+      setTimeout(() => {
+        rows.slice(0, 3).forEach((r) => api.pulseNode(r.id));
+      }, 200);
 
       const categories = [...new Set(rows.map((r) => r.category))];
-      toast.success(`3D Graph: Highlighted ${rows.length} entities`);
-      return `🌟 Highlighted ${rows.length} entities in 3D:
-${categories.map(cat => `• ${rows.filter((r) => r.category === cat).length} ${cat}(s)`).join('\n')}
+      toast.success(`Found ${rows.length} entities`);
 
-Top matches:
-${rows.slice(0, 5).map((e) => `• ${e.name} (${e.category})`).join('\n')}
+      return `Found ${rows.length} entities:
+${categories.map(cat => `- ${rows.filter((r) => r.category === cat).length} ${cat}(s)`).join('\n')}
 
-${zoom ? "📹 Camera zoomed to results" : ""}
-${emit_particles ? "✨ Particle effects active" : ""}
-${orbit_camera ? "🎬 Camera orbiting" : ""}`;
+Results:
+${rows.slice(0, 10).map((e) => `- ${e.name} (${e.category})${e.description ? `: ${e.description.slice(0, 50)}...` : ''}`).join('\n')}
+${rows.length > 10 ? `\n...and ${rows.length - 10} more` : ''}
+
+The entities are now highlighted in the 3D graph.`;
     },
   });
 
-  // Tool 2: Focus on entity with cinematic camera movement
+  // Tool 2: Navigate to a specific entity
   useWebMCP({
-    name: "graph3d_focus_entity",
-    description: `Fly camera to a specific entity with cinematic effects.
+    name: "graph3d_navigate",
+    description: `Navigate to a specific entity in the 3D graph.
 
-Creates a dramatic focus effect:
-- Smooth camera fly-to animation
-- Entity pulses with energy
-- Particles emit from connected edges
-- Shows detailed information about connections`,
+Use this when the user asks about a specific entity (e.g., "where is X?", "show me Y").
+The camera will fly to the entity and highlight it along with its connections.
+
+This helps users who don't know how to navigate the 3D UI - you navigate for them.`,
     inputSchema: {
       name: z.string().min(1)
-        .describe("Name of entity to focus on (partial match allowed)"),
-      pulse: z.boolean().default(true)
-        .describe("Add pulsing animation to the focused entity"),
-      show_connections: z.boolean().default(true)
-        .describe("Highlight and emit particles on connected edges"),
+        .describe("Name of entity to navigate to (partial match allowed)"),
     },
     annotations: {
-      title: "3D Focus Entity",
-      readOnlyHint: false,
+      title: "3D Navigate",
+      readOnlyHint: true,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async ({ name, pulse, show_connections }) => {
+    handler: async ({ name }) => {
       const api = getApi();
       if (!api) {
-        toast.error("3D graph not initialized");
-        return "3D graph not initialized";
+        toast.error("3D graph not initialized - please navigate to the Graph page");
+        return "3D graph not initialized. Please navigate to the Graph page first.";
       }
 
       // Find entity
       const { rows } = await pg_lite.query<EntityQueryResult>(
-        `SELECT id, name, category, importance_score FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
+        `SELECT id, name, category, importance_score, description
+         FROM memory_entities
+         WHERE name ILIKE $1
+         ORDER BY importance_score DESC
+         LIMIT 1`,
         [`%${name}%`]
       );
 
       if (!rows?.length) {
         toast.error(`Entity "${name}" not found`);
-        throw new Error(`Entity "${name}" not found`);
+        return `Entity "${name}" not found. Try using graph3d_query to search for it.`;
       }
 
       const entity = rows[0];
-      const id = entity.id;
 
-      // Focus with camera animation
-      api.focusNode(id, 1500);
+      // Get connections
+      const { rows: connections } = await pg_lite.query<ConnectedEntityInfo>(`
+        SELECT
+          e.id,
+          e.name,
+          e.category,
+          r.relationship_type,
+          CASE WHEN r.from_entity_id = $1 THEN 'outgoing' ELSE 'incoming' END as direction
+        FROM entity_relationships r
+        JOIN memory_entities e ON (
+          CASE WHEN r.from_entity_id = $1 THEN r.to_entity_id ELSE r.from_entity_id END = e.id
+        )
+        WHERE r.from_entity_id = $1 OR r.to_entity_id = $1
+        ORDER BY e.importance_score DESC
+      `, [entity.id]);
 
-      // Add pulse effect
-      if (pulse) {
-        api.pulseNode(id);
-      }
+      // Highlight entity and all its connections
+      const idsToHighlight = [entity.id, ...connections.map((c) => c.id)];
+      api.highlightAndZoom(idsToHighlight, 1000);
 
-      // Show connections with particles
-      if (show_connections) {
-        setTimeout(() => {
-          api.emitParticlesOnPath(
-            (l: GraphLink) => l.source === id || l.target === id
-          );
-        }, 800);
+      // Then zoom in closer on just the main entity and pulse it
+      setTimeout(() => {
+        api.focusNode(entity.id, 800);
+        api.pulseNode(entity.id);
+      }, 100);
 
-        // Get connection count
-        const { rows: connections } = await pg_lite.query<CountResult>(
-          `SELECT COUNT(*) as count FROM entity_relationships WHERE from_entity_id = $1 OR to_entity_id = $1`,
-          [id]
-        );
+      toast.success(`Navigated to "${entity.name}"`);
 
-        toast.success(`3D Graph: Focused on "${entity.name}"`);
-        return `🎯 Focused on: ${entity.name}
+      const incomingConnections = connections.filter((c) => c.direction === 'incoming');
+      const outgoingConnections = connections.filter((c) => c.direction === 'outgoing');
+
+      return `Navigated to: ${entity.name}
 Category: ${entity.category}
 Importance: ${entity.importance_score}
-Connections: ${connections[0].count}
+${entity.description ? `Description: ${entity.description}` : ''}
 
-${pulse ? "💫 Pulsing effect active" : ""}
-${show_connections ? "✨ Connection particles flowing" : ""}`;
-      }
+Connections (${connections.length} total):
+${outgoingConnections.length > 0 ? `\nOutgoing (${outgoingConnections.length}):
+${outgoingConnections.slice(0, 5).map((c) => `  → ${c.name} (${c.relationship_type})`).join('\n')}` : ''}
+${incomingConnections.length > 0 ? `\nIncoming (${incomingConnections.length}):
+${incomingConnections.slice(0, 5).map((c) => `  ← ${c.name} (${c.relationship_type})`).join('\n')}` : ''}
 
-      toast.success(`3D Graph: Focused on "${entity.name}"`);
-      return `🎯 Focused on: ${entity.name}`;
+The entity and its connections are now highlighted in the 3D graph.`;
     },
   });
 
-  // Tool 3: Create cinematic camera tour
+  // Tool 3: Add a new entity
   useWebMCP({
-    name: "graph3d_camera_tour",
-    description: `Create a cinematic camera tour through multiple entities.
+    name: "graph3d_add_entity",
+    description: `Create a new entity in the knowledge graph.
 
-This creates a movie-like sequence:
-- Camera flies smoothly between entities
-- Each entity pulses when visited
-- Particles flow along the path
-- Perfect for demonstrating relationships`,
+Use this to add new knowledge to the graph. After creation, the camera
+will zoom to the new entity so the user can see it was created.
+
+Categories: fact, preference, skill, rule, context, person, project, goal`,
     inputSchema: {
-      entity_names: z.array(z.string())
-        .min(2)
-        .max(10)
-        .describe("List of entity names to visit in sequence"),
-      duration_per_stop: z.number()
-        .min(1000)
-        .max(5000)
-        .default(2000)
-        .describe("Milliseconds to spend at each entity"),
+      name: z.string().min(1).max(200)
+        .describe("Name of the entity"),
+      category: z.enum(["fact", "preference", "skill", "rule", "context", "person", "project", "goal"])
+        .describe("Category of the entity"),
+      description: z.string().max(1000).optional()
+        .describe("Description of the entity"),
+      importance_score: z.number().min(0).max(100).default(50)
+        .describe("Importance score (0-100)"),
+      tags: z.array(z.string()).default([])
+        .describe("Tags for the entity"),
     },
     annotations: {
-      title: "3D Camera Tour",
+      title: "3D Add Entity",
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async ({ entity_names, duration_per_stop }) => {
+    handler: async ({ name, category, description, importance_score, tags }) => {
       const api = getApi();
-      if (!api) {
-        toast.error("3D graph not initialized");
-        return "3D graph not initialized";
-      }
 
-      const tour_entities: EntityRef[] = [];
-
-      // Find all entities
-      for (const name of entity_names) {
-        const { rows } = await pg_lite.query<EntityRef>(
-          `SELECT id, name FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
-          [`%${name}%`]
-        );
-        if (rows?.length) {
-          tour_entities.push(rows[0]);
-        }
-      }
-
-      if (tour_entities.length < 2) {
-        toast.error("Not enough entities found for tour");
-        return "Not enough entities found for tour";
-      }
-
-      // Execute tour
-      tour_entities.forEach((entity, index) => {
-        setTimeout(() => {
-          api.focusNode(entity.id, 1000);
-          api.pulseNode(entity.id);
-
-          // Emit particles to next entity
-          if (index < tour_entities.length - 1) {
-            const nextId = tour_entities[index + 1].id;
-            setTimeout(() => {
-              api.emitParticlesOnPath(
-                (l: GraphLink) =>
-                  (l.source === entity.id && l.target === nextId) ||
-                  (l.target === entity.id && l.source === nextId)
-              );
-            }, 500);
-          }
-        }, index * duration_per_stop);
-      });
-
-      toast.success(`3D Graph: Camera tour started with ${tour_entities.length} stops`);
-      return `🎬 Camera tour started!
-Visiting ${tour_entities.length} entities:
-${tour_entities.map((e, i) => `${i + 1}. ${e.name}`).join('\n')}
-
-Total duration: ${tour_entities.length * duration_per_stop / 1000} seconds`;
-    },
-  });
-
-  // Tool 4: Explode/Contract view for dramatic effect
-  useWebMCP({
-    name: "graph3d_explode_view",
-    description: `Explode or contract the graph for dramatic effect.
-
-This creates a "big bang" or "collapse" effect:
-- Explode: Nodes push apart dramatically
-- Contract: Nodes pull together tightly
-- Great for revealing structure or creating emphasis`,
-    inputSchema: {
-      mode: z.enum(["explode", "contract"])
-        .describe("Whether to explode or contract the view"),
-    },
-    annotations: {
-      title: "3D Explode/Contract",
-      readOnlyHint: false,
-      idempotentHint: false,
-      openWorldHint: false,
-    },
-    handler: async ({ mode }) => {
-      const api = getApi();
-      if (!api) {
-        toast.error("3D graph not initialized");
-        return "3D graph not initialized";
-      }
-
-      if (mode === "explode") {
-        api.explodeView();
-        // Zoom out to show the expanded graph after explosion settles
-        setTimeout(() => api.zoomToFit(1200, 120), 500);
-        toast.success("3D Graph: Exploded view");
-        return "💥 Graph exploded! Nodes pushed apart for dramatic effect.\n📹 Camera zooming out to show expansion";
-      } else {
-        api.contractView();
-        // Zoom in to show the contracted graph after it settles
-        setTimeout(() => api.zoomToFit(1200, 60), 500);
-        toast.success("3D Graph: Contracted view");
-        return "🌀 Graph contracted! Nodes pulled together.\n📹 Camera zooming in to show contraction";
-      }
-    },
-  });
-
-  // Tool 5: Particle burst effect
-  useWebMCP({
-    name: "graph3d_particle_burst",
-    description: `Create a particle burst effect from high-importance nodes.
-
-This creates a fireworks-like effect:
-- Particles burst from important nodes
-- Flow along strong relationships
-- Creates an energetic, dynamic visualization`,
-    inputSchema: {
-      min_importance: z.number()
-        .min(0)
-        .max(100)
-        .default(70)
-        .describe("Minimum importance score for nodes to emit particles"),
-      particle_count: z.number()
-        .min(1)
-        .max(20)
-        .default(5)
-        .describe("Number of particles per edge"),
-    },
-    annotations: {
-      title: "3D Particle Burst",
-      readOnlyHint: false,
-      idempotentHint: false,
-      openWorldHint: false,
-    },
-    handler: async ({ min_importance, particle_count }) => {
-      const api = getApi();
-      if (!api) {
-        toast.error("3D graph not initialized");
-        return "3D graph not initialized";
-      }
-
-      // Find high-importance nodes
+      // Create the entity
       const { rows } = await pg_lite.query<{ id: string }>(
-        `SELECT id FROM memory_entities WHERE importance_score >= $1`,
-        [min_importance]
+        `INSERT INTO memory_entities (name, category, description, importance_score, tags)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING id`,
+        [name, category, description || null, importance_score, tags]
       );
 
       if (!rows?.length) {
-        toast.info("No nodes meet importance threshold");
-        return "No nodes meet importance threshold";
+        toast.error("Failed to create entity");
+        return "Failed to create entity";
       }
 
-      const importantIds = rows.map((r) => r.id);
+      const newId = rows[0].id;
+      toast.success(`Created entity "${name}"`);
 
-      // Highlight and pulse important nodes so user can see which ones are bursting
-      api.highlightWhere((n: GraphNode) => importantIds.includes(n.id));
-      importantIds.slice(0, 5).forEach((id) => api.pulseNode(id));
+      // If 3D graph is available, highlight, zoom, and pulse the new entity
+      // Note: The graph needs time to refresh with new data from the database
+      if (api) {
+        // Wait for graph to update, then highlight and zoom
+        setTimeout(() => {
+          api.highlightAndZoom([newId], 1000);
+          api.pulseNode(newId);
+        }, 800);
+      }
 
-      // Zoom camera to show the important nodes
-      setTimeout(() => api.zoomToFit(1000, 80), 100);
+      return `Created new entity:
+- ID: ${newId}
+- Name: ${name}
+- Category: ${category}
+- Importance: ${importance_score}
+${description ? `- Description: ${description}` : ''}
+${tags.length > 0 ? `- Tags: ${tags.join(', ')}` : ''}
 
-      // Emit particles from all edges connected to important nodes
-      setTimeout(() => {
-        api.emitParticlesOnPath(
-          (l: GraphLink) =>
-            importantIds.includes(l.source) ||
-            importantIds.includes(l.target)
-        );
-      }, 300);
-
-      toast.success(`3D Graph: Particle burst from ${rows.length} nodes`);
-      return `🎆 Particle burst!
-${rows.length} high-importance nodes emitting particles
-${particle_count} particles per edge
-📹 Camera focused on important nodes`;
+${api ? 'The graph will refresh and zoom to show the new entity.' : 'Navigate to the Graph page to see it in the 3D view.'}`;
     },
   });
 
-  // Tool 6: Clear all effects and reset
+  // Tool 4: Add a connection between entities
+  useWebMCP({
+    name: "graph3d_add_connection",
+    description: `Create a relationship between two entities.
+
+Use this to connect entities in the knowledge graph. After creation,
+the camera will zoom to show both entities and their connection.
+
+Common relationship types: uses, related_to, works_on, knows, created, part_of, depends_on`,
+    inputSchema: {
+      from_entity: z.string().min(1)
+        .describe("Name of the source entity (partial match allowed)"),
+      to_entity: z.string().min(1)
+        .describe("Name of the target entity (partial match allowed)"),
+      relationship_type: z.string().min(1).max(50)
+        .describe("Type of relationship (e.g., 'uses', 'related_to', 'works_on')"),
+      strength: z.number().min(1).max(10).default(5)
+        .describe("Connection strength (1-10)"),
+      description: z.string().max(500).optional()
+        .describe("Description of the relationship"),
+    },
+    annotations: {
+      title: "3D Add Connection",
+      readOnlyHint: false,
+      idempotentHint: false,
+      openWorldHint: false,
+    },
+    handler: async ({ from_entity, to_entity, relationship_type, strength, description }) => {
+      const api = getApi();
+
+      // Find source entity
+      const { rows: fromRows } = await pg_lite.query<{ id: string; name: string }>(
+        `SELECT id, name FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
+        [`%${from_entity}%`]
+      );
+
+      if (!fromRows?.length) {
+        toast.error(`Source entity "${from_entity}" not found`);
+        return `Source entity "${from_entity}" not found. Create it first with graph3d_add_entity.`;
+      }
+
+      // Find target entity
+      const { rows: toRows } = await pg_lite.query<{ id: string; name: string }>(
+        `SELECT id, name FROM memory_entities WHERE name ILIKE $1 LIMIT 1`,
+        [`%${to_entity}%`]
+      );
+
+      if (!toRows?.length) {
+        toast.error(`Target entity "${to_entity}" not found`);
+        return `Target entity "${to_entity}" not found. Create it first with graph3d_add_entity.`;
+      }
+
+      const fromId = fromRows[0].id;
+      const toId = toRows[0].id;
+      const fromName = fromRows[0].name;
+      const toName = toRows[0].name;
+
+      // Create the relationship
+      const { rows: relRows } = await pg_lite.query<{ id: string }>(
+        `INSERT INTO entity_relationships (from_entity_id, to_entity_id, relationship_type, strength, description)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING id`,
+        [fromId, toId, relationship_type, strength, description || null]
+      );
+
+      if (!relRows?.length) {
+        toast.error("Failed to create connection");
+        return "Failed to create connection";
+      }
+
+      toast.success(`Connected "${fromName}" → "${toName}"`);
+
+      // If 3D graph is available, highlight, zoom, and pulse both entities
+      if (api) {
+        setTimeout(() => {
+          api.highlightAndZoom([fromId, toId], 1000);
+          api.pulseNode(fromId);
+          api.pulseNode(toId);
+        }, 500);
+      }
+
+      return `Created connection:
+${fromName} → ${relationship_type} → ${toName}
+Strength: ${strength}/10
+${description ? `Description: ${description}` : ''}
+
+${api ? 'The graph will refresh and zoom to show the connected entities.' : 'Navigate to the Graph page to see it in the 3D view.'}`;
+    },
+  });
+
+  // Tool 5: Clear highlights and reset view
   useWebMCP({
     name: "graph3d_clear",
-    description: "Clear all 3D highlights and effects, reset camera view.",
+    description: "Clear all highlights and reset the camera to show the full graph.",
     inputSchema: {},
     annotations: {
-      title: "3D Clear Effects",
+      title: "3D Clear",
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
@@ -424,81 +395,8 @@ ${particle_count} particles per edge
       api.clear();
       api.zoomToFit(800, 80);
 
-      toast.success("3D Graph: Effects cleared");
-      return "🔄 3D graph reset to default view";
-    },
-  });
-
-  // Tool 7: Category wave effect
-  useWebMCP({
-    name: "graph3d_category_wave",
-    description: `Create a wave effect that highlights categories in sequence.
-
-This creates a cascading reveal:
-- Each category lights up in turn
-- Creates a wave-like progression
-- Shows the diversity of entity types`,
-    inputSchema: {
-      duration_per_category: z.number()
-        .min(500)
-        .max(3000)
-        .default(1500)
-        .describe("Milliseconds to highlight each category"),
-    },
-    annotations: {
-      title: "3D Category Wave",
-      readOnlyHint: false,
-      idempotentHint: false,
-      openWorldHint: false,
-    },
-    handler: async ({ duration_per_category }) => {
-      const api = getApi();
-      if (!api) {
-        toast.error("3D graph not initialized");
-        return "3D graph not initialized";
-      }
-
-      const categories = ['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'];
-
-      categories.forEach((category, index) => {
-        setTimeout(async () => {
-          // Highlight this category
-          const { rows } = await pg_lite.query<{ id: string }>(
-            `SELECT id FROM memory_entities WHERE category = $1`,
-            [category]
-          );
-
-          if (rows?.length) {
-            const ids = rows.map((r) => r.id);
-            api.highlightWhere((n: GraphNode) => ids.includes(n.id));
-
-            // Zoom camera to focus on this category's nodes
-            setTimeout(() => api.zoomToFit(600, 80), 50);
-
-            // Emit particles
-            setTimeout(() => {
-              api.emitParticlesOnPath(
-                (l: GraphLink) => ids.includes(l.source) && ids.includes(l.target)
-              );
-            }, 200);
-
-            // Pulse the first few nodes for emphasis
-            ids.slice(0, 3).forEach((id) => api.pulseNode(id));
-          }
-        }, index * duration_per_category);
-      });
-
-      // Clear at the end and zoom out to show entire graph
-      setTimeout(() => {
-        api.clear();
-        api.zoomToFit(800, 60);
-      }, categories.length * duration_per_category + 500);
-
-      toast.success(`3D Graph: Category wave started`);
-      return `🌊 Category wave started!
-Highlighting ${categories.length} categories in sequence
-📹 Camera follows each category
-Total duration: ${categories.length * duration_per_category / 1000} seconds`;
+      toast.success("Graph view reset");
+      return "Graph view has been reset. All highlights cleared and camera zoomed to show full graph.";
     },
   });
 }

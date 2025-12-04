@@ -1,8 +1,22 @@
-import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from "react";
+import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef, useCallback } from "react";
 import ForceGraph3D, { ForceGraphMethods } from "react-force-graph-3d";
 import * as THREE from "three";
 import type { GraphNode, GraphLink } from "@/lib/graph/adapters";
 import { getCategoryColor3D } from "@/lib/graph/adapters";
+
+/** Internal node type with 3D position data from force simulation */
+interface PositionedNode extends GraphNode {
+  x?: number;
+  y?: number;
+  z?: number;
+  val?: number;
+}
+
+/** Force graph internal data structure */
+interface ForceGraphData {
+  nodes: PositionedNode[];
+  links: GraphLink[];
+}
 
 type Props = {
   nodes: GraphNode[];
@@ -11,22 +25,30 @@ type Props = {
   onNodeClick?: (node: GraphNode) => void;
 };
 
+/**
+ * API for controlling the 3D knowledge graph
+ *
+ * @see src/react-app/hooks/useMCPGraph3DTools.ts - Tools that use this API
+ */
 export interface KG3DApi {
+  /** Fly camera to focus on a specific node - zooms in close */
   focusNode: (id: string, ms?: number) => void;
+  /** Highlight nodes matching a predicate and zoom to them */
+  highlightAndZoom: (ids: string[], ms?: number) => void;
+  /** Highlight nodes matching a predicate (no zoom) */
   highlightWhere: (predicate: (n: GraphNode) => boolean) => void;
+  /** Clear all highlights and effects */
   clear: () => void;
-  emitParticlesOnPath: (edgeFilter: (l: GraphLink) => boolean) => void;
+  /** Zoom camera to fit all nodes in view */
   zoomToFit: (ms?: number, pad?: number) => void;
-  reheat: () => void;
-  cameraOrbit: (ms?: number) => void;
+  /** Add a pulsing ring effect to draw attention to a node */
   pulseNode: (id: string) => void;
-  explodeView: () => void;
-  contractView: () => void;
-  getFg: () => any; // Get ForceGraph instance for advanced operations
+  /** Orbit camera around the current view center */
+  cameraOrbit: (ms?: number) => void;
 }
 
 const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 120px)", onNodeClick }, ref) => {
-  const fgRef = useRef<ForceGraphMethods<any, any> | undefined>(undefined);
+  const fgRef = useRef<ForceGraphMethods<PositionedNode, GraphLink> | undefined>(undefined);
   const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
   const [pulsingNodes, setPulsingNodes] = useState<Set<string>>(new Set());
 
@@ -35,53 +57,86 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
     links: links.map(l => ({ ...l }))
   }), [nodes, links]);
 
-  // Removed bloom effect - it was making things hard to see
-  // useEffect(() => {
-  //   const fg = fgRef.current;
-  //   if (!fg) return;
-  // }, []);
+  // Helper to zoom camera to specific nodes by their IDs
+  const zoomToNodes = useCallback((nodeIds: string[], ms: number) => {
+    const fg = fgRef.current;
+    if (!fg || nodeIds.length === 0) return;
 
-  // API methods
-  const api: KG3DApi = {
-    focusNode: (id: string, ms = 1200) => {
-      // Use the graph's internal data which has positions
-      const fg = fgRef.current;
-      if (!fg) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const graphData: ForceGraphData = (fg as any).graphData?.() || { nodes: [], links: [] };
+    const targetNodes = graphData.nodes.filter((n) => nodeIds.includes(n.id));
 
-      // Get the graph data with positions
-      const graphData = (fg as any).graphData?.() || { nodes: [], links: [] };
-      const node = graphData.nodes?.find((n: any) => n.id === id);
-      if (!node) return;
+    // Filter to nodes that have positions
+    const positionedNodes = targetNodes.filter((n) => n.x !== undefined);
+    if (positionedNodes.length === 0) return;
 
-      const dist = 200;
-      const angle = Date.now() * 0.001; // Rotating camera angle
+    // For single node, zoom in close
+    if (positionedNodes.length === 1) {
+      const node = positionedNodes[0];
+      const nodeSize = node.val || 4;
+      const dist = Math.max(nodeSize * 10, 50); // Close but not too close
+      const angle = Math.PI / 4;
 
-      // Only focus if node has position (after initial render)
-      if (node.x !== undefined) {
-        fg.cameraPosition(
-          {
-            x: node.x + dist * Math.cos(angle),
-            y: node.y + dist * 0.5,
-            z: node.z + dist * Math.sin(angle)
-          },
-          { x: node.x, y: node.y, z: node.z },
-          ms
-        );
-      }
+      fg.cameraPosition(
+        {
+          x: (node.x ?? 0) + dist * Math.cos(angle),
+          y: (node.y ?? 0) + dist * 0.5,
+          z: (node.z ?? 0) + dist * Math.sin(angle)
+        },
+        { x: node.x ?? 0, y: node.y ?? 0, z: node.z ?? 0 },
+        ms
+      );
+      return;
+    }
 
-      setHighlightIds(new Set([id]));
-      setPulsingNodes(new Set([id]));
+    // For multiple nodes, calculate bounding box
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
 
-      // Stop pulsing after 3 seconds
-      setTimeout(() => setPulsingNodes(new Set()), 3000);
+    positionedNodes.forEach((n) => {
+      minX = Math.min(minX, n.x ?? 0); maxX = Math.max(maxX, n.x ?? 0);
+      minY = Math.min(minY, n.y ?? 0); maxY = Math.max(maxY, n.y ?? 0);
+      minZ = Math.min(minZ, n.z ?? 0); maxZ = Math.max(maxZ, n.z ?? 0);
+    });
 
-      // Don't reheat - it causes full re-render
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const centerZ = (minZ + maxZ) / 2;
+
+    // Calculate distance - tighter framing
+    const sizeX = maxX - minX;
+    const sizeY = maxY - minY;
+    const sizeZ = maxZ - minZ;
+    const maxSize = Math.max(sizeX, sizeY, sizeZ, 40);
+    const dist = maxSize * 1.2; // Tighter framing
+    const angle = Math.PI / 4;
+
+    fg.cameraPosition(
+      {
+        x: centerX + dist * Math.cos(angle),
+        y: centerY + dist * 0.5,
+        z: centerZ + dist * Math.sin(angle)
+      },
+      { x: centerX, y: centerY, z: centerZ },
+      ms
+    );
+  }, []);
+
+  // API methods for controlling the graph - memoized to avoid dependency issues
+  const api: KG3DApi = useMemo(() => ({
+    focusNode: (id: string, ms = 1000) => {
+      zoomToNodes([id], ms);
+    },
+
+    highlightAndZoom: (ids: string[], ms = 1000) => {
+      setHighlightIds(new Set(ids));
+      zoomToNodes(ids, ms);
     },
 
     highlightWhere: (predicate: (n: GraphNode) => boolean) => {
       const matching = data.nodes.filter(predicate).map(n => n.id);
       setHighlightIds(new Set(matching));
-      // Don't reheat - it causes full re-render
     },
 
     clear: () => {
@@ -89,38 +144,20 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
       setPulsingNodes(new Set());
     },
 
-    emitParticlesOnPath: (edgeFilter: (l: GraphLink) => boolean) => {
-      // Particles removed for cleaner professional look
-      // Instead, temporarily highlight the connected nodes
-      const matchingLinks = data.links.filter(edgeFilter);
-
-      // Flash the connected nodes briefly
-      const nodesToHighlight = new Set<string>();
-      matchingLinks.forEach(l => {
-        nodesToHighlight.add(l.source);
-        nodesToHighlight.add(l.target);
-      });
-
-      setHighlightIds(prev => new Set([...prev, ...nodesToHighlight]));
-
-      // Clear highlights after a brief moment
-      setTimeout(() => {
-        setHighlightIds(prev => {
-          const next = new Set(prev);
-          nodesToHighlight.forEach(id => next.delete(id));
-          return next;
-        });
-      }, 1500);
-    },
-
     zoomToFit: (ms = 800, pad = 40) => fgRef.current?.zoomToFit(ms, pad),
 
-    reheat: () => {
-      // Only reheat when explicitly requested
-      fgRef.current?.d3ReheatSimulation();
+    pulseNode: (id: string) => {
+      setPulsingNodes(prev => new Set([...prev, id]));
+      setTimeout(() => {
+        setPulsingNodes(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }, 2000);
     },
 
-    cameraOrbit: (ms = 5000) => {
+    cameraOrbit: (ms = 3000) => {
       const fg = fgRef.current;
       if (!fg) return;
 
@@ -148,79 +185,36 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
       animate();
     },
-
-    pulseNode: (id: string) => {
-      setPulsingNodes(prev => new Set([...prev, id]));
-      setTimeout(() => {
-        setPulsingNodes(prev => {
-          const next = new Set(prev);
-          next.delete(id);
-          return next;
-        });
-      }, 2000);
-    },
-
-    explodeView: () => {
-      // Expand the graph by increasing repulsion
-      const fg = fgRef.current;
-      if (fg) {
-        const chargeForce = (fg as any).d3Force?.('charge');
-        if (chargeForce?.strength) {
-          chargeForce.strength(-500);
-          chargeForce.distanceMax(800);
-          fg.d3ReheatSimulation(); // OK to reheat for explode effect
-        }
-      }
-    },
-
-    contractView: () => {
-      // Contract the graph by reducing repulsion
-      const fg = fgRef.current;
-      if (fg) {
-        const chargeForce = (fg as any).d3Force?.('charge');
-        if (chargeForce?.strength) {
-          chargeForce.strength(-250);
-          chargeForce.distanceMax(500);
-          fg.d3ReheatSimulation(); // OK to reheat for contract effect
-        }
-      }
-    },
-
-    getFg: () => fgRef.current
-  };
+  }), [data.nodes, zoomToNodes]);
 
   // Expose API to parent component
-  useImperativeHandle(ref, () => api, [data, highlightIds, pulsingNodes]);
+  useImperativeHandle(ref, () => api, [api]);
 
   // Also expose globally for MCP tools
   useEffect(() => {
-    // @ts-ignore
     window.KG3D = api;
-    // @ts-ignore
-    window.fgRef = fgRef; // Also expose the ref for advanced operations
     return () => {
-      // @ts-ignore
       delete window.KG3D;
-      // @ts-ignore
-      delete window.fgRef;
     };
   }, [api]);
 
   // Set initial camera position and configure forces after graph loads
   useEffect(() => {
     if (fgRef.current && data.nodes.length > 0) {
-      // Delay to ensure graph has initialized
       setTimeout(() => {
         const fg = fgRef.current;
         if (!fg) return;
 
         // Configure forces for better initial spacing
+        // d3Force is not in library types but exists at runtime
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const chargeForce = (fg as any).d3Force?.('charge');
         if (chargeForce) {
           chargeForce.strength(-300);
           chargeForce.distanceMax(1000);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const linkForce = (fg as any).d3Force?.('link');
         if (linkForce) {
           linkForce.distance(150);
@@ -240,14 +234,15 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
 
   return (
     <div style={{ width: "100%", height }} className="bg-slate-950 rounded-lg overflow-hidden">
+      {/* eslint-disable @typescript-eslint/no-explicit-any -- react-force-graph-3d callbacks have incomplete types */}
       <ForceGraph3D
-        ref={fgRef as any}
+        ref={fgRef as React.MutableRefObject<ForceGraphMethods<PositionedNode, GraphLink> | undefined>}
         graphData={data}
         controlType="orbit"
         showNavInfo={false}
         backgroundColor="rgba(2,6,23,1)"
         nodeId="id"
-        nodeLabel={(n: any) => `
+        nodeLabel={(n: PositionedNode) => `
           <div style="
             background: rgba(15,23,42,0.95);
             border: 1px solid ${getCategoryColor3D(n.category)};
@@ -264,45 +259,48 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
           </div>
         `}
         nodeRelSize={6}
-        nodeVal={(n: any) => n.val || 10}
-        nodeThreeObject={(n: any) => {
+        nodeVal={(n: PositionedNode) => n.val || 10}
+        nodeThreeObject={(n: PositionedNode) => {
           const isHighlighted = highlightIds.has(n.id);
           const isPulsing = pulsingNodes.has(n.id);
           const color = new THREE.Color(getCategoryColor3D(n.category));
 
-          // Create group for node
+          // Create group for node + optional pulse ring
           const group = new THREE.Group();
 
-          // Main sphere - reduced emissive intensity and smaller size
+          // Main sphere - clean styling
           const material = new THREE.MeshPhongMaterial({
             color: isHighlighted ? 0xffffff : color,
             emissive: color,
-            emissiveIntensity: isHighlighted ? 0.3 : 0.1, // Much less glow
+            emissiveIntensity: isHighlighted ? 0.3 : 0.1,
             transparent: true,
             opacity: isHighlighted ? 1 : 0.9,
             shininess: 50,
           });
 
-          const size = (n.val || 4) * (isHighlighted ? 1.1 : 1); // Smaller base size
-          const geometry = new THREE.SphereGeometry(size, 16, 16); // Less segments for performance
+          const size = (n.val || 4) * (isHighlighted ? 1.2 : 1);
+          const geometry = new THREE.SphereGeometry(size, 16, 16);
           const mesh = new THREE.Mesh(geometry, material);
           group.add(mesh);
 
-          // Add pulsing ring if pulsing
+          // Add pulsing ring effect
           if (isPulsing) {
-            const ringGeometry = new THREE.TorusGeometry(size * 1.5, 2, 16, 100);
+            const ringGeometry = new THREE.TorusGeometry(size * 1.5, 1.5, 16, 32);
             const ringMaterial = new THREE.MeshBasicMaterial({
               color: color,
               transparent: true,
-              opacity: 0.5,
+              opacity: 0.6,
             });
             const ring = new THREE.Mesh(ringGeometry, ringMaterial);
 
-            // Animate ring
+            // Animate the ring
+            const startTime = Date.now();
             const animate = () => {
               if (!pulsingNodes.has(n.id)) return;
-              ring.scale.setScalar(1 + Math.sin(Date.now() * 0.003) * 0.2);
-              ring.material.opacity = 0.3 + Math.sin(Date.now() * 0.003) * 0.2;
+              const elapsed = (Date.now() - startTime) / 1000;
+              const scale = 1 + Math.sin(elapsed * 4) * 0.3;
+              ring.scale.setScalar(scale);
+              ring.material.opacity = 0.4 + Math.sin(elapsed * 4) * 0.2;
               requestAnimationFrame(animate);
             };
             animate();
@@ -310,33 +308,34 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
             group.add(ring);
           }
 
-          // Removed category icon to reduce clutter
-
           return group;
         }}
-        linkColor={(l: any) => {
-          const sourceHighlighted = highlightIds.has(l.source.id || l.source);
-          const targetHighlighted = highlightIds.has(l.target.id || l.target);
+        linkColor={(l) => {
+          const sourceId = typeof l.source === 'string' ? l.source : (l.source as PositionedNode).id;
+          const targetId = typeof l.target === 'string' ? l.target : (l.target as PositionedNode).id;
+          const sourceHighlighted = highlightIds.has(sourceId);
+          const targetHighlighted = highlightIds.has(targetId);
           if (sourceHighlighted && targetHighlighted) return '#3b82f6';
           if (sourceHighlighted || targetHighlighted) return '#94a3b8';
-          return '#334155'; // Professional gray
+          return '#334155';
         }}
-        linkWidth={(l: any) => {
-          const sourceHighlighted = highlightIds.has(l.source.id || l.source);
-          const targetHighlighted = highlightIds.has(l.target.id || l.target);
+        linkWidth={(l) => {
+          const sourceId = typeof l.source === 'string' ? l.source : (l.source as PositionedNode).id;
+          const targetId = typeof l.target === 'string' ? l.target : (l.target as PositionedNode).id;
+          const sourceHighlighted = highlightIds.has(sourceId);
+          const targetHighlighted = highlightIds.has(targetId);
           if (sourceHighlighted && targetHighlighted) return 2.5;
           if (sourceHighlighted || targetHighlighted) return 1.5;
-          // Consistent thin lines that scale with strength
-          return 0.5 + Math.min(1, l.strength * 0.3);
+          return 0.5 + Math.min(1, (l.strength ?? 1) * 0.3);
         }}
         linkOpacity={0.6}
         linkCurvature={0}
         linkDirectionalParticles={0}
-        onNodeClick={(node: any) => {
+        onNodeClick={(node: PositionedNode) => {
           api.focusNode(node.id);
           onNodeClick?.(node);
         }}
-        onNodeHover={(node: any) => {
+        onNodeHover={(node: PositionedNode | null) => {
           document.body.style.cursor = node ? 'pointer' : 'default';
         }}
         cooldownTime={3000}
@@ -348,9 +347,9 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
         enableNavigationControls={true}
         enableNodeDrag={true}
         onEngineStop={() => {
-          // Fine-tune spacing after initial layout
           const fg = fgRef.current;
           if (fg) {
+            // d3Force is not in library types but exists at runtime
             const chargeForce = (fg as any).d3Force?.('charge');
             if (chargeForce) {
               chargeForce.strength(-250);
@@ -363,6 +362,7 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
           }
         }}
       />
+      {/* eslint-enable @typescript-eslint/no-explicit-any */}
     </div>
   );
 });

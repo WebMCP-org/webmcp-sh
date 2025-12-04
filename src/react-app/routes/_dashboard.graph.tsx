@@ -19,8 +19,8 @@ import { GraphWithEffects } from '@/components/graph/GraphWithEffects'
 import KG3D, { KG3DApi } from '@/components/graph/KG3D'
 import { toForceGraphData } from '@/lib/graph/adapters'
 import { useMCPGraph3DTools } from '@/hooks/useMCPGraph3DTools'
-import { useMCPGraph3DAdvanced } from '@/hooks/useMCPGraph3DAdvanced'
 import { Button } from '@/components/ui/button'
+import { AIToolsPanel } from '@/components/graph/AIToolsPanel'
 
 export const Route = createFileRoute('/_dashboard/graph')({
   component: GraphWrapper,
@@ -30,14 +30,17 @@ const nodeTypes = {
   entity: EntityNode as React.ComponentType<NodeProps>,
 };
 
-// Wrapper component
+/**
+ * Wrapper component for the graph page
+ */
 function GraphWrapper() {
   return <GraphComponent />;
 }
 
-// 2D ReactFlow wrapper that registers tools
+/**
+ * 2D ReactFlow wrapper that registers tools
+ */
 function ReactFlow2D({ nodes, edges }: { nodes: Node[], edges: Edge[] }) {
-  // Register 2D MCP tools
   useMCPGraphTools();
 
   return (
@@ -76,6 +79,9 @@ function ReactFlow2D({ nodes, edges }: { nodes: Node[], edges: Edge[] }) {
   );
 }
 
+/**
+ * Main graph component with 3D/2D view toggle
+ */
 function GraphComponent() {
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d');
   const kg3dRef = useRef<KG3DApi>(null);
@@ -85,9 +91,6 @@ function GraphComponent() {
 
   // Register 3D tools
   useMCPGraph3DTools();
-
-  // Register advanced 3D tools
-  useMCPGraph3DAdvanced();
 
   // Fetch all entities for graph
   const allEntitiesQuery = memory_entities.getAllMemoryEntitiesQuerySQL()
@@ -120,7 +123,7 @@ function GraphComponent() {
     const rawNodes: Node[] = entities.map(entity => ({
       id: entity.id,
       type: 'entity',
-      position: { x: 0, y: 0 }, // Will be set by layout
+      position: { x: 0, y: 0 },
       data: {
         name: entity.name,
         category: entity.category,
@@ -200,7 +203,7 @@ function GraphComponent() {
         </div>
       </div>
 
-      {/* Graph Container - Account for mobile header/footer */}
+      {/* Graph Container */}
       <div className="relative w-full h-[calc(100vh-180px)] md:h-[calc(100vh-120px)]">
         {viewMode === '3d' ? (
           <>
@@ -211,7 +214,7 @@ function GraphComponent() {
               height="100%"
             />
 
-            {/* 3D Controls Legend - Hidden on small mobile */}
+            {/* 3D Controls Legend */}
             <div className="absolute top-2 md:top-4 left-2 md:left-4 bg-card/95 backdrop-blur-sm rounded-lg shadow-xl border border-border p-2 md:p-3 text-[10px] md:text-xs z-10 max-w-[140px] md:max-w-xs hidden sm:block">
               <h4 className="font-semibold text-foreground mb-1.5 md:mb-2 text-xs">Controls</h4>
               <div className="space-y-0.5 md:space-y-1 text-muted-foreground">
@@ -224,7 +227,7 @@ function GraphComponent() {
               </div>
             </div>
 
-            {/* Category Legend - Compact on mobile */}
+            {/* Category Legend */}
             <div className="absolute top-2 md:top-4 right-2 md:right-4 bg-card/95 backdrop-blur-sm rounded-lg shadow-xl border border-border p-2 md:p-3 text-[10px] md:text-xs z-10">
               <h4 className="font-semibold text-foreground mb-1.5 md:mb-2 text-xs hidden sm:block">Categories</h4>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-x-2 md:gap-x-3 gap-y-0.5 md:gap-y-1">
@@ -252,6 +255,9 @@ function GraphComponent() {
                 ))}
               </div>
             </div>
+
+            {/* AI Tools Panel */}
+            <AIToolsPanel />
           </>
         ) : (
           <ReactFlowProvider>
