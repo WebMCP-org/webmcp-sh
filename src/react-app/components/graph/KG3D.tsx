@@ -74,7 +74,7 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
     if (positionedNodes.length === 1) {
       const node = positionedNodes[0];
       const nodeSize = node.val || 4;
-      const dist = Math.max(nodeSize * 10, 50); // Close but not too close
+      const dist = Math.max(nodeSize * 6, 30); // Close but not too close
       const angle = Math.PI / 4;
 
       fg.cameraPosition(
@@ -109,7 +109,7 @@ const KG3D = forwardRef<KG3DApi, Props>(({ nodes, links, height = "calc(100vh - 
     const sizeY = maxY - minY;
     const sizeZ = maxZ - minZ;
     const maxSize = Math.max(sizeX, sizeY, sizeZ, 40);
-    const dist = maxSize * 1.2; // Tighter framing
+    const dist = maxSize * 0.9; // Tighter framing
     const angle = Math.PI / 4;
 
     fg.cameraPosition(
