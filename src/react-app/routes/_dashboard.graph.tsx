@@ -20,7 +20,6 @@ import KG3D, { KG3DApi } from '@/components/graph/KG3D'
 import { toForceGraphData } from '@/lib/graph/adapters'
 import { useMCPGraph3DTools } from '@/hooks/useMCPGraph3DTools'
 import { useMCPGraph3DAdvanced } from '@/hooks/useMCPGraph3DAdvanced'
-import { useMCPRelationshipTools } from '@/hooks/useMCPRelationshipTools'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_dashboard/graph')({
@@ -89,9 +88,6 @@ function GraphComponent() {
 
   // Register advanced 3D tools
   useMCPGraph3DAdvanced();
-
-  // Register relationship CRUD tools
-  useMCPRelationshipTools();
 
   // Fetch all entities for graph
   const allEntitiesQuery = memory_entities.getAllMemoryEntitiesQuerySQL()
