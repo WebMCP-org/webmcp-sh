@@ -281,6 +281,105 @@ case 'group_by': {
     }
   },
 });`,
+
+  // Data CRUD Tools
+  create_entity: `useWebMCP({
+  name: 'create_entity',
+  description: 'Create a new memory entity (structured knowledge)',
+  inputSchema: {
+    category: z.enum(['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal']),
+    name: z.string().min(1).max(200),
+    description: z.string().min(1),
+    tags: z.array(z.string()).optional().default([]),
+    importance_score: z.number().int().min(0).max(100).optional(),
+    confidence: z.number().int().min(0).max(100).optional(),
+  },
+  handler: async (input) => {
+    const entity = await memory_entities.create(input);
+    toast.success('Entity created', { description: entity.name });
+    return { success: true, entity };
+  },
+});`,
+
+  create_memory_block: `useWebMCP({
+  name: 'create_memory_block',
+  description: 'Create a new memory block (always-in-context core memory)',
+  inputSchema: {
+    block_type: z.enum(['user_profile', 'agent_persona', 'current_goals', 'context']),
+    label: z.string().min(1).max(200),
+    value: z.string().min(1),
+    priority: z.number().int().min(0).max(100).optional(),
+  },
+  handler: async (input) => {
+    const block = await memory_blocks.create(input);
+    toast.success('Memory block created');
+    return { success: true, block };
+  },
+});`,
+
+  search_entities: `useWebMCP({
+  name: 'search_entities',
+  description: 'Search memory entities by name or description',
+  inputSchema: {
+    query: z.string().min(1),
+    category: z.enum(['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal']).optional(),
+    limit: z.number().int().min(1).max(100).optional().default(20),
+  },
+  handler: async (input) => {
+    const entities = await memory_entities.search(input.query, { category: input.category });
+    return {
+      query: input.query,
+      count: entities.length,
+      entities: entities.slice(0, input.limit),
+    };
+  },
+});`,
+
+  list_entities: `useWebMCP({
+  name: 'list_entities',
+  description: 'List memory entities, optionally filtered by category',
+  inputSchema: {
+    category: z.enum(['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal']).optional(),
+    limit: z.number().int().min(1).max(100).optional().default(50),
+  },
+  handler: async (input) => {
+    const entities = await memory_entities.get_all({
+      category: input.category,
+      limit: input.limit
+    });
+    return { count: entities.length, entities };
+  },
+});`,
+
+  graph_statistics: `useWebMCP({
+  name: 'graph_statistics',
+  description: 'Get statistics about the knowledge graph',
+  inputSchema: {},
+  annotations: { readOnlyHint: true },
+  handler: async () => {
+    return {
+      totalNodes: nodes.length,
+      totalEdges: edges.length,
+      categories: categoryCounts,
+      averageConnections: edges.length / nodes.length,
+      mostConnected: getMostConnectedNodes(5),
+    };
+  },
+});`,
+
+  graph3d_camera_tour: `useWebMCP({
+  name: 'graph3d_camera_tour',
+  description: 'Start an automated camera tour of the 3D graph',
+  inputSchema: {
+    duration: z.number().optional().default(10000),
+    points: z.enum(['random', 'categories', 'important']).optional(),
+  },
+  handler: async (input) => {
+    const tourPoints = generateTourPoints(input.points);
+    await animateCameraTour(tourPoints, input.duration);
+    return { success: true, message: 'Camera tour complete' };
+  },
+});`,
 }
 
 const TOOLS_DEMONSTRATED = [
@@ -293,6 +392,17 @@ const TOOLS_DEMONSTRATED = [
       { name: 'get_current_context', description: 'Get current route and page context' },
       { name: 'list_all_routes', description: 'List all available routes with descriptions' },
       { name: 'app_gateway', description: 'Primary entry point for understanding the app' },
+    ],
+  },
+  {
+    category: 'Data Management',
+    icon: Brain,
+    color: 'pink',
+    tools: [
+      { name: 'create_entity', description: 'Create memory entities (facts, skills, people, etc.)' },
+      { name: 'create_memory_block', description: 'Create always-in-context memory blocks' },
+      { name: 'search_entities', description: 'Search entities by name or description' },
+      { name: 'list_entities', description: 'List entities with category filters' },
     ],
   },
   {
@@ -322,8 +432,8 @@ const TOOLS_DEMONSTRATED = [
     tools: [
       { name: 'graph_query_entities', description: 'Query and highlight entities in the graph' },
       { name: 'graph_focus_entity', description: 'Focus view on a specific entity' },
-      { name: 'graph_set_layout', description: 'Change graph layout algorithm' },
-      { name: 'graph_3d_rotate', description: 'Control 3D graph rotation and zoom' },
+      { name: 'graph_statistics', description: 'Get graph statistics and metrics' },
+      { name: 'graph3d_camera_tour', description: 'Automated 3D camera tour of the graph' },
     ],
   },
 ]
@@ -348,6 +458,11 @@ const COLOR_CLASSES: Record<string, { card: string; icon: string; badge: string 
     card: 'border-l-4 border-l-amber-500 hover:shadow-amber-500/10',
     icon: 'bg-amber-500/10 text-amber-500',
     badge: 'bg-amber-500/10 text-amber-600',
+  },
+  pink: {
+    card: 'border-l-4 border-l-pink-500 hover:shadow-pink-500/10',
+    icon: 'bg-pink-500/10 text-pink-500',
+    badge: 'bg-pink-500/10 text-pink-600',
   },
 }
 

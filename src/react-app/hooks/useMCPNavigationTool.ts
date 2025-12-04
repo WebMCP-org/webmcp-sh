@@ -24,14 +24,35 @@ interface RouteInfo {
 const ROUTE_DEFINITIONS: RouteInfo[] = [
   {
     path: '/',
-    description: 'Dashboard home - Memory overview and quick stats',
+    description: 'Landing page - WebMCP demo overview and tool documentation',
     features: [
-      'Overview of total memory blocks and entities',
-      'Recent activity timeline',
-      'Quick navigation to key sections',
-      'System status and database metrics'
+      'Overview of WebMCP capabilities',
+      'Tool code examples',
+      'Quick navigation to demo pages',
+      'Documentation links'
     ],
-    availableTools: ['navigate', 'get_current_context', 'list_all_routes']
+    availableTools: ['navigate', 'get_current_context', 'list_all_routes', 'app_gateway']
+  },
+  {
+    path: '/dashboard',
+    description: 'Dashboard - Memory overview with stats, charts, and data tables',
+    features: [
+      'Memory blocks and entities counts',
+      'Token usage by category and tier charts',
+      'Audit log of database changes',
+      'Embedded memory blocks and entities tables',
+      'Quick create dialogs for blocks and entities'
+    ],
+    availableTools: [
+      'navigate',
+      'list_memory_blocks',
+      'create_memory_block',
+      'update_memory_block',
+      'list_entities',
+      'create_entity',
+      'table_memory_blocks',
+      'table_entities'
+    ]
   },
   {
     path: '/entities',
@@ -39,20 +60,18 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
     searchParams: ['filter', 'page', 'search'],
     features: [
       'Searchable table of all entities',
-      'Filter by entity type (fact, preference, skill, etc.)',
-      'Sort by name, type, or importance',
-      'Bulk operations support',
-      'Export functionality'
+      'Filter by category (fact, preference, skill, etc.)',
+      'Sort by name, category, or importance',
+      'Advanced filtering with multiple conditions',
+      'Grouping and pagination'
     ],
     availableTools: [
-      'db_query_entities',
-      'db_create_entity',
-      'db_update_entity',
-      'db_delete_entities',
-      'table_search',
-      'table_filter',
-      'table_sort',
-      'table_export'
+      'table_entities',
+      'list_entities',
+      'search_entities',
+      'create_entity',
+      'update_entity',
+      'delete_entity'
     ]
   },
   {
@@ -61,15 +80,16 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
     params: ['entityId'],
     features: [
       'Full entity details and metadata',
-      'Related entities graph',
-      'Entity history and mentions',
+      'Related entities and relationships',
       'Edit capabilities',
       'Relationship management'
     ],
     availableTools: [
-      'db_get_entity',
-      'db_update_entity',
-      'db_get_entity_relationships'
+      'get_entity',
+      'update_entity',
+      'delete_entity',
+      'get_entity_relationships',
+      'create_relationship'
     ]
   },
   {
@@ -77,24 +97,25 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
     description: 'Knowledge graph visualization showing entity relationships',
     searchParams: ['nodeId', 'depth', 'filter'],
     features: [
-      '3D force-directed graph visualization',
+      '2D and 3D force-directed graph visualization',
       'Interactive node exploration',
-      'Relationship path finding',
-      'Cluster detection',
-      'Node filtering and search',
-      'Export graph as image',
-      'Visual effects and animations'
+      'Query and highlight entities',
+      'Visual effects: camera tour, particle burst, etc.',
+      'Pattern detection and analysis'
     ],
     availableTools: [
-      'graph_navigate_to_node',
-      'graph_filter_nodes',
-      'graph_set_layout',
-      'graph_highlight_path',
-      'graph_reset_view',
-      'graph_export',
-      'graph_3d_rotate',
-      'graph_3d_zoom',
-      'graph_visual_effects'
+      'sql_query',
+      'get_database_info',
+      'graph_query_entities',
+      'graph_focus_entity',
+      'graph_clear_highlights',
+      'graph_statistics',
+      'graph3d_camera_tour',
+      'graph3d_category_wave',
+      'graph3d_explode_view',
+      'graph3d_particle_burst',
+      'graph3d_activate_particle_flow',
+      'graph3d_pattern_detection'
     ]
   },
   {
@@ -103,16 +124,16 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
     features: [
       'Manage core memory blocks',
       'Edit block content and metadata',
-      'Set block importance levels',
-      'Version history tracking',
-      'Import/Export blocks'
+      'Set block priority levels',
+      'Filter and sort blocks',
+      'Create, update, delete operations'
     ],
     availableTools: [
-      'db_query_memory_blocks',
-      'db_create_memory_block',
-      'db_update_memory_block',
-      'db_delete_memory_blocks',
-      'table_operations'
+      'table_memory_blocks',
+      'list_memory_blocks',
+      'create_memory_block',
+      'update_memory_block',
+      'delete_memory_block'
     ]
   },
   {
@@ -120,17 +141,14 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
     description: 'SQL REPL for executing direct database queries',
     features: [
       'Direct SQL query execution',
-      'Schema exploration',
-      'Query history',
-      'Export results',
-      'Autocomplete support',
-      'Multi-statement execution'
+      'Schema exploration with get_database_info',
+      'Query formatting and highlighting',
+      'Results displayed in REPL',
+      'Automatic query logging'
     ],
     availableTools: [
-      'sql_execute',
-      'sql_describe_table',
-      'sql_list_tables',
-      'sql_export_results'
+      'sql_query',
+      'get_database_info'
     ]
   },
   {
@@ -140,24 +158,20 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
       'Complete SQL execution history',
       'Query performance metrics',
       'Error tracking',
-      'Query replay functionality',
-      'Filter by date/status'
+      'Filter by source (AI vs manual)'
     ],
     availableTools: [
-      'sql_get_execution_history',
-      'sql_replay_query',
-      'table_filter',
-      'table_export'
+      'sql_query',
+      'get_database_info'
     ]
   },
   {
     path: '/about',
-    description: 'About this application and its features',
+    description: 'About this application and its technology stack',
     features: [
-      'Application overview',
-      'Feature documentation',
-      'Version information',
-      'Credits and licensing'
+      'Technology stack overview',
+      'Key features documentation',
+      'Architecture information'
     ],
     availableTools: ['navigate']
   },
@@ -167,7 +181,6 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
     features: [
       'UI component library',
       'Interactive demos',
-      'Code examples',
       'Theming showcase'
     ],
     availableTools: ['navigate']
@@ -236,7 +249,8 @@ function formatRouteList(): string {
   output += '  • Query History → /sql-execution-log\n\n';
 
   output += '🏠 General:\n';
-  output += '  • Overview → /\n';
+  output += '  • Landing Page → /\n';
+  output += '  • Dashboard → /dashboard\n';
   output += '  • About → /about\n';
   output += '  • UI Components → /showcase\n\n';
 

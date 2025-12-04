@@ -7,6 +7,7 @@ import { PGliteWithLive } from '@electric-sql/pglite/live'
 import { PWAUpdatePrompt } from '@/components/pwa-update-prompt'
 import { PWAInstallPrompt } from '@/components/pwa-install-prompt'
 import { useMCPNavigationTool } from '@/hooks/useMCPNavigationTool'
+import { useMCPDataTools } from '@/hooks/useMCPDataTools'
 import { ThemeProvider } from '@/components/theme-provider'
 
 export const Route = createRootRoute({
@@ -14,8 +15,9 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
-  // Register navigation tools at the root level so they're always available
+  // Register MCP tools at the root level so they're always available
   useMCPNavigationTool();
+  useMCPDataTools();
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="webmcp-ui-theme">
