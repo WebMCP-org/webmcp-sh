@@ -25,6 +25,7 @@ import {
   Keyboard,
   Command,
 } from 'lucide-react'
+import { useMCPGlobalPrompts, useMCPLandingPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_landing/')({
   component: HomePage,
@@ -593,6 +594,10 @@ function CodeModal({
 }
 
 function HomePage() {
+  // Register MCP prompts for this page
+  useMCPGlobalPrompts()
+  useMCPLandingPrompts()
+
   const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set())
   const [modalTool, setModalTool] = useState<string | null>(null)
 

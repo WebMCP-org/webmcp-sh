@@ -4,6 +4,7 @@ import { pg_lite } from '@/lib/db'
 import { Terminal } from 'lucide-react'
 import { useRef, useEffect } from 'react'
 import { useMCPSQLTool } from '@/hooks/useMCPSQLTool'
+import { useMCPSQLPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/sql-repl')({
   component: SQLReplPage,
@@ -15,8 +16,9 @@ export let replRef: ReplRef | null = null
 function SQLReplPage() {
   const localReplRef = useRef<ReplRef>(null)
 
-  // Register SQL MCP tools for this page
+  // Register MCP tools and prompts for this page
   useMCPSQLTool()
+  useMCPSQLPrompts()
 
   // Expose ref globally for MCP tools
   useEffect(() => {

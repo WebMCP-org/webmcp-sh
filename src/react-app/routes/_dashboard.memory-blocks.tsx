@@ -14,14 +14,16 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import type { MCPToolsConfig } from '@/types/mcp-tools'
 import type { UpdateMemoryBlock } from '@/lib/db/types'
 import { useMCPMemoryBlockTools } from '@/hooks/useMCPMemoryBlockTools'
+import { useMCPMemoryBlockPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/memory-blocks')({
   component: MemoryBlocksComponent,
 })
 
 function MemoryBlocksComponent() {
-  // Register memory block CRUD MCP tools for this page
+  // Register MCP tools and prompts for this page
   useMCPMemoryBlockTools()
+  useMCPMemoryBlockPrompts()
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)

@@ -15,6 +15,7 @@ import { useRouter } from '@tanstack/react-router'
 import type { MCPToolsConfig } from '@/types/mcp-tools'
 import type { InsertMemoryEntity, UpdateMemoryEntity } from '@/lib/db/types'
 import { useMCPEntityTools } from '@/hooks/useMCPEntityTools'
+import { useMCPEntityPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/entities')({
   component: EntitiesComponent,
@@ -32,8 +33,9 @@ const categoryIcons: Record<string, { icon: LucideIcon; color: string; bgColor: 
 }
 
 function EntitiesComponent() {
-  // Register entity CRUD MCP tools for this page
+  // Register MCP tools and prompts for this page
   useMCPEntityTools()
+  useMCPEntityPrompts()
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
