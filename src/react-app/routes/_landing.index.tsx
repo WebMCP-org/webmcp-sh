@@ -386,27 +386,119 @@ case 'group_by': {
 }
 
 // Prompt code snippets - actual code from the prompt hooks
+// For brevity, showing condensed versions. Full implementations in /hooks/prompts/
 const PROMPT_CODE: Record<string, string> = {
+  // === GLOBAL PROMPTS (useMCPGlobalPrompts.ts) ===
+  explain_webmcp_architecture: `useWebMCPPrompt({
+  name: 'explain_webmcp_architecture',
+  description: 'Explain the WebMCP architecture',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Please explain the WebMCP architecture in detail.
+Cover: Three-part architecture (tool definitions, client discovery, execution),
+polyfill vs browser-native, available tools, and how schemas/handlers work.\`
+      }
+    }]
+  })
+});`,
+
+  compare_to_other_agents: `useWebMCPPrompt({
+  name: 'compare_to_other_agents',
+  description: 'Compare this to how other AI agents work',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Compare WebMCP to traditional AI automation methods.
+Screenshot-based agents vs WebMCP structured calls.
+Demonstrate with a simple action - no screenshots needed.\`
+      }
+    }]
+  })
+});`,
+
+  webmcp_vision_for_web: `useWebMCPPrompt({
+  name: 'webmcp_vision_for_web',
+  description: 'What would WebMCP mean for the web?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Paint the vision of a WebMCP-enabled web.
+Real-world examples: e-commerce, banking, social media.
+Benefits: reliable automation, accessibility, standardization.\`
+      }
+    }]
+  })
+});`,
+
+  navigate_to_page_for_task: `useWebMCPPrompt({
+  name: 'navigate_to_page_for_task',
+  description: 'What page should I be on for my task?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Help me navigate to the right page for what I want to do.
+/entities for memories, /memory-blocks for persistent context,
+/graph for visualization, /sql-repl for queries, /dashboard for overview.\`
+      }
+    }]
+  })
+});`,
+
+  complete_workflow_demo: `useWebMCPPrompt({
+  name: 'complete_workflow_demo',
+  description: 'Walk me through a complete workflow',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Walk through a complete end-to-end workflow.
+Example: "Set up memory for a new project" - create entities,
+connect with relationships, add to memory blocks, visualize in graph.\`
+      }
+    }]
+  })
+});`,
+
+  explain_prompts_meta: `useWebMCPPrompt({
+  name: 'explain_prompts_meta',
+  description: 'Show me how prompts work in WebMCP',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Meta-explanation: these clickable prompts ARE MCP prompts.
+Tools = actions agents CAN take. Prompts = suggested interactions.
+Explain how clicking a prompt triggers AI execution.\`
+      }
+    }]
+  })
+});`,
+
+  // === LANDING PROMPTS (useMCPLandingPrompts.ts) ===
   what_is_webmcp: `useWebMCPPrompt({
   name: 'what_is_webmcp',
   description: 'What is WebMCP and how does it work?',
   get: () => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: \`Please explain WebMCP to me as a newcomer.
-
-Cover:
-1. WebMCP as a proposed web standard for AI-website interaction
-2. The three main parts: Tool definitions, Client discovery, Execution
-3. Current state: polyfill → future browser-native support
-4. List available tools using get_current_context
-5. Offer to demonstrate with a simple tool call\`
-        }
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Please explain WebMCP to me as a newcomer.
+Cover: problem it solves (screen scraping), solution (structured APIs),
+three main parts, current polyfill state, list available tools.\`
       }
-    ]
+    }]
   })
 });`,
 
@@ -414,21 +506,15 @@ Cover:
   name: 'show_interaction_demo',
   description: 'Show me how you interact with this website',
   get: () => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: \`Give me a live demonstration of WebMCP in action.
-
-1. Introduce yourself as Char, a WebMCP client (AI agent)
-2. Explain you don't parse HTML, take screenshots, or simulate clicks
-3. Call get_current_context and show the structured response
-4. Contrast with traditional approaches (screenshot → guess → hope)
-5. Offer to navigate somewhere to show route-scoped tools\`
-        }
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Live demonstration of WebMCP in action.
+Introduce Char, explain no HTML parsing or screenshots,
+call get_current_context, contrast with traditional approaches.\`
       }
-    ]
+    }]
   })
 });`,
 
@@ -436,24 +522,15 @@ Cover:
   name: 'full_webmcp_demo',
   description: 'Give me the full WebMCP demo',
   get: () => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: \`Take me on a tour of the entire WebMCP demo.
-
-Walk through each page in sequence:
-1. Dashboard - Show stats, demonstrate tools
-2. Entities - Create an entity, show table updates
-3. Knowledge Graph - Switch views, highlight, focus
-4. Memory Blocks - Explain always-in-context concept
-5. SQL REPL - Demonstrate direct database queries
-
-For each: Navigate, explain available tools, demonstrate.\`
-        }
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Comprehensive tour of the entire application.
+Walk through Dashboard, Entities, Graph, Memory Blocks, SQL REPL.
+For each: navigate, explain available tools, demonstrate 1-2 tools.\`
       }
-    ]
+    }]
   })
 });`,
 
@@ -461,95 +538,574 @@ For each: Navigate, explain available tools, demonstrate.\`
   name: 'compare_to_screen_scraping',
   description: 'How is this different from screen scraping?',
   get: () => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: \`Compare WebMCP to traditional screen scraping.
-
-Traditional: Screenshot → Vision → Guess coordinates → Hope
-Problems: Brittle, slow, unreliable, expensive
-
-WebMCP: Discover tools → Call structured API → Done
-Benefits: Deterministic, fast, reliable, cheap
-
-DEMONSTRATE by creating an entity to show the difference.\`
-        }
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Direct comparison: traditional screenshot-based automation
+vs WebMCP structured calls. Problems vs benefits.
+DEMONSTRATE by creating an entity using structured approach.\`
       }
-    ]
+    }]
   })
 });`,
 
-  explain_architecture: `useWebMCPPrompt({
-  name: 'explain_architecture',
-  description: 'Explain the WebMCP architecture',
+  // === DASHBOARD PROMPTS (useMCPDashboardPrompts.ts) ===
+  explain_dashboard_capabilities: `useWebMCPPrompt({
+  name: 'explain_dashboard_capabilities',
+  description: 'Explain what you can see and do here',
   get: () => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: \`Explain WebMCP architecture:
-
-1. Website (Producer): useWebMCP hook registers tools
-2. Browser: Aggregates tools from all components
-3. AI Agent (Consumer): Discovers and invokes tools
-4. Custom Element: The <webmcp-client> that bridges them
-
-Show how tools flow from React → Browser → AI.\`
-        }
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain Dashboard page capabilities. List available tools.
+Stats cards, charts, audit log. Demonstrate 2-3 capabilities.
+Show how UI updates reactively - not screenshot-based.\`
       }
-    ]
+    }]
   })
 });`,
 
-  walk_through_workflow: `useWebMCPPrompt({
-  name: 'walk_through_workflow',
-  description: 'Walk me through a complete workflow',
+  setup_memory_system: `useWebMCPPrompt({
+  name: 'setup_memory_system',
+  description: 'Walk me through setting up a memory system',
   get: () => ({
-    messages: [
-      {
-        role: 'user',
-        content: {
-          type: 'text',
-          text: \`Walk me through a complete multi-page workflow.
-
-Example: "Track a new project with related entities"
-
-1. Navigate to entities page
-2. Create a project entity
-3. Create related person entities
-4. View in knowledge graph
-5. Query relationships via SQL
-
-Narrate each step to show tool composition.\`
-        }
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Guide through setting up a complete memory system.
+Memory Blocks (user_profile, agent_persona), Entities (facts, prefs),
+Relationships, Token Budget. Blocks = WHO, Entities = WHAT.\`
       }
-    ]
+    }]
+  })
+});`,
+
+  real_agent_use_case: `useWebMCPPrompt({
+  name: 'real_agent_use_case',
+  description: 'What would a real AI agent do with this data?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain how a real AI agent would use this memory system.
+Query blocks for core context, entities for preferences.
+Demonstrate "learning" the user - persistent memory vision.\`
+      }
+    }]
+  })
+});`,
+
+  analyze_knowledge_distribution: `useWebMCPPrompt({
+  name: 'analyze_knowledge_distribution',
+  description: 'Analyze my knowledge distribution',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Deep analysis using SQL. Entity breakdown by category,
+relationship types, token usage by tier, quality indicators.
+Provide specific, actionable recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  // === ENTITY PROMPTS (useMCPEntityPrompts.ts) ===
+  entity_page_capabilities: `useWebMCPPrompt({
+  name: 'entity_page_capabilities',
+  description: 'What can I do on this page?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Comprehensive overview of Entities page.
+CRUD operations, table manipulation, 8 entity categories,
+demonstrate table tools, explain relationship to graph view.\`
+      }
+    }]
+  })
+});`,
+
+  organize_knowledge: `useWebMCPPrompt({
+  name: 'organize_knowledge',
+  description: 'Help me organize my knowledge',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Knowledge audit with SQL queries.
+Find orphan entities, low-confidence items, underrepresented categories.
+Create prioritized action plan with specific recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  explain_entity_types: `useWebMCPPrompt({
+  name: 'explain_entity_types',
+  description: "What's the difference between entity types?",
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Deep dive into 8 entity categories.
+fact, preference, skill, rule, context, person, project, goal.
+For each: definition, example, when to use, when NOT to use.\`
+      }
+    }]
+  })
+});`,
+
+  power_user_workflow: `useWebMCPPrompt({
+  name: 'power_user_workflow',
+  description: 'Show me a power-user workflow',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Advanced entity management. SQL for complex criteria,
+batch operations, create relationships, navigate to graph.
+Showcase tool composition pattern.\`
+      }
+    }]
+  })
+});`,
+
+  find_entities_needing_attention: `useWebMCPPrompt({
+  name: 'find_entities_needing_attention',
+  description: 'Find entities that need attention',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Smart maintenance query.
+Low-confidence, high-importance neglected, orphans, stale.
+Prioritized maintenance checklist with recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  // === ENTITY DETAIL PROMPTS (useMCPEntityDetailPrompts.ts) ===
+  entity_full_details: `useWebMCPPrompt({
+  name: 'entity_full_details',
+  description: 'Tell me everything about this entity',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Rich context for current entity.
+All fields, relationships (in/out), access patterns,
+position in graph (hub/leaf/bridge), suggested connections.\`
+      }
+    }]
+  })
+});`,
+
+  entity_connection_analysis: `useWebMCPPrompt({
+  name: 'entity_connection_analysis',
+  description: 'How does this connect to my other knowledge?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Analyze entity connections to broader graph.
+Outgoing/incoming relationships, neighborhood analysis,
+classify role (hub/leaf/bridge), suggest new connections.\`
+      }
+    }]
+  })
+});`,
+
+  explain_relationships: `useWebMCPPrompt({
+  name: 'explain_relationships',
+  description: 'What can I do with relationships?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Deep dive into 7 relationship types with examples:
+knows, related_to, depends_on, similar_to, part_of, causes, precedes.
+Show existing, demonstrate adding one, query via SQL.\`
+      }
+    }]
+  })
+});`,
+
+  // === GRAPH PROMPTS (useMCPGraphPrompts.ts) ===
+  graph_visualization_capabilities: `useWebMCPPrompt({
+  name: 'graph_visualization_capabilities',
+  description: 'What can you do with this visualization?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain knowledge graph visualization.
+2D mode vs 3D mode, available tools for each,
+demonstrate with narration - API calls, not clicks.\`
+      }
+    }]
+  })
+});`,
+
+  interactive_graph_tour: `useWebMCPPrompt({
+  name: 'interactive_graph_tour',
+  description: 'Give me an interactive tour of my knowledge graph',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Narrated visual tour. Switch to 3D, get statistics,
+start camera tour, identify clusters/hubs/bridges,
+end with summary and improvement suggestions.\`
+      }
+    }]
+  })
+});`,
+
+  analyze_graph_structure: `useWebMCPPrompt({
+  name: 'analyze_graph_structure',
+  description: 'Analyze my knowledge graph structure',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Structural analysis using SQL and graph tools.
+Basic metrics, connectivity, hub identification, distribution,
+path analysis, quality assessment with recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  build_better_graph: `useWebMCPPrompt({
+  name: 'build_better_graph',
+  description: 'How do I build a better knowledge graph?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Best practices for knowledge graph construction.
+Good graph characteristics, analyze against criteria,
+common mistakes, improvement strategies, specific actions.\`
+      }
+    }]
+  })
+});`,
+
+  show_important_knowledge: `useWebMCPPrompt({
+  name: 'show_important_knowledge',
+  description: 'Show me the most important parts of my knowledge',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Identify and visualize important knowledge.
+High-importance entities, hubs, bridges.
+Focus and highlight in graph, explain why important, identify gaps.\`
+      }
+    }]
+  })
+});`,
+
+  // === SQL PROMPTS (useMCPSQLPrompts.ts) ===
+  sql_power_explanation: `useWebMCPPrompt({
+  name: 'sql_power_explanation',
+  description: "What's the power of direct SQL access?",
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain power and responsibility of direct SQL.
+Allowed: SELECT/INSERT/UPDATE/DELETE. Blocked: DROP/ALTER.
+Audit log is protected. Demonstrate with safe example.\`
+      }
+    }]
+  })
+});`,
+
+  teach_database_schema: `useWebMCPPrompt({
+  name: 'teach_database_schema',
+  description: 'Teach me the database schema',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Interactive tour of database schema.
+memory_blocks, memory_entities, entity_relationships,
+conversation_sessions, sql_execution_log, audit_log (read-only).\`
+      }
+    }]
+  })
+});`,
+
+  powerful_query_cookbook: `useWebMCPPrompt({
+  name: 'powerful_query_cookbook',
+  description: 'What are some powerful queries I can run?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Cookbook of powerful SQL queries with explanations.
+Stale entities, relationship density, token budget by category,
+orphan entities, audit trail, confidence distribution.\`
+      }
+    }]
+  })
+});`,
+
+  help_write_complex_query: `useWebMCPPrompt({
+  name: 'help_write_complex_query',
+  description: 'Help me write a complex query',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Interactive query building session.
+Ask what to find, identify tables/joins, build incrementally,
+run and verify, explain the complete query.\`
+      }
+    }]
+  })
+});`,
+
+  sql_security_model: `useWebMCPPrompt({
+  name: 'sql_security_model',
+  description: 'How does the SQL tool protect against misuse?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain SQL security model.
+Safety layers, demonstrate blocked operations,
+what's allowed (and logged), trust model, auditability.\`
+      }
+    }]
+  })
+});`,
+
+  // === MEMORY BLOCK PROMPTS (useMCPMemoryBlockPrompts.ts) ===
+  explain_memory_blocks: `useWebMCPPrompt({
+  name: 'explain_memory_blocks',
+  description: 'What are memory blocks and how do I use them?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain "always-in-context" memory blocks.
+Core concept, 4 block types, contrast with entities,
+show current blocks and token costs, priority and inclusion.\`
+      }
+    }]
+  })
+});`,
+
+  setup_core_memories: `useWebMCPPrompt({
+  name: 'setup_core_memories',
+  description: 'Help me set up my core memories',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Interactive setup of each memory block type.
+user_profile, agent_persona, current_goals, context.
+Show tool calls, display token impact, explain importance.\`
+      }
+    }]
+  })
+});`,
+
+  blocks_vs_entities: `useWebMCPPrompt({
+  name: 'blocks_vs_entities',
+  description: "What's the difference between blocks and entities?",
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Side-by-side comparison of blocks vs entities.
+Always-present vs on-demand, limited vs unlimited,
+identity vs knowledge. Analogy: name badge vs filing cabinet.\`
+      }
+    }]
+  })
+});`,
+
+  optimize_block_tokens: `useWebMCPPrompt({
+  name: 'optimize_block_tokens',
+  description: 'Optimize my memory block token usage',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Analyze and optimize block token usage.
+Total usage, per-block breakdown, optimization opportunities,
+recommendations, explain why block tokens are expensive.\`
+      }
+    }]
+  })
+});`,
+
+  // === SQL LOG PROMPTS (useMCPSQLLogPrompts.ts) ===
+  learn_from_query_history: `useWebMCPPrompt({
+  name: 'learn_from_query_history',
+  description: 'What can I learn from my query history?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Analyze SQL query history for insights.
+Query frequency, type distribution, common patterns,
+error analysis, AI vs manual distinction, recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  query_patterns_statistics: `useWebMCPPrompt({
+  name: 'query_patterns_statistics',
+  description: 'Show me query patterns and statistics',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Detailed statistics view of SQL execution.
+Aggregate by type, success/failure rates, most-queried tables,
+time-based patterns, error categorization. SQL Usage Dashboard.\`
+      }
+    }]
   })
 });`,
 }
 
 const PROMPTS_DEMONSTRATED = [
   {
-    category: 'Educational',
-    icon: BookOpen,
-    color: 'blue',
-    prompts: [
-      { name: 'what_is_webmcp', description: 'Explain WebMCP to a newcomer' },
-      { name: 'compare_to_screen_scraping', description: 'Compare to traditional automation' },
-      { name: 'explain_architecture', description: 'Explain the system architecture' },
-    ],
-  },
-  {
-    category: 'Demonstrations',
+    category: 'Global (All Pages)',
     icon: Sparkles,
     color: 'purple',
     prompts: [
-      { name: 'show_interaction_demo', description: 'Live demo of tool interaction' },
+      { name: 'explain_webmcp_architecture', description: 'Explain the WebMCP architecture' },
+      { name: 'compare_to_other_agents', description: 'Compare to traditional AI agents' },
+      { name: 'webmcp_vision_for_web', description: 'What would WebMCP mean for the web?' },
+      { name: 'navigate_to_page_for_task', description: 'Help navigate to the right page' },
+      { name: 'complete_workflow_demo', description: 'Walk through a complete workflow' },
+      { name: 'explain_prompts_meta', description: 'How prompts work in WebMCP' },
+    ],
+  },
+  {
+    category: 'Landing Page',
+    icon: BookOpen,
+    color: 'blue',
+    prompts: [
+      { name: 'what_is_webmcp', description: 'What is WebMCP and how does it work?' },
+      { name: 'show_interaction_demo', description: 'Live demo of website interaction' },
       { name: 'full_webmcp_demo', description: 'Comprehensive tour of all pages' },
-      { name: 'walk_through_workflow', description: 'Complete multi-page workflow' },
+      { name: 'compare_to_screen_scraping', description: 'How is this different from scraping?' },
+    ],
+  },
+  {
+    category: 'Dashboard',
+    icon: Brain,
+    color: 'pink',
+    prompts: [
+      { name: 'explain_dashboard_capabilities', description: 'What you can see and do' },
+      { name: 'setup_memory_system', description: 'Set up a memory system' },
+      { name: 'real_agent_use_case', description: 'Real AI agent use cases' },
+      { name: 'analyze_knowledge_distribution', description: 'Analyze knowledge distribution' },
+    ],
+  },
+  {
+    category: 'Entities',
+    icon: Database,
+    color: 'green',
+    prompts: [
+      { name: 'entity_page_capabilities', description: 'What can I do on this page?' },
+      { name: 'organize_knowledge', description: 'Help organize my knowledge' },
+      { name: 'explain_entity_types', description: 'Difference between entity types' },
+      { name: 'power_user_workflow', description: 'Power-user workflow' },
+      { name: 'find_entities_needing_attention', description: 'Find entities needing attention' },
+    ],
+  },
+  {
+    category: 'Entity Detail',
+    icon: Brain,
+    color: 'amber',
+    prompts: [
+      { name: 'entity_full_details', description: 'Everything about this entity' },
+      { name: 'entity_connection_analysis', description: 'How it connects to other knowledge' },
+      { name: 'explain_relationships', description: 'What can I do with relationships?' },
+    ],
+  },
+  {
+    category: 'Knowledge Graph',
+    icon: Network,
+    color: 'purple',
+    prompts: [
+      { name: 'graph_visualization_capabilities', description: 'Visualization capabilities' },
+      { name: 'interactive_graph_tour', description: 'Interactive tour of the graph' },
+      { name: 'analyze_graph_structure', description: 'Analyze graph structure' },
+      { name: 'build_better_graph', description: 'How to build a better graph' },
+      { name: 'show_important_knowledge', description: 'Show important knowledge' },
+    ],
+  },
+  {
+    category: 'SQL REPL',
+    icon: Terminal,
+    color: 'blue',
+    prompts: [
+      { name: 'sql_power_explanation', description: 'Power of direct SQL access' },
+      { name: 'teach_database_schema', description: 'Teach the database schema' },
+      { name: 'powerful_query_cookbook', description: 'Powerful query cookbook' },
+      { name: 'help_write_complex_query', description: 'Help write a complex query' },
+      { name: 'sql_security_model', description: 'SQL security model' },
+    ],
+  },
+  {
+    category: 'Memory Blocks',
+    icon: Brain,
+    color: 'pink',
+    prompts: [
+      { name: 'explain_memory_blocks', description: 'What are memory blocks?' },
+      { name: 'setup_core_memories', description: 'Set up core memories' },
+      { name: 'blocks_vs_entities', description: 'Blocks vs entities difference' },
+      { name: 'optimize_block_tokens', description: 'Optimize block token usage' },
+    ],
+  },
+  {
+    category: 'SQL Execution Log',
+    icon: Terminal,
+    color: 'amber',
+    prompts: [
+      { name: 'learn_from_query_history', description: 'Learn from query history' },
+      { name: 'query_patterns_statistics', description: 'Query patterns and statistics' },
     ],
   },
 ]
@@ -1025,49 +1581,51 @@ function HomePage() {
             <div className="grid md:grid-cols-2 gap-6 md:gap-8">
               <div className="space-y-3 md:space-y-4 text-sm md:text-base text-muted-foreground">
                 <p>
-                  The floating pill you see at the bottom of the page is the <strong className="text-foreground">WebMCP Client</strong> —
-                  a custom element that serves as the AI agent's interface to this website. It's the <em>consumer</em> of WebMCP tools.
+                  The floating pill you see at the bottom of the page is the <strong className="text-foreground">embedded agent</strong> —
+                  a custom element (<code className="text-xs bg-muted px-1.5 py-0.5 rounded">&lt;webmcp-agent&gt;</code>) that serves as the AI's interface to this website. It's the <em>consumer</em> of WebMCP tools.
                 </p>
                 <p>
-                  You can add it to any website in two ways:
+                  To add it to your website:
                 </p>
                 <div className="space-y-2 pl-4 border-l-2 border-primary/30">
                   <p>
-                    <strong className="text-foreground">1. Script tag:</strong> Add a script tag to load the WebMCP client bundle, which auto-registers the custom element.
+                    <strong className="text-foreground">1. Import packages:</strong> Import <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@mcp-b/global</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@mcp-b/embedded-agent/web-component</code> in your entry file.
                   </p>
                   <p>
-                    <strong className="text-foreground">2. Custom element:</strong> Import and use <code className="text-xs bg-muted px-1.5 py-0.5 rounded">&lt;webmcp-client&gt;</code> directly in your app.
+                    <strong className="text-foreground">2. Add custom element:</strong> Place <code className="text-xs bg-muted px-1.5 py-0.5 rounded">&lt;webmcp-agent&gt;</code> in your HTML with your app-id and API endpoint.
                   </p>
                 </div>
                 <p>
-                  Meanwhile, your React components use <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> and{' '}
-                  <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCPPrompt</code> hooks to <em>produce</em> tools
-                  and prompts that the client can discover and invoke.
+                  Your React components use <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> and{' '}
+                  <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCPPrompt</code> hooks from <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@mcp-b/react-webmcp</code> to <em>produce</em> tools
+                  and prompts that the agent can discover and invoke.
                 </p>
               </div>
               <Card className="bg-zinc-950 border-zinc-800 overflow-hidden">
                 <CardContent className="p-0 overflow-x-auto">
-                  <HighlightedCode code={`<!-- Option 1: Script tag -->
-<script src="https://unpkg.com/@anthropic/webmcp-client"></script>
-<webmcp-client></webmcp-client>
+                  <HighlightedCode code={`// main.tsx - Initialize WebMCP
+import '@mcp-b/global';
+import '@mcp-b/embedded-agent/web-component';
 
-<!-- Option 2: As a React component -->
-import { WebMCPClient } from '@anthropic/webmcp-client';
+// index.html - Add the agent custom element
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <webmcp-agent
+    app-id="your-app-id"
+    api-base="https://your-api-endpoint"
+    view-mode="pill"
+  />
+</body>
 
-function App() {
-  return (
-    <>
-      <YourApp />
-      <WebMCPClient />  {/* The floating agent pill */}
-    </>
-  );
-}
+// Components produce tools (website is the producer)
+import { useWebMCP, useWebMCPPrompt } from '@mcp-b/react-webmcp';
 
-// Your components produce tools (the website is the producer)
-useWebMCP({ name: 'my_tool', ... });
+useWebMCP({ name: 'my_tool', handler: ... });
+useWebMCPPrompt({ name: 'my_prompt', get: () => ... });
 
-// The client consumes tools (AI agent is the consumer)
-// Client ←→ Tools/Prompts ←→ Your React Components`} />
+// Agent consumes tools (AI is the consumer)
+// Agent ←→ Tools/Prompts ←→ Your React Components`} />
                 </CardContent>
               </Card>
             </div>
