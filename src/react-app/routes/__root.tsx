@@ -14,7 +14,7 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
-  // Register navigation tools at root level (always available)
+  // Register navigation tools and global prompts at root level (always available)
   useMCPNavigationTool();
 
   return (

@@ -14,7 +14,7 @@ import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/components/theme-provider'
 import { useMCPSQLTool } from '@/hooks/useMCPSQLTool'
-import { useMCPGlobalPrompts, useMCPSQLLogPrompts } from '@/hooks/prompts'
+import { useMCPSQLLogPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/sql-execution-log')({
   component: SQLExecutionLogPage,
@@ -45,7 +45,6 @@ function SQLExecutionLogPage() {
 
   // Register MCP tools and prompts for this page
   useMCPSQLTool()
-  useMCPGlobalPrompts()
   useMCPSQLLogPrompts()
 
   // Query execution logs from database

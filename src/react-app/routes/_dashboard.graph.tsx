@@ -21,7 +21,7 @@ import { toForceGraphData } from '@/lib/graph/adapters'
 import { useMCPGraph3DTools } from '@/hooks/useMCPGraph3DTools'
 import { Button } from '@/components/ui/button'
 import { AIToolsPanel } from '@/components/graph/AIToolsPanel'
-import { useMCPGlobalPrompts, useMCPGraphPrompts } from '@/hooks/prompts'
+import { useMCPGraphPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/graph')({
   component: GraphWrapper,
@@ -90,7 +90,6 @@ function GraphComponent() {
   // Register MCP tools and prompts
   useMCPSQLTool();
   useMCPGraph3DTools();
-  useMCPGlobalPrompts();
   useMCPGraphPrompts();
 
   // Fetch all entities for graph

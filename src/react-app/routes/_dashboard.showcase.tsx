@@ -6,16 +6,12 @@ import { Button } from '@/components/ui/button'
 import { DivideX } from '@/components/ui/divide'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MeshGradient } from '@/components/ui/mesh-gradient'
-import { useMCPGlobalPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/showcase')({
   component: ShowcaseComponent,
 })
 
 function ShowcaseComponent() {
-  // Register MCP prompts for this page
-  useMCPGlobalPrompts()
-
   return (
     <div className="h-full flex flex-col overflow-auto bg-background">
       {/* Hero Section with Mesh Gradient */}

@@ -23,7 +23,7 @@ import { EntitiesDataTable } from '@/components/data-tables/entities-data-table'
 import { columns as entitiesColumns } from '@/components/data-tables/entities-columns'
 import type { MCPToolsConfig } from '@/types/mcp-tools'
 import type { UpdateMemoryBlock } from '@/lib/db/types'
-import { useMCPGlobalPrompts, useMCPDashboardPrompts } from '@/hooks/prompts'
+import { useMCPDashboardPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/dashboard')({
   component: DashboardHome,
@@ -35,7 +35,6 @@ const TIER_COLORS = ['#f59e0b', '#3b82f6', '#8b5cf6', '#6b7280'];
 
 function DashboardHome() {
   // Register MCP prompts for this page
-  useMCPGlobalPrompts()
   useMCPDashboardPrompts()
 
   const db = usePGlite();

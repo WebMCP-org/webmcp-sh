@@ -4,7 +4,7 @@ import { ArrowLeft, Network, Calendar, TrendingUp, Lightbulb, Heart, Code, Alert
 import { useLiveQuery } from '@electric-sql/pglite-react'
 import { memory_entities, entity_relationships } from '@/lib/db'
 import { Button } from '@/components/ui/button'
-import { useMCPGlobalPrompts, useMCPEntityDetailPrompts } from '@/hooks/prompts'
+import { useMCPEntityDetailPrompts } from '@/hooks/prompts'
 
 export const Route = createFileRoute('/_dashboard/entities/$entityId')({
   component: EntityDetailComponent,
@@ -23,7 +23,6 @@ const categoryIcons: Record<string, { icon: LucideIcon; color: string; bgColor: 
 
 function EntityDetailComponent() {
   // Register MCP prompts for this page
-  useMCPGlobalPrompts()
   useMCPEntityDetailPrompts()
 
   const { entityId } = Route.useParams()
