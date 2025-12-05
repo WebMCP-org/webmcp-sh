@@ -24,6 +24,8 @@ import {
   X,
   Keyboard,
   Command,
+  MessageCircle,
+  Plug,
 } from 'lucide-react'
 import { useMCPGlobalPrompts, useMCPLandingPrompts } from '@/hooks/prompts'
 
@@ -383,6 +385,175 @@ case 'group_by': {
 });`,
 }
 
+// Prompt code snippets - actual code from the prompt hooks
+const PROMPT_CODE: Record<string, string> = {
+  what_is_webmcp: `useWebMCPPrompt({
+  name: 'what_is_webmcp',
+  description: 'What is WebMCP and how does it work?',
+  get: () => ({
+    messages: [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: \`Please explain WebMCP to me as a newcomer.
+
+Cover:
+1. WebMCP as a proposed web standard for AI-website interaction
+2. The three main parts: Tool definitions, Client discovery, Execution
+3. Current state: polyfill → future browser-native support
+4. List available tools using get_current_context
+5. Offer to demonstrate with a simple tool call\`
+        }
+      }
+    ]
+  })
+});`,
+
+  show_interaction_demo: `useWebMCPPrompt({
+  name: 'show_interaction_demo',
+  description: 'Show me how you interact with this website',
+  get: () => ({
+    messages: [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: \`Give me a live demonstration of WebMCP in action.
+
+1. Introduce yourself as Char, a WebMCP client (AI agent)
+2. Explain you don't parse HTML, take screenshots, or simulate clicks
+3. Call get_current_context and show the structured response
+4. Contrast with traditional approaches (screenshot → guess → hope)
+5. Offer to navigate somewhere to show route-scoped tools\`
+        }
+      }
+    ]
+  })
+});`,
+
+  full_webmcp_demo: `useWebMCPPrompt({
+  name: 'full_webmcp_demo',
+  description: 'Give me the full WebMCP demo',
+  get: () => ({
+    messages: [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: \`Take me on a tour of the entire WebMCP demo.
+
+Walk through each page in sequence:
+1. Dashboard - Show stats, demonstrate tools
+2. Entities - Create an entity, show table updates
+3. Knowledge Graph - Switch views, highlight, focus
+4. Memory Blocks - Explain always-in-context concept
+5. SQL REPL - Demonstrate direct database queries
+
+For each: Navigate, explain available tools, demonstrate.\`
+        }
+      }
+    ]
+  })
+});`,
+
+  compare_to_screen_scraping: `useWebMCPPrompt({
+  name: 'compare_to_screen_scraping',
+  description: 'How is this different from screen scraping?',
+  get: () => ({
+    messages: [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: \`Compare WebMCP to traditional screen scraping.
+
+Traditional: Screenshot → Vision → Guess coordinates → Hope
+Problems: Brittle, slow, unreliable, expensive
+
+WebMCP: Discover tools → Call structured API → Done
+Benefits: Deterministic, fast, reliable, cheap
+
+DEMONSTRATE by creating an entity to show the difference.\`
+        }
+      }
+    ]
+  })
+});`,
+
+  explain_architecture: `useWebMCPPrompt({
+  name: 'explain_architecture',
+  description: 'Explain the WebMCP architecture',
+  get: () => ({
+    messages: [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: \`Explain WebMCP architecture:
+
+1. Website (Producer): useWebMCP hook registers tools
+2. Browser: Aggregates tools from all components
+3. AI Agent (Consumer): Discovers and invokes tools
+4. Custom Element: The <webmcp-client> that bridges them
+
+Show how tools flow from React → Browser → AI.\`
+        }
+      }
+    ]
+  })
+});`,
+
+  walk_through_workflow: `useWebMCPPrompt({
+  name: 'walk_through_workflow',
+  description: 'Walk me through a complete workflow',
+  get: () => ({
+    messages: [
+      {
+        role: 'user',
+        content: {
+          type: 'text',
+          text: \`Walk me through a complete multi-page workflow.
+
+Example: "Track a new project with related entities"
+
+1. Navigate to entities page
+2. Create a project entity
+3. Create related person entities
+4. View in knowledge graph
+5. Query relationships via SQL
+
+Narrate each step to show tool composition.\`
+        }
+      }
+    ]
+  })
+});`,
+}
+
+const PROMPTS_DEMONSTRATED = [
+  {
+    category: 'Educational',
+    icon: BookOpen,
+    color: 'blue',
+    prompts: [
+      { name: 'what_is_webmcp', description: 'Explain WebMCP to a newcomer' },
+      { name: 'compare_to_screen_scraping', description: 'Compare to traditional automation' },
+      { name: 'explain_architecture', description: 'Explain the system architecture' },
+    ],
+  },
+  {
+    category: 'Demonstrations',
+    icon: Sparkles,
+    color: 'purple',
+    prompts: [
+      { name: 'show_interaction_demo', description: 'Live demo of tool interaction' },
+      { name: 'full_webmcp_demo', description: 'Comprehensive tour of all pages' },
+      { name: 'walk_through_workflow', description: 'Complete multi-page workflow' },
+    ],
+  },
+]
+
 const TOOLS_DEMONSTRATED = [
   {
     category: 'Navigation',
@@ -593,13 +764,76 @@ function CodeModal({
   )
 }
 
+// Prompt item with expandable code (similar to ToolItem)
+function PromptItem({
+  prompt,
+  color,
+  isExpanded,
+  onToggle
+}: {
+  prompt: { name: string; description: string }
+  color: string
+  isExpanded: boolean
+  onToggle: () => void
+}) {
+  const hasCode = PROMPT_CODE[prompt.name]
+  const colors = COLOR_CLASSES[color]
+
+  return (
+    <div className="border-b border-border/50 last:border-0">
+      <button
+        onClick={hasCode ? onToggle : undefined}
+        className={`w-full flex items-start gap-1.5 md:gap-2 text-xs md:text-sm p-2 rounded transition-colors text-left ${
+          hasCode ? 'hover:bg-muted/50 cursor-pointer active:bg-muted/70' : 'cursor-default'
+        }`}
+      >
+        {hasCode ? (
+          <motion.div
+            animate={{ rotate: isExpanded ? 90 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-0.5 flex-shrink-0"
+          >
+            <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
+          </motion.div>
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground/30 mt-0.5 flex-shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          <code className={`text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded font-mono ${colors.badge}`}>
+            {prompt.name}
+          </code>
+          <span className="text-muted-foreground ml-1 md:ml-2 text-[11px] md:text-sm">{prompt.description}</span>
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && hasCode && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mx-1.5 md:mx-2 mb-2 rounded-lg bg-zinc-950 border border-zinc-800 overflow-x-auto">
+              <HighlightedCode code={PROMPT_CODE[prompt.name]} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 function HomePage() {
   // Register MCP prompts for this page
   useMCPGlobalPrompts()
   useMCPLandingPrompts()
 
   const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set())
+  const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set())
   const [modalTool, setModalTool] = useState<string | null>(null)
+  const [activeView, setActiveView] = useState<'tools' | 'prompts'>('tools')
 
   const toggleTool = (toolName: string) => {
     setExpandedTools(prev => {
@@ -608,6 +842,18 @@ function HomePage() {
         next.delete(toolName)
       } else {
         next.add(toolName)
+      }
+      return next
+    })
+  }
+
+  const togglePrompt = (promptName: string) => {
+    setExpandedPrompts(prev => {
+      const next = new Set(prev)
+      if (next.has(promptName)) {
+        next.delete(promptName)
+      } else {
+        next.add(promptName)
       }
       return next
     })
@@ -761,6 +1007,74 @@ function HomePage() {
         </Container>
       </section>
 
+      {/* WebMCP Client - The In-Page Agent */}
+      <section className="py-8 md:py-12 border-b border-border bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5">
+        <Container className="px-4 md:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Plug className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-lg md:text-xl font-semibold">The In-Page Agent</h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              <div className="space-y-3 md:space-y-4 text-sm md:text-base text-muted-foreground">
+                <p>
+                  The floating pill you see at the bottom of the page is the <strong className="text-foreground">WebMCP Client</strong> —
+                  a custom element that serves as the AI agent's interface to this website. It's the <em>consumer</em> of WebMCP tools.
+                </p>
+                <p>
+                  You can add it to any website in two ways:
+                </p>
+                <div className="space-y-2 pl-4 border-l-2 border-primary/30">
+                  <p>
+                    <strong className="text-foreground">1. Script tag:</strong> Add a script tag to load the WebMCP client bundle, which auto-registers the custom element.
+                  </p>
+                  <p>
+                    <strong className="text-foreground">2. Custom element:</strong> Import and use <code className="text-xs bg-muted px-1.5 py-0.5 rounded">&lt;webmcp-client&gt;</code> directly in your app.
+                  </p>
+                </div>
+                <p>
+                  Meanwhile, your React components use <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> and{' '}
+                  <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCPPrompt</code> hooks to <em>produce</em> tools
+                  and prompts that the client can discover and invoke.
+                </p>
+              </div>
+              <Card className="bg-zinc-950 border-zinc-800 overflow-hidden">
+                <CardContent className="p-0 overflow-x-auto">
+                  <HighlightedCode code={`<!-- Option 1: Script tag -->
+<script src="https://unpkg.com/@anthropic/webmcp-client"></script>
+<webmcp-client></webmcp-client>
+
+<!-- Option 2: As a React component -->
+import { WebMCPClient } from '@anthropic/webmcp-client';
+
+function App() {
+  return (
+    <>
+      <YourApp />
+      <WebMCPClient />  {/* The floating agent pill */}
+    </>
+  );
+}
+
+// Your components produce tools (the website is the producer)
+useWebMCP({ name: 'my_tool', ... });
+
+// The client consumes tools (AI agent is the consumer)
+// Client ←→ Tools/Prompts ←→ Your React Components`} />
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        </Container>
+      </section>
+
       {/* What is WebMCP */}
       <section className="py-8 md:py-12 border-b border-border">
         <Container className="px-4 md:px-6">
@@ -810,7 +1124,7 @@ useWebMCP({
         </Container>
       </section>
 
-      {/* Tools Demonstrated */}
+      {/* Tools & Prompts Demonstrated */}
       <section className="py-8 md:py-12 border-b border-border bg-muted/20">
         <Container className="px-4 md:px-6">
           <motion.div
@@ -819,49 +1133,145 @@ useWebMCP({
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center justify-between mb-4 md:mb-6 gap-2">
-              <h2 className="text-lg md:text-xl font-semibold">Tools Demonstrated</h2>
-              <Badge variant="outline" className="text-[10px] md:text-xs whitespace-nowrap">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-3">
+              <div className="flex items-center gap-3">
+                {/* Toggle between Tools and Prompts */}
+                <div className="inline-flex rounded-lg bg-muted p-1">
+                  <button
+                    onClick={() => setActiveView('tools')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      activeView === 'tools'
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Code2 className="h-4 w-4" />
+                    <span>Tools</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('prompts')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      activeView === 'prompts'
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Prompts</span>
+                  </button>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-[10px] md:text-xs whitespace-nowrap self-start sm:self-auto">
                 Tap to view code
               </Badge>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-              {TOOLS_DEMONSTRATED.map((category, idx) => {
-                const colors = COLOR_CLASSES[category.color]
-                return (
-                  <motion.div
-                    key={category.category}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: idx * 0.1 }}
-                  >
-                    <Card className={`${colors.card} hover:shadow-lg transition-all duration-300`}>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-base">
-                          <div className={`h-10 w-10 rounded-lg ${colors.icon} flex items-center justify-center`}>
-                            <category.icon className="h-5 w-5" />
-                          </div>
-                          {category.category}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        {category.tools.map((tool) => (
-                          <ToolItem
-                            key={tool.name}
-                            tool={tool}
-                            color={category.color}
-                            isExpanded={expandedTools.has(tool.name)}
-                            onToggle={() => toggleTool(tool.name)}
-                          />
-                        ))}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )
-              })}
-            </div>
+            {/* Description based on active view */}
+            <p className="text-sm text-muted-foreground mb-4">
+              {activeView === 'tools' ? (
+                <>
+                  <strong className="text-foreground">Tools</strong> are functions that AI agents can invoke to perform actions on the website.
+                  Each tool has a name, description, input schema, and handler.
+                </>
+              ) : (
+                <>
+                  <strong className="text-foreground">Prompts</strong> are pre-defined conversation starters that guide the AI agent through specific workflows.
+                  They provide context and instructions for multi-step interactions.
+                </>
+              )}
+            </p>
+
+            <AnimatePresence mode="wait">
+              {activeView === 'tools' ? (
+                <motion.div
+                  key="tools"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid md:grid-cols-2 gap-4 md:gap-6"
+                >
+                  {TOOLS_DEMONSTRATED.map((category, idx) => {
+                    const colors = COLOR_CLASSES[category.color]
+                    return (
+                      <motion.div
+                        key={category.category}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: idx * 0.1 }}
+                      >
+                        <Card className={`${colors.card} hover:shadow-lg transition-all duration-300`}>
+                          <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-3 text-base">
+                              <div className={`h-10 w-10 rounded-lg ${colors.icon} flex items-center justify-center`}>
+                                <category.icon className="h-5 w-5" />
+                              </div>
+                              {category.category}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            {category.tools.map((tool) => (
+                              <ToolItem
+                                key={tool.name}
+                                tool={tool}
+                                color={category.color}
+                                isExpanded={expandedTools.has(tool.name)}
+                                onToggle={() => toggleTool(tool.name)}
+                              />
+                            ))}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    )
+                  })}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="prompts"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid md:grid-cols-2 gap-4 md:gap-6"
+                >
+                  {PROMPTS_DEMONSTRATED.map((category, idx) => {
+                    const colors = COLOR_CLASSES[category.color]
+                    return (
+                      <motion.div
+                        key={category.category}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: idx * 0.1 }}
+                      >
+                        <Card className={`${colors.card} hover:shadow-lg transition-all duration-300`}>
+                          <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-3 text-base">
+                              <div className={`h-10 w-10 rounded-lg ${colors.icon} flex items-center justify-center`}>
+                                <category.icon className="h-5 w-5" />
+                              </div>
+                              {category.category}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            {category.prompts.map((prompt) => (
+                              <PromptItem
+                                key={prompt.name}
+                                prompt={prompt}
+                                color={category.color}
+                                isExpanded={expandedPrompts.has(prompt.name)}
+                                onToggle={() => togglePrompt(prompt.name)}
+                              />
+                            ))}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    )
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </Container>
       </section>
