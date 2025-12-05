@@ -6,7 +6,7 @@
 /**
  * Custom action handler for table items
  */
-export interface MCPCustomAction<T> {
+interface MCPCustomAction<T> {
   /** Human-readable description of what this action does */
   description: string;
   /** Handler function that performs the action on an item */
@@ -42,28 +42,3 @@ export interface MCPToolsConfig<T extends Record<string, unknown>> {
   /** Custom actions that can be performed on items */
   customActions: Record<string, MCPCustomAction<T>>;
 }
-
-/**
- * Type guard to check if a config object is a valid MCPToolsConfig
- */
-export function isMCPToolsConfig<T extends Record<string, unknown>>(
-  config: unknown
-): config is MCPToolsConfig<T> {
-  if (!config || typeof config !== 'object') return false;
-
-  const c = config as any;
-  return (
-    typeof c.tableName === 'string' &&
-    typeof c.tableDescription === 'string' &&
-    typeof c.onSelectItem === 'function' &&
-    Array.isArray(c.searchableFields) &&
-    typeof c.getItemId === 'function' &&
-    typeof c.getItemDisplayName === 'function' &&
-    typeof c.customActions === 'object'
-  );
-}
-
-/**
- * Helper type to extract the item type from a table configuration
- */
-export type ExtractItemType<T> = T extends MCPToolsConfig<infer U> ? U : never;
