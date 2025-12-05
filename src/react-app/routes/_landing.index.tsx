@@ -24,6 +24,8 @@ import {
   X,
   Keyboard,
   Command,
+  MessageCircle,
+  Plug,
 } from 'lucide-react'
 import { useMCPGlobalPrompts, useMCPLandingPrompts } from '@/hooks/prompts'
 
@@ -383,6 +385,731 @@ case 'group_by': {
 });`,
 }
 
+// Prompt code snippets - actual code from the prompt hooks
+// For brevity, showing condensed versions. Full implementations in /hooks/prompts/
+const PROMPT_CODE: Record<string, string> = {
+  // === GLOBAL PROMPTS (useMCPGlobalPrompts.ts) ===
+  explain_webmcp_architecture: `useWebMCPPrompt({
+  name: 'explain_webmcp_architecture',
+  description: 'Explain the WebMCP architecture',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Please explain the WebMCP architecture in detail.
+Cover: Three-part architecture (tool definitions, client discovery, execution),
+polyfill vs browser-native, available tools, and how schemas/handlers work.\`
+      }
+    }]
+  })
+});`,
+
+  compare_to_other_agents: `useWebMCPPrompt({
+  name: 'compare_to_other_agents',
+  description: 'Compare this to how other AI agents work',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Compare WebMCP to traditional AI automation methods.
+Screenshot-based agents vs WebMCP structured calls.
+Demonstrate with a simple action - no screenshots needed.\`
+      }
+    }]
+  })
+});`,
+
+  webmcp_vision_for_web: `useWebMCPPrompt({
+  name: 'webmcp_vision_for_web',
+  description: 'What would WebMCP mean for the web?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Paint the vision of a WebMCP-enabled web.
+Real-world examples: e-commerce, banking, social media.
+Benefits: reliable automation, accessibility, standardization.\`
+      }
+    }]
+  })
+});`,
+
+  navigate_to_page_for_task: `useWebMCPPrompt({
+  name: 'navigate_to_page_for_task',
+  description: 'What page should I be on for my task?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Help me navigate to the right page for what I want to do.
+/entities for memories, /memory-blocks for persistent context,
+/graph for visualization, /sql-repl for queries, /dashboard for overview.\`
+      }
+    }]
+  })
+});`,
+
+  complete_workflow_demo: `useWebMCPPrompt({
+  name: 'complete_workflow_demo',
+  description: 'Walk me through a complete workflow',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Walk through a complete end-to-end workflow.
+Example: "Set up memory for a new project" - create entities,
+connect with relationships, add to memory blocks, visualize in graph.\`
+      }
+    }]
+  })
+});`,
+
+  explain_prompts_meta: `useWebMCPPrompt({
+  name: 'explain_prompts_meta',
+  description: 'Show me how prompts work in WebMCP',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Meta-explanation: these clickable prompts ARE MCP prompts.
+Tools = actions agents CAN take. Prompts = suggested interactions.
+Explain how clicking a prompt triggers AI execution.\`
+      }
+    }]
+  })
+});`,
+
+  // === LANDING PROMPTS (useMCPLandingPrompts.ts) ===
+  what_is_webmcp: `useWebMCPPrompt({
+  name: 'what_is_webmcp',
+  description: 'What is WebMCP and how does it work?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Please explain WebMCP to me as a newcomer.
+Cover: problem it solves (screen scraping), solution (structured APIs),
+three main parts, current polyfill state, list available tools.\`
+      }
+    }]
+  })
+});`,
+
+  show_interaction_demo: `useWebMCPPrompt({
+  name: 'show_interaction_demo',
+  description: 'Show me how you interact with this website',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Live demonstration of WebMCP in action.
+Introduce Char, explain no HTML parsing or screenshots,
+call get_current_context, contrast with traditional approaches.\`
+      }
+    }]
+  })
+});`,
+
+  full_webmcp_demo: `useWebMCPPrompt({
+  name: 'full_webmcp_demo',
+  description: 'Give me the full WebMCP demo',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Comprehensive tour of the entire application.
+Walk through Dashboard, Entities, Graph, Memory Blocks, SQL REPL.
+For each: navigate, explain available tools, demonstrate 1-2 tools.\`
+      }
+    }]
+  })
+});`,
+
+  compare_to_screen_scraping: `useWebMCPPrompt({
+  name: 'compare_to_screen_scraping',
+  description: 'How is this different from screen scraping?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Direct comparison: traditional screenshot-based automation
+vs WebMCP structured calls. Problems vs benefits.
+DEMONSTRATE by creating an entity using structured approach.\`
+      }
+    }]
+  })
+});`,
+
+  // === DASHBOARD PROMPTS (useMCPDashboardPrompts.ts) ===
+  explain_dashboard_capabilities: `useWebMCPPrompt({
+  name: 'explain_dashboard_capabilities',
+  description: 'Explain what you can see and do here',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain Dashboard page capabilities. List available tools.
+Stats cards, charts, audit log. Demonstrate 2-3 capabilities.
+Show how UI updates reactively - not screenshot-based.\`
+      }
+    }]
+  })
+});`,
+
+  setup_memory_system: `useWebMCPPrompt({
+  name: 'setup_memory_system',
+  description: 'Walk me through setting up a memory system',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Guide through setting up a complete memory system.
+Memory Blocks (user_profile, agent_persona), Entities (facts, prefs),
+Relationships, Token Budget. Blocks = WHO, Entities = WHAT.\`
+      }
+    }]
+  })
+});`,
+
+  real_agent_use_case: `useWebMCPPrompt({
+  name: 'real_agent_use_case',
+  description: 'What would a real AI agent do with this data?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain how a real AI agent would use this memory system.
+Query blocks for core context, entities for preferences.
+Demonstrate "learning" the user - persistent memory vision.\`
+      }
+    }]
+  })
+});`,
+
+  analyze_knowledge_distribution: `useWebMCPPrompt({
+  name: 'analyze_knowledge_distribution',
+  description: 'Analyze my knowledge distribution',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Deep analysis using SQL. Entity breakdown by category,
+relationship types, token usage by tier, quality indicators.
+Provide specific, actionable recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  // === ENTITY PROMPTS (useMCPEntityPrompts.ts) ===
+  entity_page_capabilities: `useWebMCPPrompt({
+  name: 'entity_page_capabilities',
+  description: 'What can I do on this page?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Comprehensive overview of Entities page.
+CRUD operations, table manipulation, 8 entity categories,
+demonstrate table tools, explain relationship to graph view.\`
+      }
+    }]
+  })
+});`,
+
+  organize_knowledge: `useWebMCPPrompt({
+  name: 'organize_knowledge',
+  description: 'Help me organize my knowledge',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Knowledge audit with SQL queries.
+Find orphan entities, low-confidence items, underrepresented categories.
+Create prioritized action plan with specific recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  explain_entity_types: `useWebMCPPrompt({
+  name: 'explain_entity_types',
+  description: "What's the difference between entity types?",
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Deep dive into 8 entity categories.
+fact, preference, skill, rule, context, person, project, goal.
+For each: definition, example, when to use, when NOT to use.\`
+      }
+    }]
+  })
+});`,
+
+  power_user_workflow: `useWebMCPPrompt({
+  name: 'power_user_workflow',
+  description: 'Show me a power-user workflow',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Advanced entity management. SQL for complex criteria,
+batch operations, create relationships, navigate to graph.
+Showcase tool composition pattern.\`
+      }
+    }]
+  })
+});`,
+
+  find_entities_needing_attention: `useWebMCPPrompt({
+  name: 'find_entities_needing_attention',
+  description: 'Find entities that need attention',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Smart maintenance query.
+Low-confidence, high-importance neglected, orphans, stale.
+Prioritized maintenance checklist with recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  // === ENTITY DETAIL PROMPTS (useMCPEntityDetailPrompts.ts) ===
+  entity_full_details: `useWebMCPPrompt({
+  name: 'entity_full_details',
+  description: 'Tell me everything about this entity',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Rich context for current entity.
+All fields, relationships (in/out), access patterns,
+position in graph (hub/leaf/bridge), suggested connections.\`
+      }
+    }]
+  })
+});`,
+
+  entity_connection_analysis: `useWebMCPPrompt({
+  name: 'entity_connection_analysis',
+  description: 'How does this connect to my other knowledge?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Analyze entity connections to broader graph.
+Outgoing/incoming relationships, neighborhood analysis,
+classify role (hub/leaf/bridge), suggest new connections.\`
+      }
+    }]
+  })
+});`,
+
+  explain_relationships: `useWebMCPPrompt({
+  name: 'explain_relationships',
+  description: 'What can I do with relationships?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Deep dive into 7 relationship types with examples:
+knows, related_to, depends_on, similar_to, part_of, causes, precedes.
+Show existing, demonstrate adding one, query via SQL.\`
+      }
+    }]
+  })
+});`,
+
+  // === GRAPH PROMPTS (useMCPGraphPrompts.ts) ===
+  graph_visualization_capabilities: `useWebMCPPrompt({
+  name: 'graph_visualization_capabilities',
+  description: 'What can you do with this visualization?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain knowledge graph visualization.
+2D mode vs 3D mode, available tools for each,
+demonstrate with narration - API calls, not clicks.\`
+      }
+    }]
+  })
+});`,
+
+  interactive_graph_tour: `useWebMCPPrompt({
+  name: 'interactive_graph_tour',
+  description: 'Give me an interactive tour of my knowledge graph',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Narrated visual tour. Switch to 3D, get statistics,
+start camera tour, identify clusters/hubs/bridges,
+end with summary and improvement suggestions.\`
+      }
+    }]
+  })
+});`,
+
+  analyze_graph_structure: `useWebMCPPrompt({
+  name: 'analyze_graph_structure',
+  description: 'Analyze my knowledge graph structure',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Structural analysis using SQL and graph tools.
+Basic metrics, connectivity, hub identification, distribution,
+path analysis, quality assessment with recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  build_better_graph: `useWebMCPPrompt({
+  name: 'build_better_graph',
+  description: 'How do I build a better knowledge graph?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Best practices for knowledge graph construction.
+Good graph characteristics, analyze against criteria,
+common mistakes, improvement strategies, specific actions.\`
+      }
+    }]
+  })
+});`,
+
+  show_important_knowledge: `useWebMCPPrompt({
+  name: 'show_important_knowledge',
+  description: 'Show me the most important parts of my knowledge',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Identify and visualize important knowledge.
+High-importance entities, hubs, bridges.
+Focus and highlight in graph, explain why important, identify gaps.\`
+      }
+    }]
+  })
+});`,
+
+  // === SQL PROMPTS (useMCPSQLPrompts.ts) ===
+  sql_power_explanation: `useWebMCPPrompt({
+  name: 'sql_power_explanation',
+  description: "What's the power of direct SQL access?",
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain power and responsibility of direct SQL.
+Allowed: SELECT/INSERT/UPDATE/DELETE. Blocked: DROP/ALTER.
+Audit log is protected. Demonstrate with safe example.\`
+      }
+    }]
+  })
+});`,
+
+  teach_database_schema: `useWebMCPPrompt({
+  name: 'teach_database_schema',
+  description: 'Teach me the database schema',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Interactive tour of database schema.
+memory_blocks, memory_entities, entity_relationships,
+conversation_sessions, sql_execution_log, audit_log (read-only).\`
+      }
+    }]
+  })
+});`,
+
+  powerful_query_cookbook: `useWebMCPPrompt({
+  name: 'powerful_query_cookbook',
+  description: 'What are some powerful queries I can run?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Cookbook of powerful SQL queries with explanations.
+Stale entities, relationship density, token budget by category,
+orphan entities, audit trail, confidence distribution.\`
+      }
+    }]
+  })
+});`,
+
+  help_write_complex_query: `useWebMCPPrompt({
+  name: 'help_write_complex_query',
+  description: 'Help me write a complex query',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Interactive query building session.
+Ask what to find, identify tables/joins, build incrementally,
+run and verify, explain the complete query.\`
+      }
+    }]
+  })
+});`,
+
+  sql_security_model: `useWebMCPPrompt({
+  name: 'sql_security_model',
+  description: 'How does the SQL tool protect against misuse?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain SQL security model.
+Safety layers, demonstrate blocked operations,
+what's allowed (and logged), trust model, auditability.\`
+      }
+    }]
+  })
+});`,
+
+  // === MEMORY BLOCK PROMPTS (useMCPMemoryBlockPrompts.ts) ===
+  explain_memory_blocks: `useWebMCPPrompt({
+  name: 'explain_memory_blocks',
+  description: 'What are memory blocks and how do I use them?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Explain "always-in-context" memory blocks.
+Core concept, 4 block types, contrast with entities,
+show current blocks and token costs, priority and inclusion.\`
+      }
+    }]
+  })
+});`,
+
+  setup_core_memories: `useWebMCPPrompt({
+  name: 'setup_core_memories',
+  description: 'Help me set up my core memories',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Interactive setup of each memory block type.
+user_profile, agent_persona, current_goals, context.
+Show tool calls, display token impact, explain importance.\`
+      }
+    }]
+  })
+});`,
+
+  blocks_vs_entities: `useWebMCPPrompt({
+  name: 'blocks_vs_entities',
+  description: "What's the difference between blocks and entities?",
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Side-by-side comparison of blocks vs entities.
+Always-present vs on-demand, limited vs unlimited,
+identity vs knowledge. Analogy: name badge vs filing cabinet.\`
+      }
+    }]
+  })
+});`,
+
+  optimize_block_tokens: `useWebMCPPrompt({
+  name: 'optimize_block_tokens',
+  description: 'Optimize my memory block token usage',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Analyze and optimize block token usage.
+Total usage, per-block breakdown, optimization opportunities,
+recommendations, explain why block tokens are expensive.\`
+      }
+    }]
+  })
+});`,
+
+  // === SQL LOG PROMPTS (useMCPSQLLogPrompts.ts) ===
+  learn_from_query_history: `useWebMCPPrompt({
+  name: 'learn_from_query_history',
+  description: 'What can I learn from my query history?',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Analyze SQL query history for insights.
+Query frequency, type distribution, common patterns,
+error analysis, AI vs manual distinction, recommendations.\`
+      }
+    }]
+  })
+});`,
+
+  query_patterns_statistics: `useWebMCPPrompt({
+  name: 'query_patterns_statistics',
+  description: 'Show me query patterns and statistics',
+  get: () => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text: \`Detailed statistics view of SQL execution.
+Aggregate by type, success/failure rates, most-queried tables,
+time-based patterns, error categorization. SQL Usage Dashboard.\`
+      }
+    }]
+  })
+});`,
+}
+
+const PROMPTS_DEMONSTRATED = [
+  {
+    category: 'Global (All Pages)',
+    icon: Sparkles,
+    color: 'purple',
+    prompts: [
+      { name: 'explain_webmcp_architecture', description: 'Explain the WebMCP architecture' },
+      { name: 'compare_to_other_agents', description: 'Compare to traditional AI agents' },
+      { name: 'webmcp_vision_for_web', description: 'What would WebMCP mean for the web?' },
+      { name: 'navigate_to_page_for_task', description: 'Help navigate to the right page' },
+      { name: 'complete_workflow_demo', description: 'Walk through a complete workflow' },
+      { name: 'explain_prompts_meta', description: 'How prompts work in WebMCP' },
+    ],
+  },
+  {
+    category: 'Landing Page',
+    icon: BookOpen,
+    color: 'blue',
+    prompts: [
+      { name: 'what_is_webmcp', description: 'What is WebMCP and how does it work?' },
+      { name: 'show_interaction_demo', description: 'Live demo of website interaction' },
+      { name: 'full_webmcp_demo', description: 'Comprehensive tour of all pages' },
+      { name: 'compare_to_screen_scraping', description: 'How is this different from scraping?' },
+    ],
+  },
+  {
+    category: 'Dashboard',
+    icon: Brain,
+    color: 'pink',
+    prompts: [
+      { name: 'explain_dashboard_capabilities', description: 'What you can see and do' },
+      { name: 'setup_memory_system', description: 'Set up a memory system' },
+      { name: 'real_agent_use_case', description: 'Real AI agent use cases' },
+      { name: 'analyze_knowledge_distribution', description: 'Analyze knowledge distribution' },
+    ],
+  },
+  {
+    category: 'Entities',
+    icon: Database,
+    color: 'green',
+    prompts: [
+      { name: 'entity_page_capabilities', description: 'What can I do on this page?' },
+      { name: 'organize_knowledge', description: 'Help organize my knowledge' },
+      { name: 'explain_entity_types', description: 'Difference between entity types' },
+      { name: 'power_user_workflow', description: 'Power-user workflow' },
+      { name: 'find_entities_needing_attention', description: 'Find entities needing attention' },
+    ],
+  },
+  {
+    category: 'Entity Detail',
+    icon: Brain,
+    color: 'amber',
+    prompts: [
+      { name: 'entity_full_details', description: 'Everything about this entity' },
+      { name: 'entity_connection_analysis', description: 'How it connects to other knowledge' },
+      { name: 'explain_relationships', description: 'What can I do with relationships?' },
+    ],
+  },
+  {
+    category: 'Knowledge Graph',
+    icon: Network,
+    color: 'purple',
+    prompts: [
+      { name: 'graph_visualization_capabilities', description: 'Visualization capabilities' },
+      { name: 'interactive_graph_tour', description: 'Interactive tour of the graph' },
+      { name: 'analyze_graph_structure', description: 'Analyze graph structure' },
+      { name: 'build_better_graph', description: 'How to build a better graph' },
+      { name: 'show_important_knowledge', description: 'Show important knowledge' },
+    ],
+  },
+  {
+    category: 'SQL REPL',
+    icon: Terminal,
+    color: 'blue',
+    prompts: [
+      { name: 'sql_power_explanation', description: 'Power of direct SQL access' },
+      { name: 'teach_database_schema', description: 'Teach the database schema' },
+      { name: 'powerful_query_cookbook', description: 'Powerful query cookbook' },
+      { name: 'help_write_complex_query', description: 'Help write a complex query' },
+      { name: 'sql_security_model', description: 'SQL security model' },
+    ],
+  },
+  {
+    category: 'Memory Blocks',
+    icon: Brain,
+    color: 'pink',
+    prompts: [
+      { name: 'explain_memory_blocks', description: 'What are memory blocks?' },
+      { name: 'setup_core_memories', description: 'Set up core memories' },
+      { name: 'blocks_vs_entities', description: 'Blocks vs entities difference' },
+      { name: 'optimize_block_tokens', description: 'Optimize block token usage' },
+    ],
+  },
+  {
+    category: 'SQL Execution Log',
+    icon: Terminal,
+    color: 'amber',
+    prompts: [
+      { name: 'learn_from_query_history', description: 'Learn from query history' },
+      { name: 'query_patterns_statistics', description: 'Query patterns and statistics' },
+    ],
+  },
+]
+
 const TOOLS_DEMONSTRATED = [
   {
     category: 'Navigation',
@@ -593,13 +1320,76 @@ function CodeModal({
   )
 }
 
+// Prompt item with expandable code (similar to ToolItem)
+function PromptItem({
+  prompt,
+  color,
+  isExpanded,
+  onToggle
+}: {
+  prompt: { name: string; description: string }
+  color: string
+  isExpanded: boolean
+  onToggle: () => void
+}) {
+  const hasCode = PROMPT_CODE[prompt.name]
+  const colors = COLOR_CLASSES[color]
+
+  return (
+    <div className="border-b border-border/50 last:border-0">
+      <button
+        onClick={hasCode ? onToggle : undefined}
+        className={`w-full flex items-start gap-1.5 md:gap-2 text-xs md:text-sm p-2 rounded transition-colors text-left ${
+          hasCode ? 'hover:bg-muted/50 cursor-pointer active:bg-muted/70' : 'cursor-default'
+        }`}
+      >
+        {hasCode ? (
+          <motion.div
+            animate={{ rotate: isExpanded ? 90 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="mt-0.5 flex-shrink-0"
+          >
+            <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
+          </motion.div>
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground/30 mt-0.5 flex-shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          <code className={`text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded font-mono ${colors.badge}`}>
+            {prompt.name}
+          </code>
+          <span className="text-muted-foreground ml-1 md:ml-2 text-[11px] md:text-sm">{prompt.description}</span>
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && hasCode && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mx-1.5 md:mx-2 mb-2 rounded-lg bg-zinc-950 border border-zinc-800 overflow-x-auto">
+              <HighlightedCode code={PROMPT_CODE[prompt.name]} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 function HomePage() {
   // Register MCP prompts for this page
   useMCPGlobalPrompts()
   useMCPLandingPrompts()
 
   const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set())
+  const [expandedPrompts, setExpandedPrompts] = useState<Set<string>>(new Set())
   const [modalTool, setModalTool] = useState<string | null>(null)
+  const [activeView, setActiveView] = useState<'tools' | 'prompts'>('tools')
 
   const toggleTool = (toolName: string) => {
     setExpandedTools(prev => {
@@ -608,6 +1398,18 @@ function HomePage() {
         next.delete(toolName)
       } else {
         next.add(toolName)
+      }
+      return next
+    })
+  }
+
+  const togglePrompt = (promptName: string) => {
+    setExpandedPrompts(prev => {
+      const next = new Set(prev)
+      if (next.has(promptName)) {
+        next.delete(promptName)
+      } else {
+        next.add(promptName)
       }
       return next
     })
@@ -761,6 +1563,76 @@ function HomePage() {
         </Container>
       </section>
 
+      {/* WebMCP Client - The In-Page Agent */}
+      <section className="py-8 md:py-12 border-b border-border bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5">
+        <Container className="px-4 md:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Plug className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-lg md:text-xl font-semibold">The In-Page Agent</h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              <div className="space-y-3 md:space-y-4 text-sm md:text-base text-muted-foreground">
+                <p>
+                  The floating pill you see at the bottom of the page is the <strong className="text-foreground">embedded agent</strong> —
+                  a custom element (<code className="text-xs bg-muted px-1.5 py-0.5 rounded">&lt;webmcp-agent&gt;</code>) that serves as the AI's interface to this website. It's the <em>consumer</em> of WebMCP tools.
+                </p>
+                <p>
+                  To add it to your website:
+                </p>
+                <div className="space-y-2 pl-4 border-l-2 border-primary/30">
+                  <p>
+                    <strong className="text-foreground">1. Import packages:</strong> Import <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@mcp-b/global</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@mcp-b/embedded-agent/web-component</code> in your entry file.
+                  </p>
+                  <p>
+                    <strong className="text-foreground">2. Add custom element:</strong> Place <code className="text-xs bg-muted px-1.5 py-0.5 rounded">&lt;webmcp-agent&gt;</code> in your HTML with your app-id and API endpoint.
+                  </p>
+                </div>
+                <p>
+                  Your React components use <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCP</code> and{' '}
+                  <code className="text-xs bg-muted px-1.5 py-0.5 rounded">useWebMCPPrompt</code> hooks from <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@mcp-b/react-webmcp</code> to <em>produce</em> tools
+                  and prompts that the agent can discover and invoke.
+                </p>
+              </div>
+              <Card className="bg-zinc-950 border-zinc-800 overflow-hidden">
+                <CardContent className="p-0 overflow-x-auto">
+                  <HighlightedCode code={`// main.tsx - Initialize WebMCP
+import '@mcp-b/global';
+import '@mcp-b/embedded-agent/web-component';
+
+// index.html - Add the agent custom element
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <webmcp-agent
+    app-id="your-app-id"
+    api-base="https://your-api-endpoint"
+    view-mode="pill"
+  />
+</body>
+
+// Components produce tools (website is the producer)
+import { useWebMCP, useWebMCPPrompt } from '@mcp-b/react-webmcp';
+
+useWebMCP({ name: 'my_tool', handler: ... });
+useWebMCPPrompt({ name: 'my_prompt', get: () => ... });
+
+// Agent consumes tools (AI is the consumer)
+// Agent ←→ Tools/Prompts ←→ Your React Components`} />
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        </Container>
+      </section>
+
       {/* What is WebMCP */}
       <section className="py-8 md:py-12 border-b border-border">
         <Container className="px-4 md:px-6">
@@ -810,7 +1682,7 @@ useWebMCP({
         </Container>
       </section>
 
-      {/* Tools Demonstrated */}
+      {/* Tools & Prompts Demonstrated */}
       <section className="py-8 md:py-12 border-b border-border bg-muted/20">
         <Container className="px-4 md:px-6">
           <motion.div
@@ -819,49 +1691,145 @@ useWebMCP({
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center justify-between mb-4 md:mb-6 gap-2">
-              <h2 className="text-lg md:text-xl font-semibold">Tools Demonstrated</h2>
-              <Badge variant="outline" className="text-[10px] md:text-xs whitespace-nowrap">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-3">
+              <div className="flex items-center gap-3">
+                {/* Toggle between Tools and Prompts */}
+                <div className="inline-flex rounded-lg bg-muted p-1">
+                  <button
+                    onClick={() => setActiveView('tools')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      activeView === 'tools'
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Code2 className="h-4 w-4" />
+                    <span>Tools</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveView('prompts')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      activeView === 'prompts'
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Prompts</span>
+                  </button>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-[10px] md:text-xs whitespace-nowrap self-start sm:self-auto">
                 Tap to view code
               </Badge>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-              {TOOLS_DEMONSTRATED.map((category, idx) => {
-                const colors = COLOR_CLASSES[category.color]
-                return (
-                  <motion.div
-                    key={category.category}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: idx * 0.1 }}
-                  >
-                    <Card className={`${colors.card} hover:shadow-lg transition-all duration-300`}>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-base">
-                          <div className={`h-10 w-10 rounded-lg ${colors.icon} flex items-center justify-center`}>
-                            <category.icon className="h-5 w-5" />
-                          </div>
-                          {category.category}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        {category.tools.map((tool) => (
-                          <ToolItem
-                            key={tool.name}
-                            tool={tool}
-                            color={category.color}
-                            isExpanded={expandedTools.has(tool.name)}
-                            onToggle={() => toggleTool(tool.name)}
-                          />
-                        ))}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )
-              })}
-            </div>
+            {/* Description based on active view */}
+            <p className="text-sm text-muted-foreground mb-4">
+              {activeView === 'tools' ? (
+                <>
+                  <strong className="text-foreground">Tools</strong> are functions that AI agents can invoke to perform actions on the website.
+                  Each tool has a name, description, input schema, and handler.
+                </>
+              ) : (
+                <>
+                  <strong className="text-foreground">Prompts</strong> are pre-defined conversation starters that guide the AI agent through specific workflows.
+                  They provide context and instructions for multi-step interactions.
+                </>
+              )}
+            </p>
+
+            <AnimatePresence mode="wait">
+              {activeView === 'tools' ? (
+                <motion.div
+                  key="tools"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid md:grid-cols-2 gap-4 md:gap-6"
+                >
+                  {TOOLS_DEMONSTRATED.map((category, idx) => {
+                    const colors = COLOR_CLASSES[category.color]
+                    return (
+                      <motion.div
+                        key={category.category}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: idx * 0.1 }}
+                      >
+                        <Card className={`${colors.card} hover:shadow-lg transition-all duration-300`}>
+                          <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-3 text-base">
+                              <div className={`h-10 w-10 rounded-lg ${colors.icon} flex items-center justify-center`}>
+                                <category.icon className="h-5 w-5" />
+                              </div>
+                              {category.category}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            {category.tools.map((tool) => (
+                              <ToolItem
+                                key={tool.name}
+                                tool={tool}
+                                color={category.color}
+                                isExpanded={expandedTools.has(tool.name)}
+                                onToggle={() => toggleTool(tool.name)}
+                              />
+                            ))}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    )
+                  })}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="prompts"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid md:grid-cols-2 gap-4 md:gap-6"
+                >
+                  {PROMPTS_DEMONSTRATED.map((category, idx) => {
+                    const colors = COLOR_CLASSES[category.color]
+                    return (
+                      <motion.div
+                        key={category.category}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: idx * 0.1 }}
+                      >
+                        <Card className={`${colors.card} hover:shadow-lg transition-all duration-300`}>
+                          <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-3 text-base">
+                              <div className={`h-10 w-10 rounded-lg ${colors.icon} flex items-center justify-center`}>
+                                <category.icon className="h-5 w-5" />
+                              </div>
+                              {category.category}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            {category.prompts.map((prompt) => (
+                              <PromptItem
+                                key={prompt.name}
+                                prompt={prompt}
+                                color={category.color}
+                                isExpanded={expandedPrompts.has(prompt.name)}
+                                onToggle={() => togglePrompt(prompt.name)}
+                              />
+                            ))}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    )
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </Container>
       </section>
