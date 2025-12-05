@@ -1,6 +1,5 @@
 import { common, createStarryNight } from '@wooorm/starry-night'
 import { toHtml } from 'hast-util-to-html'
-import type { Root } from 'hast'
 import { format } from 'sql-formatter'
 import { formatSQLWithPrettier } from './prettier-formatter'
 
@@ -86,15 +85,6 @@ export async function highlightCode(code: string, language?: string): Promise<st
     console.error('Error highlighting code:', error)
     return `<pre><code>${escapeHtml(code)}</code></pre>`
   }
-}
-
-/**
- * Get hast tree for use with React (via hast-util-to-jsx-runtime)
- */
-export async function highlightToTree(code: string, language: string = 'sql'): Promise<Root> {
-  const starryNight = await getStarryNight()
-  const scope = starryNight.flagToScope(language) || 'source.sql'
-  return starryNight.highlight(code, scope)
 }
 
 /**
