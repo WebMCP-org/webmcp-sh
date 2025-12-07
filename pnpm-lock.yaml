@@ -50,18 +50,36 @@ importers:
       '@makisuo/pglite-drizzle':
         specifier: npm:@jsr/makisuo__pglite-drizzle@^0.0.14
         version: '@jsr/makisuo__pglite-drizzle@0.0.14(@cloudflare/workers-types@4.20251128.0)(@opentelemetry/api@1.9.0)(@types/react@19.2.2)(react@19.2.0)'
+      '@mcp-b/chrome-devtools-mcp':
+        specifier: 1.0.3-beta.1
+        version: 1.0.3-beta.1
       '@mcp-b/embedded-agent':
         specifier: 0.0.8-beta.0
         version: 0.0.8-beta.0(@cfworker/json-schema@4.1.1)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
+      '@mcp-b/extension-tools':
+        specifier: 0.2.4-beta.3
+        version: 0.2.4-beta.3(@cfworker/json-schema@4.1.1)
       '@mcp-b/global':
-        specifier: 1.1.3-beta.3
-        version: 1.1.3-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+        specifier: 1.1.3-beta.4
+        version: 1.1.3-beta.4(@cfworker/json-schema@4.1.1)(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/mcp-iframe':
+        specifier: 0.1.0-beta.3
+        version: 0.1.0-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
       '@mcp-b/react-webmcp':
-        specifier: 0.1.6-beta.3
-        version: 0.1.6-beta.3(react@19.2.0)(zod@3.25.76)
+        specifier: 0.1.6-beta.4
+        version: 0.1.6-beta.4(@cfworker/json-schema@4.1.1)(react@19.2.0)(zod@3.25.76)
+      '@mcp-b/smart-dom-reader':
+        specifier: 1.0.3-beta.3
+        version: 1.0.3-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/smart-dom-reader-server':
+        specifier: 0.1.1-beta.1
+        version: 0.1.1-beta.1(@cfworker/json-schema@4.1.1)
       '@mcp-b/transports':
-        specifier: 1.1.2-beta.3
-        version: 1.1.2-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+        specifier: 1.1.2-beta.4
+        version: 1.1.2-beta.4(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/webmcp-ts-sdk':
+        specifier: 1.0.2-beta.3
+        version: 1.0.2-beta.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       '@modelcontextprotocol/sdk':
         specifier: ^1.23.0
         version: 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
@@ -314,6 +332,9 @@ importers:
       three-stdlib:
         specifier: ^2.36.0
         version: 2.36.0(three@0.180.0)
+      usewebmcp:
+        specifier: 0.1.6-beta.4
+        version: 0.1.6-beta.4(@cfworker/json-schema@4.1.1)(react@19.2.0)(zod@3.25.76)
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2047,42 +2068,74 @@ packages:
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
+  '@mcp-b/chrome-devtools-mcp@1.0.3-beta.1':
+    resolution: {integrity: sha512-dbSaQpOlJoFfkQ5v/a9z1nzLIGLTU1bjfonrESvgafPP4Cm4megIQt73BfgAex4d3d+NdPODG/+JvKO++r6/iw==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=23}
+    hasBin: true
+
   '@mcp-b/embedded-agent@0.0.8-beta.0':
     resolution: {integrity: sha512-ReST03+cjIx6kJkcWVSWRZf2JiDW1jg8wYbTjUA+q+SnbEc6FLMZqTWWJnoARoM4+o0P4Q8pXvWJtO6+Qi9JUw==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
 
-  '@mcp-b/global@1.1.3-beta.3':
-    resolution: {integrity: sha512-bqiccWsnVciyMOFuGJ9P/wb5ED980XbrjqIjFhc9lR9RlYSuFXER7AeY3qj2osdlPPQpPyiGd/RV2CkcJ5zR5Q==}
+  '@mcp-b/extension-tools@0.2.4-beta.3':
+    resolution: {integrity: sha512-V8ypdSul8XjDAYphSxlUDw7ViGNdlAHY+wVYpcvw4PkmZ5O7HmhArD1pq47Kop/wEDc2tmXJT/x0RTxfXoYevw==}
+
+  '@mcp-b/global@1.1.3-beta.4':
+    resolution: {integrity: sha512-LHm05qpNT1OtrQKhutxBjAlsqNwoBbgQmTA5D/cy/9Ew/cPTRASCJcSN2xCu/hO/I5/wa0ZNmrTsBunzbrCIPA==}
     engines: {node: '>=18'}
 
-  '@mcp-b/react-webmcp@0.1.6-beta.3':
-    resolution: {integrity: sha512-l12Ofr+lJdZWYjQupusKXNxC0XsH/u8ycmLocqq92aW22Aqszp+jh6uvxB8HwN9drz3QKZ+hF2VECRkUIvvw0g==}
+  '@mcp-b/mcp-iframe@0.1.0-beta.3':
+    resolution: {integrity: sha512-mhrnYT3qOFiYJukH/+nSvqLtlVhZrZySjQXTDNpJYmvc5goo5r/VQir+kRgLz/Bys/3cUCIbbUdOCpR/1wDWmQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.15.0
+
+  '@mcp-b/react-webmcp@0.1.6-beta.4':
+    resolution: {integrity: sha512-7VVd8Scov02wZo1R4UJ3RtERep6vzlqvmsPBeJd0IaNukIBhYiLLRrpXtZrlRxEAjq+58oUYbHPtBUyJ7Wh+DA==}
     peerDependencies:
       react: ^19.1.0
       zod: 3.25.76
+
+  '@mcp-b/smart-dom-reader-server@0.1.1-beta.1':
+    resolution: {integrity: sha512-5H+7+U94oAMsv2W8eFPPHFUdP5kaN3T3Hg7h9/nwbwreIDXEemxH546324LoJXO5FCaJ5k7U0V9Vz70SlkBYRw==}
+    hasBin: true
+
+  '@mcp-b/smart-dom-reader@1.0.3-beta.3':
+    resolution: {integrity: sha512-H2tPirBCi3iIvDgEpTNI5VGSKtlcEnwNXxnao4SM+FeE6evBADLTMBaDKPnhgl0OkA/zcBgGS7grh+stZd9CmQ==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.15.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
 
   '@mcp-b/transports@1.1.2-beta.2':
     resolution: {integrity: sha512-X+behxSa6404u9Thq9IhxvdpzuR3g9d9k4Mxj81/ANF35nTi7igx+KtyXnhH0Z+l5qEBZJx+Fbsx/D0DlSaj4A==}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.15.0
 
-  '@mcp-b/transports@1.1.2-beta.3':
-    resolution: {integrity: sha512-iGv0C5Boiv/Mr9RVvHIE5GDTktN9Uhn+3qmpzsn4CFkIzOl7IEtBoSiKogWh9j3cw6shHZN+Rg66rlO1MkE0ew==}
+  '@mcp-b/transports@1.1.2-beta.4':
+    resolution: {integrity: sha512-NhNZJAfrF/1dv8j5RW1nPexgbmBhKQ2wA/zzZeM8Iet29vOnDTrXPiLCZX0KkIvcO8fGRpNZVahjd3zbdT9p/g==}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.15.0
 
-  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.2':
-    resolution: {integrity: sha512-oCoWMmzXxLjuCyC9EYpA8uq1OShhGOnX6Nf/8EOX/1XPQTwr/9emvseVCQ5phFno/Km8iaFryfbv2g3/HnnocQ==}
-    engines: {node: '>=18'}
-
-  '@modelcontextprotocol/sdk@1.15.0':
-    resolution: {integrity: sha512-67hnl/ROKdb03Vuu0YOr+baKTvf1/5YBHBm9KnZdjdAh8hjt4FRCPD5ucwxGB237sBpzlqQsLy1PFu7z/ekZ9Q==}
+  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.3':
+    resolution: {integrity: sha512-pGiKrhlBy/HEN5vqQp6pl7Zs8D3Y8bfHcIK5nOMGWxPqnzXCBsj4YK0zvnd53+NbzDoNpkktF5NUi3harpj0ug==}
     engines: {node: '>=18'}
 
   '@modelcontextprotocol/sdk@1.23.0':
     resolution: {integrity: sha512-MCGd4K9aZKvuSqdoBkdMvZNcYXCkZRYVs/Gh92mdV5IHbctX9H9uIvd4X93+9g8tBbXv08sxc/QHXTzf8y65bA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@cfworker/json-schema': ^4.1.1
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      '@cfworker/json-schema':
+        optional: true
+
+  '@modelcontextprotocol/sdk@1.24.3':
+    resolution: {integrity: sha512-YgSHW29fuzKKAHTGe9zjNoo+yF8KaQPzDC2W9Pv41E7/57IfY+AMGJ/aDFlgTLcVVELoggKE4syABCE75u3NCw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -5302,6 +5355,9 @@ packages:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
 
+  jose@6.1.3:
+    resolution: {integrity: sha512-0TpaTfihd4QMNwrz/ob2Bp7X04yuxJkjRGi4aKmOqwhov54i6u79oCv7T+C7lo70MKH6BesI3vscD1yb/yzKXQ==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -6845,6 +6901,12 @@ packages:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  usewebmcp@0.1.6-beta.4:
+    resolution: {integrity: sha512-OYMBt9Rh8xWML2JBm4WZZmeFtNCAWd9OjJhv3nlb+iiXu/nT1kvz51FsVnOL0WPs4xMuIkMlTd/RnPgmKAcmbA==}
+    peerDependencies:
+      react: ^19.1.0
+      zod: 3.25.76
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -8830,6 +8892,8 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
+  '@mcp-b/chrome-devtools-mcp@1.0.3-beta.1': {}
+
   '@mcp-b/embedded-agent@0.0.8-beta.0(@cfworker/json-schema@4.1.1)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))':
     dependencies:
       '@assistant-ui/react': 0.11.47(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
@@ -8870,76 +8934,97 @@ snapshots:
       - use-sync-external-store
       - utf-8-validate
 
-  '@mcp-b/global@1.1.3-beta.3(@modelcontextprotocol/sdk@1.15.0)':
+  '@mcp-b/extension-tools@0.2.4-beta.3(@cfworker/json-schema@4.1.1)':
     dependencies:
-      '@composio/json-schema-to-zod': 0.1.18(zod@3.25.76)
-      '@mcp-b/transports': 1.1.2-beta.3(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.2
+      '@mcp-b/smart-dom-reader': 1.0.3-beta.3(@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@modelcontextprotocol/sdk': 1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
       zod-to-json-schema: 3.25.0(zod@3.25.76)
     transitivePeerDependencies:
-      - '@modelcontextprotocol/sdk'
+      - '@cfworker/json-schema'
       - supports-color
 
-  '@mcp-b/global@1.1.3-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@mcp-b/global@1.1.3-beta.4(@cfworker/json-schema@4.1.1)(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       '@composio/json-schema-to-zod': 0.1.18(zod@3.25.76)
-      '@mcp-b/transports': 1.1.2-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.2
+      '@mcp-b/transports': 1.1.2-beta.4(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
       zod-to-json-schema: 3.25.0(zod@3.25.76)
     transitivePeerDependencies:
+      - '@cfworker/json-schema'
       - '@modelcontextprotocol/sdk'
       - supports-color
 
-  '@mcp-b/react-webmcp@0.1.6-beta.3(react@19.2.0)(zod@3.25.76)':
+  '@mcp-b/global@1.1.3-beta.4(@cfworker/json-schema@4.1.1)(@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
-      '@mcp-b/global': 1.1.3-beta.3(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/transports': 1.1.2-beta.3(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.2
-      '@modelcontextprotocol/sdk': 1.15.0
+      '@composio/json-schema-to-zod': 0.1.18(zod@3.25.76)
+      '@mcp-b/transports': 1.1.2-beta.4(@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.0(zod@3.25.76)
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - '@modelcontextprotocol/sdk'
+      - supports-color
+
+  '@mcp-b/mcp-iframe@0.1.0-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+    dependencies:
+      '@mcp-b/transports': 1.1.2-beta.4(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+
+  '@mcp-b/react-webmcp@0.1.6-beta.4(@cfworker/json-schema@4.1.1)(react@19.2.0)(zod@3.25.76)':
+    dependencies:
+      '@mcp-b/global': 1.1.3-beta.4(@cfworker/json-schema@4.1.1)(@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/transports': 1.1.2-beta.4(@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       react: 19.2.0
       zod: 3.25.76
     transitivePeerDependencies:
+      - '@cfworker/json-schema'
       - supports-color
+
+  '@mcp-b/smart-dom-reader-server@0.1.1-beta.1(@cfworker/json-schema@4.1.1)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      playwright: 1.56.1
+      tsx: 4.20.6
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - supports-color
+
+  '@mcp-b/smart-dom-reader@1.0.3-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+
+  '@mcp-b/smart-dom-reader@1.0.3-beta.3(@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
 
   '@mcp-b/transports@1.1.2-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
 
-  '@mcp-b/transports@1.1.2-beta.3(@modelcontextprotocol/sdk@1.15.0)':
-    dependencies:
-      '@modelcontextprotocol/sdk': 1.15.0
-      zod: 3.25.76
-
-  '@mcp-b/transports@1.1.2-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@mcp-b/transports@1.1.2-beta.4(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
 
-  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.2':
+  '@mcp-b/transports@1.1.2-beta.4(@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
-      '@modelcontextprotocol/sdk': 1.15.0
-    transitivePeerDependencies:
-      - supports-color
-
-  '@modelcontextprotocol/sdk@1.15.0':
-    dependencies:
-      ajv: 6.12.6
-      content-type: 1.0.5
-      cors: 2.8.5
-      cross-spawn: 7.0.6
-      eventsource: 3.0.7
-      eventsource-parser: 3.0.6
-      express: 5.1.0
-      express-rate-limit: 7.5.1(express@5.1.0)
-      pkce-challenge: 5.0.1
-      raw-body: 3.0.2
+      '@modelcontextprotocol/sdk': 1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
-      zod-to-json-schema: 3.25.0(zod@3.25.76)
+
+  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)
     transitivePeerDependencies:
+      - '@cfworker/json-schema'
       - supports-color
+      - zod
 
   '@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)':
     dependencies:
@@ -8952,6 +9037,27 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.1.0
       express-rate-limit: 7.5.1(express@5.1.0)
+      pkce-challenge: 5.0.1
+      raw-body: 3.0.2
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.0(zod@3.25.76)
+    optionalDependencies:
+      '@cfworker/json-schema': 4.1.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@modelcontextprotocol/sdk@1.24.3(@cfworker/json-schema@4.1.1)(zod@3.25.76)':
+    dependencies:
+      ajv: 8.17.1
+      ajv-formats: 3.0.1(ajv@8.17.1)
+      content-type: 1.0.5
+      cors: 2.8.5
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.0.6
+      express: 5.1.0
+      express-rate-limit: 7.5.1(express@5.1.0)
+      jose: 6.1.3
       pkce-challenge: 5.0.1
       raw-body: 3.0.2
       zod: 3.25.76
@@ -12347,6 +12453,8 @@ snapshots:
 
   jiti@2.6.1: {}
 
+  jose@6.1.3: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@4.1.0:
@@ -14238,6 +14346,15 @@ snapshots:
   use-sync-external-store@1.6.0(react@19.2.0):
     dependencies:
       react: 19.2.0
+
+  usewebmcp@0.1.6-beta.4(@cfworker/json-schema@4.1.1)(react@19.2.0)(zod@3.25.76):
+    dependencies:
+      '@mcp-b/react-webmcp': 0.1.6-beta.4(@cfworker/json-schema@4.1.1)(react@19.2.0)(zod@3.25.76)
+      react: 19.2.0
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - supports-color
 
   util-deprecate@1.0.2: {}
 
