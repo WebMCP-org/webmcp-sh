@@ -54,14 +54,14 @@ importers:
         specifier: 0.0.8-beta.0
         version: 0.0.8-beta.0(@cfworker/json-schema@4.1.1)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(assistant-cloud@0.1.9)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
       '@mcp-b/global':
-        specifier: 1.1.3-beta.2
-        version: 1.1.3-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+        specifier: 1.1.3-beta.3
+        version: 1.1.3-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
       '@mcp-b/react-webmcp':
-        specifier: 0.1.6-beta.2
-        version: 0.1.6-beta.2(react@19.2.0)(zod@3.25.76)
+        specifier: 0.1.6-beta.3
+        version: 0.1.6-beta.3(react@19.2.0)(zod@3.25.76)
       '@mcp-b/transports':
-        specifier: 1.1.2-beta.2
-        version: 1.1.2-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+        specifier: 1.1.2-beta.3
+        version: 1.1.2-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
       '@modelcontextprotocol/sdk':
         specifier: ^1.23.0
         version: 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
@@ -2053,12 +2053,12 @@ packages:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
 
-  '@mcp-b/global@1.1.3-beta.2':
-    resolution: {integrity: sha512-W1fk6t/C1I6F9g4wiJBC8vrwwXPD4zoqCHpll46zpsH8+YpjhmWKxvtNns4WvhCYTp/XHTnWeqP+FTWc6Cqh1Q==}
+  '@mcp-b/global@1.1.3-beta.3':
+    resolution: {integrity: sha512-bqiccWsnVciyMOFuGJ9P/wb5ED980XbrjqIjFhc9lR9RlYSuFXER7AeY3qj2osdlPPQpPyiGd/RV2CkcJ5zR5Q==}
     engines: {node: '>=18'}
 
-  '@mcp-b/react-webmcp@0.1.6-beta.2':
-    resolution: {integrity: sha512-Ggtinoj6LmJqK6H8WPeYoQ9oGdzEC980HkkepE0hC8e0mBC2W2jlr1Hvld0LyCyewGKjwzRjm35X+ndANpjuiA==}
+  '@mcp-b/react-webmcp@0.1.6-beta.3':
+    resolution: {integrity: sha512-l12Ofr+lJdZWYjQupusKXNxC0XsH/u8ycmLocqq92aW22Aqszp+jh6uvxB8HwN9drz3QKZ+hF2VECRkUIvvw0g==}
     peerDependencies:
       react: ^19.1.0
       zod: 3.25.76
@@ -2068,8 +2068,13 @@ packages:
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.15.0
 
-  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.1':
-    resolution: {integrity: sha512-WQrh0aXFyXjDB5CE2WxDy6sUsE+EpNHS0hlsYpV7NxlRKSPBIanMBEfYjgOtiVpUAnTgmpMBtAmCPs1ttmEpHA==}
+  '@mcp-b/transports@1.1.2-beta.3':
+    resolution: {integrity: sha512-iGv0C5Boiv/Mr9RVvHIE5GDTktN9Uhn+3qmpzsn4CFkIzOl7IEtBoSiKogWh9j3cw6shHZN+Rg66rlO1MkE0ew==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.15.0
+
+  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.2':
+    resolution: {integrity: sha512-oCoWMmzXxLjuCyC9EYpA8uq1OShhGOnX6Nf/8EOX/1XPQTwr/9emvseVCQ5phFno/Km8iaFryfbv2g3/HnnocQ==}
     engines: {node: '>=18'}
 
   '@modelcontextprotocol/sdk@1.15.0':
@@ -5044,10 +5049,6 @@ packages:
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
 
-  http-errors@2.0.0:
-    resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
-    engines: {node: '>= 0.8'}
-
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
     engines: {node: '>= 0.8'}
@@ -6050,10 +6051,6 @@ packages:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
 
-  raw-body@3.0.1:
-    resolution: {integrity: sha512-9G8cA+tuMS75+6G/TzW8OtLzmBDMo8p1JRxN5AZ+LAp8uxGA8V8GZm4GQ4/N5QNQEnLmg6SS7wyuSmbKepiKqA==}
-    engines: {node: '>= 0.10'}
-
   raw-body@3.0.2:
     resolution: {integrity: sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA==}
     engines: {node: '>= 0.10'}
@@ -6442,10 +6439,6 @@ packages:
   sql-formatter@15.6.10:
     resolution: {integrity: sha512-0bJOPQrRO/JkjQhiThVayq0hOKnI1tHI+2OTkmT7TGtc6kqS+V7kveeMzRW+RNQGxofmTmet9ILvztyuxv0cJQ==}
     hasBin: true
-
-  statuses@2.0.1:
-    resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
-    engines: {node: '>= 0.8'}
 
   statuses@2.0.2:
     resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
@@ -8877,50 +8870,55 @@ snapshots:
       - use-sync-external-store
       - utf-8-validate
 
-  '@mcp-b/global@1.1.3-beta.2(@modelcontextprotocol/sdk@1.15.0)':
+  '@mcp-b/global@1.1.3-beta.3(@modelcontextprotocol/sdk@1.15.0)':
     dependencies:
       '@composio/json-schema-to-zod': 0.1.18(zod@3.25.76)
-      '@mcp-b/transports': 1.1.2-beta.2(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.1
+      '@mcp-b/transports': 1.1.2-beta.3(@modelcontextprotocol/sdk@1.15.0)
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.2
       zod: 3.25.76
       zod-to-json-schema: 3.25.0(zod@3.25.76)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - supports-color
 
-  '@mcp-b/global@1.1.3-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@mcp-b/global@1.1.3-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       '@composio/json-schema-to-zod': 0.1.18(zod@3.25.76)
-      '@mcp-b/transports': 1.1.2-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.1
+      '@mcp-b/transports': 1.1.2-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.2
       zod: 3.25.76
       zod-to-json-schema: 3.25.0(zod@3.25.76)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - supports-color
 
-  '@mcp-b/react-webmcp@0.1.6-beta.2(react@19.2.0)(zod@3.25.76)':
+  '@mcp-b/react-webmcp@0.1.6-beta.3(react@19.2.0)(zod@3.25.76)':
     dependencies:
-      '@mcp-b/global': 1.1.3-beta.2(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/transports': 1.1.2-beta.2(@modelcontextprotocol/sdk@1.15.0)
-      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.1
+      '@mcp-b/global': 1.1.3-beta.3(@modelcontextprotocol/sdk@1.15.0)
+      '@mcp-b/transports': 1.1.2-beta.3(@modelcontextprotocol/sdk@1.15.0)
+      '@mcp-b/webmcp-ts-sdk': 1.0.2-beta.2
       '@modelcontextprotocol/sdk': 1.15.0
       react: 19.2.0
       zod: 3.25.76
     transitivePeerDependencies:
       - supports-color
 
-  '@mcp-b/transports@1.1.2-beta.2(@modelcontextprotocol/sdk@1.15.0)':
-    dependencies:
-      '@modelcontextprotocol/sdk': 1.15.0
-      zod: 3.25.76
-
   '@mcp-b/transports@1.1.2-beta.2(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       zod: 3.25.76
 
-  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.1':
+  '@mcp-b/transports@1.1.2-beta.3(@modelcontextprotocol/sdk@1.15.0)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.15.0
+      zod: 3.25.76
+
+  '@mcp-b/transports@1.1.2-beta.3(@modelcontextprotocol/sdk@1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.23.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      zod: 3.25.76
+
+  '@mcp-b/webmcp-ts-sdk@1.0.2-beta.2':
     dependencies:
       '@modelcontextprotocol/sdk': 1.15.0
     transitivePeerDependencies:
@@ -11009,11 +11007,11 @@ snapshots:
       bytes: 3.1.2
       content-type: 1.0.5
       debug: 4.4.3
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       iconv-lite: 0.6.3
       on-finished: 2.4.1
       qs: 6.14.0
-      raw-body: 3.0.1
+      raw-body: 3.0.2
       type-is: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -11771,7 +11769,7 @@ snapshots:
       etag: 1.8.1
       finalhandler: 2.1.0
       fresh: 2.0.0
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       merge-descriptors: 2.0.0
       mime-types: 3.0.1
       on-finished: 2.4.1
@@ -12113,14 +12111,6 @@ snapshots:
   html-url-attributes@3.0.1: {}
 
   html-void-elements@3.0.0: {}
-
-  http-errors@2.0.0:
-    dependencies:
-      depd: 2.0.0
-      inherits: 2.0.4
-      setprototypeof: 1.2.0
-      statuses: 2.0.1
-      toidentifier: 1.0.1
 
   http-errors@2.0.1:
     dependencies:
@@ -13238,13 +13228,6 @@ snapshots:
 
   range-parser@1.2.1: {}
 
-  raw-body@3.0.1:
-    dependencies:
-      bytes: 3.1.2
-      http-errors: 2.0.0
-      iconv-lite: 0.7.0
-      unpipe: 1.0.0
-
   raw-body@3.0.2:
     dependencies:
       bytes: 3.1.2
@@ -13597,7 +13580,7 @@ snapshots:
       escape-html: 1.0.3
       etag: 1.8.1
       fresh: 2.0.0
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       mime-types: 3.0.1
       ms: 2.1.3
       on-finished: 2.4.1
@@ -13789,8 +13772,6 @@ snapshots:
     dependencies:
       argparse: 2.0.1
       nearley: 2.20.1
-
-  statuses@2.0.1: {}
 
   statuses@2.0.2: {}
 
