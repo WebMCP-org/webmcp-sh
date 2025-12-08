@@ -265,7 +265,6 @@ The tool will navigate the user to the specified route and return a confirmation
         throw new Error(`Navigation failed: ${errorMessage}`);
       }
     },
-    formatOutput: (output) => output,
   });
 
   // Current context tool

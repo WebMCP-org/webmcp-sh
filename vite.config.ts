@@ -103,14 +103,66 @@ export default defineConfig({
         clientsClaim: true,
         skipWaiting: true,
         cleanupOutdatedCaches: true,
-        // Only cache WASM and data files (PGLite) - let JS/CSS/HTML come fresh from network
-        globPatterns: ['**/*.{wasm,data}'],
-        navigateFallback: undefined,
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB
-        runtimeCaching: []
+        // Cache ALL static assets for full offline support
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2,wasm,data}'],
+        // SPA navigation fallback - required for client-side routing to work offline
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [
+          /^\/api\//,                   // Don't intercept API routes
+          /^\/manifest\.webmanifest$/   // Let manifest load normally
+        ],
+        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15 MB for large WASM
+        // Runtime caching for external resources
+        runtimeCaching: [
+          {
+            // Cache Prettier from unpkg.com for offline SQL formatting
+            urlPattern: /^https:\/\/unpkg\.com\/prettier.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'prettier-cdn-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cache Google Fonts
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            // Cache CDN assets with stale-while-revalidate
+            urlPattern: /^https:\/\/cdn\./,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'cdn-assets',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
       },
       devOptions: {
-        enabled: false
+        enabled: true,
       }
     }),
     // Sentry plugin for source map uploads (only active when SENTRY_AUTH_TOKEN is set)

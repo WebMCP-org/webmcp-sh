@@ -489,6 +489,5 @@ SAFETY:
         throw new Error(`SQL Error: ${errorMessage}\n\nQuery: ${query}`);
       }
     },
-    formatOutput: (output) => output,
   });
 }

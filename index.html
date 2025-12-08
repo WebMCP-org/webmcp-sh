@@ -31,10 +31,10 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- Prettier Standalone -->
-    <script src="https://unpkg.com/prettier@3.3.3/standalone.js"></script>
-    <script src="https://unpkg.com/prettier@3.3.3/plugins/babel.js"></script>
-    <script src="https://unpkg.com/prettier@3.3.3/plugins/estree.js"></script>
+    <!-- Prettier Standalone (crossorigin for service worker caching) -->
+    <script src="https://unpkg.com/prettier@3.3.3/standalone.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/prettier@3.3.3/plugins/babel.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/prettier@3.3.3/plugins/estree.js" crossorigin="anonymous"></script>
   </head>
 
   <body>
