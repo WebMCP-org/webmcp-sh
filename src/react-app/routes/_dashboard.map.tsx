@@ -217,7 +217,7 @@ function MapComponent() {
             <span className="truncate">US Population Map</span>
           </h1>
           <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
-            Exploratory map where you drive the theming of US population data. You can choose the classification method, color scheme, and more.
+            Exploratory map where you control the theming of US population data. You can choose the classification method, color scheme, and more.
           </p>
         </div>
       </div>
