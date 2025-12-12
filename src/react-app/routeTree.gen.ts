@@ -16,6 +16,7 @@ import { Route as DashboardSqlReplRouteImport } from './routes/_dashboard.sql-re
 import { Route as DashboardSqlExecutionLogRouteImport } from './routes/_dashboard.sql-execution-log'
 import { Route as DashboardShowcaseRouteImport } from './routes/_dashboard.showcase'
 import { Route as DashboardMemoryBlocksRouteImport } from './routes/_dashboard.memory-blocks'
+import { Route as DashboardMapRouteImport } from './routes/_dashboard.map'
 import { Route as DashboardGraphRouteImport } from './routes/_dashboard.graph'
 import { Route as DashboardEntitiesRouteImport } from './routes/_dashboard.entities'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
@@ -56,6 +57,11 @@ const DashboardMemoryBlocksRoute = DashboardMemoryBlocksRouteImport.update({
   path: '/memory-blocks',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardMapRoute = DashboardMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardGraphRoute = DashboardGraphRouteImport.update({
   id: '/graph',
   path: '/graph',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardDashboardRoute
   '/entities': typeof DashboardEntitiesRouteWithChildren
   '/graph': typeof DashboardGraphRoute
+  '/map': typeof DashboardMapRoute
   '/memory-blocks': typeof DashboardMemoryBlocksRoute
   '/showcase': typeof DashboardShowcaseRoute
   '/sql-execution-log': typeof DashboardSqlExecutionLogRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardDashboardRoute
   '/entities': typeof DashboardEntitiesRouteWithChildren
   '/graph': typeof DashboardGraphRoute
+  '/map': typeof DashboardMapRoute
   '/memory-blocks': typeof DashboardMemoryBlocksRoute
   '/showcase': typeof DashboardShowcaseRoute
   '/sql-execution-log': typeof DashboardSqlExecutionLogRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_dashboard/entities': typeof DashboardEntitiesRouteWithChildren
   '/_dashboard/graph': typeof DashboardGraphRoute
+  '/_dashboard/map': typeof DashboardMapRoute
   '/_dashboard/memory-blocks': typeof DashboardMemoryBlocksRoute
   '/_dashboard/showcase': typeof DashboardShowcaseRoute
   '/_dashboard/sql-execution-log': typeof DashboardSqlExecutionLogRoute
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/entities'
     | '/graph'
+    | '/map'
     | '/memory-blocks'
     | '/showcase'
     | '/sql-execution-log'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/entities'
     | '/graph'
+    | '/map'
     | '/memory-blocks'
     | '/showcase'
     | '/sql-execution-log'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/_dashboard/dashboard'
     | '/_dashboard/entities'
     | '/_dashboard/graph'
+    | '/_dashboard/map'
     | '/_dashboard/memory-blocks'
     | '/_dashboard/showcase'
     | '/_dashboard/sql-execution-log'
@@ -219,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMemoryBlocksRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/map': {
+      id: '/_dashboard/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof DashboardMapRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/graph': {
       id: '/_dashboard/graph'
       path: '/graph'
@@ -273,6 +292,7 @@ interface DashboardRouteChildren {
   DashboardDashboardRoute: typeof DashboardDashboardRoute
   DashboardEntitiesRoute: typeof DashboardEntitiesRouteWithChildren
   DashboardGraphRoute: typeof DashboardGraphRoute
+  DashboardMapRoute: typeof DashboardMapRoute
   DashboardMemoryBlocksRoute: typeof DashboardMemoryBlocksRoute
   DashboardShowcaseRoute: typeof DashboardShowcaseRoute
   DashboardSqlExecutionLogRoute: typeof DashboardSqlExecutionLogRoute
@@ -284,6 +304,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDashboardRoute: DashboardDashboardRoute,
   DashboardEntitiesRoute: DashboardEntitiesRouteWithChildren,
   DashboardGraphRoute: DashboardGraphRoute,
+  DashboardMapRoute: DashboardMapRoute,
   DashboardMemoryBlocksRoute: DashboardMemoryBlocksRoute,
   DashboardShowcaseRoute: DashboardShowcaseRoute,
   DashboardSqlExecutionLogRoute: DashboardSqlExecutionLogRoute,

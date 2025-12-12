@@ -21,3 +21,4 @@ export { useMCPMemoryBlockPrompts } from './useMCPMemoryBlockPrompts';
 export { useMCPGraphPrompts } from './useMCPGraphPrompts';
 export { useMCPSQLPrompts } from './useMCPSQLPrompts';
 export { useMCPSQLLogPrompts } from './useMCPSQLLogPrompts';
+export { useMCPMapPrompts } from "./useMCPMapPrompts";
