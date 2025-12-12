@@ -197,8 +197,6 @@ function MapComponent() {
 
   // Register suggested prompts for map control
   useMCPMapPrompts()
-  
-
   if (!statesData) {
     return (
       <div className="flex items-center justify-center h-full">
