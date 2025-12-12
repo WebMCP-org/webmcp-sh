@@ -17,6 +17,7 @@ import {
   IconMail,
   IconExternalLink,
   IconDots,
+  IconMap,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -63,6 +64,11 @@ const data = {
       title: "Graph",
       url: "/graph",
       icon: IconNetwork,
+    },
+    {
+      title: "Map",
+      url: "/map",
+      icon: IconMap,
     },
     {
       title: "SQL REPL",
