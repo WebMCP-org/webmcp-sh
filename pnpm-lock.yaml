@@ -366,6 +366,9 @@ importers:
       '@types/dagre':
         specifier: ^0.7.53
         version: 0.7.53
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4

@@ -8,6 +8,8 @@ import { MapIcon } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import { useMCPMapTools } from "@/hooks/useMCPMapTools";
 import { useMCPMapPrompts } from "@/hooks/prompts";
+import type { Layer } from "leaflet";
+import type { Feature, Geometry } from "geojson";
 
 export const Route = createFileRoute("/_dashboard/map")({
   component: MapComponent,
@@ -22,7 +24,7 @@ interface StateProperties {
 
 interface StateFeature {
   type: string;
-  id: string;
+  id?: string | number;
   properties: StateProperties;
   geometry: {
     type: string;
@@ -154,17 +156,19 @@ function MapComponent() {
     return labels;
   }, [statesData, selectedData, selectedClassification, currentColors]);
 
-  const onEachFeature = (feature: StateFeature, layer: any) => {
-    layer.bindPopup(`
-      <div class="font-sans">
-        <b class="text-base">${feature.properties.name}</b><br/>
-        <span class="text-sm">Population: ${feature.properties.population.toLocaleString()}</span><br/>
-        <span class="text-sm">Area (sqkm): ${feature.properties.area_sqkm.toLocaleString()}</span><br/>
-        <span class="text-sm">Density: ${feature.properties.density.toFixed(
-          2
-        )}</span>
-      </div>
-    `);
+  const onEachFeature = (feature: Feature<Geometry, StateProperties>, layer: Layer) => {
+    if (feature.properties) {
+      layer.bindPopup(`
+        <div class="font-sans">
+          <b class="text-base">${feature.properties.name}</b><br/>
+          <span class="text-sm">Population: ${feature.properties.population.toLocaleString()}</span><br/>
+          <span class="text-sm">Area (sqkm): ${feature.properties.area_sqkm.toLocaleString()}</span><br/>
+          <span class="text-sm">Density: ${feature.properties.density.toFixed(
+            2
+          )}</span>
+        </div>
+      `);
+    }
   };
 
   const capitalize = (str: string) => {
