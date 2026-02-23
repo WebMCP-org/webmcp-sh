@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Link, useRouterState } from "@tanstack/react-router"
+import { useCallback } from "react"
 import {
   IconBrain,
   IconChartPie,
@@ -91,11 +92,11 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const routerState = useRouterState()
-  const currentPath = routerState.location.pathname
+  // Only subscribe to pathname — avoids re-renders on search/hash changes (rerender-derived-state)
+  const currentPath = useRouterState({ select: (s) => s.location.pathname })
   const { theme, setTheme } = useTheme()
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     if (theme === "light") {
       setTheme("dark")
     } else if (theme === "dark") {
@@ -103,13 +104,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     } else {
       setTheme("light")
     }
-  }
+  }, [theme, setTheme])
 
-  const getThemeLabel = () => {
-    if (theme === "light") return "Light"
-    if (theme === "dark") return "Dark"
-    return "System"
-  }
+  const themeLabel = theme === "light" ? "Light" : theme === "dark" ? "Dark" : "System"
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -197,7 +194,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   ) : (
                     <IconSun className="h-4 w-4" />
                   )}
-                  <span>{getThemeLabel()}</span>
+                  <span>{themeLabel}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

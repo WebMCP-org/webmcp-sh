@@ -11,7 +11,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { InfoTooltip } from '@/components/ui/info-tooltip'
 import { tooltips } from '@/lib/tooltip-content'
 import type { AuditLog } from '@/lib/db/types'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { highlightCode } from '@/lib/syntax-highlight'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -97,38 +97,46 @@ function DashboardHome() {
   const tierTokensData = tierTokensResult?.rows ?? [];
   const blockTypeTokensData = blockTypeTokensResult?.rows ?? [];
 
-  // Calculate total tokens from all sources (handle null/undefined/NaN)
-  const totalEntityTokens = categoryTokensData.reduce((sum, item) => {
-    const tokens = Number(item.total_tokens);
-    return sum + (isNaN(tokens) ? 0 : tokens);
-  }, 0);
-  const totalBlockTokens = blockTypeTokensData.reduce((sum, item) => {
-    const tokens = Number(item.total_tokens);
-    return sum + (isNaN(tokens) ? 0 : tokens);
-  }, 0);
-  const totalTokens = totalEntityTokens + totalBlockTokens;
+  // Calculate total tokens (memoized — two .reduce() calls)
+  const totalTokens = useMemo(() => {
+    const entityTokens = categoryTokensData.reduce((sum, item) => {
+      const tokens = Number(item.total_tokens);
+      return sum + (isNaN(tokens) ? 0 : tokens);
+    }, 0);
+    const blockTokens = blockTypeTokensData.reduce((sum, item) => {
+      const tokens = Number(item.total_tokens);
+      return sum + (isNaN(tokens) ? 0 : tokens);
+    }, 0);
+    return entityTokens + blockTokens;
+  }, [categoryTokensData, blockTypeTokensData]);
 
-  // Prepare chart data (using token counts as the primary value, filter out NaN/zero values)
-  const categoryChartData = categoryTokensData
-    .map((item, idx) => ({
-      name: item.category.charAt(0).toUpperCase() + item.category.slice(1),
-      value: Number(item.total_tokens) || 0,
-      count: Number(item.count) || 0,
-      color: ENTITY_COLORS[idx % ENTITY_COLORS.length]
-    }))
-    .filter(item => item.value > 0);
+  // Prepare chart data (memoized to avoid recomputation on unrelated re-renders)
+  const categoryChartData = useMemo(() =>
+    categoryTokensData
+      .map((item, idx) => ({
+        name: item.category.charAt(0).toUpperCase() + item.category.slice(1),
+        value: Number(item.total_tokens) || 0,
+        count: Number(item.count) || 0,
+        color: ENTITY_COLORS[idx % ENTITY_COLORS.length]
+      }))
+      .filter(item => item.value > 0),
+    [categoryTokensData]
+  );
 
-  const tierChartData = tierTokensData
-    .map((item, idx) => ({
-      name: item.memory_tier.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-      value: Number(item.total_tokens) || 0,
-      count: Number(item.count) || 0,
-      color: TIER_COLORS[idx % TIER_COLORS.length]
-    }))
-    .filter(item => item.value > 0);
+  const tierChartData = useMemo(() =>
+    tierTokensData
+      .map((item, idx) => ({
+        name: item.memory_tier.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+        value: Number(item.total_tokens) || 0,
+        count: Number(item.count) || 0,
+        color: TIER_COLORS[idx % TIER_COLORS.length]
+      }))
+      .filter(item => item.value > 0),
+    [tierTokensData]
+  );
 
-  // MCP Tools configuration for Memory Blocks
-  const memoryBlocksMcpConfig: MCPToolsConfig<memory_blocks.GetAllMemoryBlocksResult> = {
+  // MCP Tools configuration for Memory Blocks (memoized to prevent DataTable re-renders)
+  const memoryBlocksMcpConfig: MCPToolsConfig<memory_blocks.GetAllMemoryBlocksResult> = useMemo(() => ({
     tableName: 'memory_blocks',
     tableDescription: 'Always-in-context memory blocks that are core to the AI system',
     selectedItem: selectedBlock,
@@ -161,10 +169,10 @@ function DashboardHome() {
         }
       },
     }
-  }
+  }), [selectedBlock]);
 
-  // MCP Tools configuration for Entities
-  const entitiesMcpConfig: MCPToolsConfig<memory_entities.GetAllMemoryEntitiesResult> = {
+  // MCP Tools configuration for Entities (memoized)
+  const entitiesMcpConfig: MCPToolsConfig<memory_entities.GetAllMemoryEntitiesResult> = useMemo(() => ({
     tableName: 'entities',
     tableDescription: 'Structured knowledge entities (facts, preferences, skills, people, projects, goals)',
     selectedItem: selectedEntity,
@@ -173,7 +181,7 @@ function DashboardHome() {
     getItemId: (item: memory_entities.GetAllMemoryEntitiesResult) => item.id,
     getItemDisplayName: (item: memory_entities.GetAllMemoryEntitiesResult) => `${item.name} (${item.category})`,
     customActions: {}
-  }
+  }), [selectedEntity]);
 
   // Load initial audit logs and check if we need to load more to fill the container
   useEffect(() => {
@@ -191,38 +199,50 @@ function DashboardHome() {
   }, []);
 
   // Highlight JSON data for audit logs
+  // Use functional setState to avoid highlightedJson in dependency array (prevents re-run loop)
   useEffect(() => {
+    if (auditLogs.length === 0) return;
+
     const highlightAuditLogJson = async () => {
       for (const log of auditLogs) {
-        if (!highlightedJson[log.id]) {
-          const highlighted: { old?: string; new?: string } = {};
-          if (log.old_data) {
-            try {
-              const oldJson = JSON.stringify(log.old_data, null, 2);
-              highlighted.old = await highlightCode(oldJson, 'json');
-            } catch { /* ignore */ }
-          }
-          if (log.new_data) {
-            try {
-              const newJson = JSON.stringify(log.new_data, null, 2);
-              highlighted.new = await highlightCode(newJson, 'json');
-            } catch { /* ignore */ }
-          }
-          if (highlighted.old || highlighted.new) {
-            setHighlightedJson(prev => ({ ...prev, [log.id]: highlighted }));
-          }
+        // Use functional update to check existing state without subscribing to it
+        let alreadyHighlighted = false;
+        setHighlightedJson(prev => {
+          if (prev[log.id]) alreadyHighlighted = true;
+          return prev;
+        });
+        if (alreadyHighlighted) continue;
+
+        const highlighted: { old?: string; new?: string } = {};
+        if (log.old_data) {
+          try {
+            const oldJson = JSON.stringify(log.old_data, null, 2);
+            highlighted.old = await highlightCode(oldJson, 'json');
+          } catch { /* ignore */ }
+        }
+        if (log.new_data) {
+          try {
+            const newJson = JSON.stringify(log.new_data, null, 2);
+            highlighted.new = await highlightCode(newJson, 'json');
+          } catch { /* ignore */ }
+        }
+        if (highlighted.old || highlighted.new) {
+          setHighlightedJson(prev => ({ ...prev, [log.id]: highlighted }));
         }
       }
     };
-    if (auditLogs.length > 0) {
-      highlightAuditLogJson();
-    }
-  }, [auditLogs, highlightedJson]);
+    highlightAuditLogJson();
+  }, [auditLogs]);
 
-  // Function to load more audit logs
+  // Use refs for loading/hasMore to stabilize callback identity (rerender-functional-setstate)
+  const isLoadingRef = useRef(false);
+  const hasMoreRef = useRef(true);
+
+  // Function to load more audit logs (stable identity — no state in deps)
   const loadMoreAuditLogs = useCallback(async () => {
-    if (isLoading || !hasMore) return;
+    if (isLoadingRef.current || !hasMoreRef.current) return;
     const currentOffset = offsetRef.current;
+    isLoadingRef.current = true;
     setIsLoading(true);
     try {
       const tableCheck = await db.query<{ exists: boolean }>(`
@@ -232,7 +252,9 @@ function DashboardHome() {
         ) as exists;
       `);
       if (!tableCheck.rows[0]?.exists) {
+        hasMoreRef.current = false;
         setHasMore(false);
+        isLoadingRef.current = false;
         setIsLoading(false);
         return;
       }
@@ -243,27 +265,38 @@ function DashboardHome() {
       const newLogs = result.rows;
       setAuditLogs(prev => [...prev, ...newLogs]);
       offsetRef.current = currentOffset + newLogs.length;
-      if (newLogs.length < PAGE_SIZE) setHasMore(false);
+      if (newLogs.length < PAGE_SIZE) {
+        hasMoreRef.current = false;
+        setHasMore(false);
+      }
     } catch {
+      hasMoreRef.current = false;
       setHasMore(false);
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
     }
-  }, [db, isLoading, hasMore, PAGE_SIZE]);
+  }, [db]);
 
-  // Handle scroll for infinite loading
+  // Handle scroll for infinite loading (stable identity)
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const distanceFromBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
-    if (distanceFromBottom < 200 && !isLoading && hasMore) {
+    if (distanceFromBottom < 200 && !isLoadingRef.current && hasMoreRef.current) {
       loadMoreAuditLogs();
     }
-  }, [isLoading, hasMore, loadMoreAuditLogs]);
+  }, [loadMoreAuditLogs]);
 
-  // Count by operation type
-  const insertCount = auditLogs.filter(e => e.operation === 'INSERT').length;
-  const updateCount = auditLogs.filter(e => e.operation === 'UPDATE').length;
-  const deleteCount = auditLogs.filter(e => e.operation === 'DELETE').length;
+  // Count by operation type (single pass instead of 3 separate .filter() calls)
+  const { insertCount, updateCount, deleteCount } = useMemo(() => {
+    let insert = 0, update = 0, del = 0;
+    for (const e of auditLogs) {
+      if (e.operation === 'INSERT') insert++;
+      else if (e.operation === 'UPDATE') update++;
+      else if (e.operation === 'DELETE') del++;
+    }
+    return { insertCount: insert, updateCount: update, deleteCount: del };
+  }, [auditLogs]);
 
   return (
     <TooltipProvider>

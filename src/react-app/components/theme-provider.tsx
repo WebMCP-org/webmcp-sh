@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 
 type Theme = "dark" | "light" | "system";
 
@@ -50,13 +50,19 @@ export function ThemeProvider({
     root.classList.add(theme);
   }, [theme]);
 
-  const value = {
+  // Stable callback — never changes identity (rerender-functional-setstate)
+  const handleSetTheme = useCallback((newTheme: Theme) => {
+    localStorage.setItem(storageKey, newTheme);
+    setTheme(newTheme);
+  }, [storageKey]);
+
+  // Memoized context value — only changes when theme actually changes
+  // Without this, every ThemeProvider render creates a new object,
+  // forcing ALL useTheme() consumers in the entire app to re-render
+  const value = useMemo(() => ({
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
-    },
-  };
+    setTheme: handleSetTheme,
+  }), [theme, handleSetTheme]);
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>

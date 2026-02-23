@@ -1,9 +1,8 @@
-import '@mcp-b/global';
-import '@mcp-b/embedded-agent/web-component';
 import * as Sentry from '@sentry/react';
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./index.css";
+import "@mcp-b/global"
 import { seedDatabase } from "./lib/db/seed";
 import { waitForDb } from "./lib/db/database";
 import { ErrorBoundary } from "./components/ErrorBoundary";

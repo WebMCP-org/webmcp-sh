@@ -9,6 +9,14 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 
 export default defineConfig({
+  css: {
+    devSourcemap: false,
+  },
+  server: {
+    // Suppress noisy sourcemap warnings from third-party packages (e.g. @modelcontextprotocol/sdk)
+    // that ship sourcemaps referencing source files not included in the npm bundle.
+    sourcemapIgnoreList: (sourcePath) => sourcePath.includes('node_modules'),
+  },
   plugins: [
     tanstackRouter({
       target: 'react',
@@ -162,7 +170,7 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
       }
     }),
     // Sentry plugin for source map uploads (only active when SENTRY_AUTH_TOKEN is set)
@@ -182,7 +190,9 @@ export default defineConfig({
     },
   },
     optimizeDeps: {
-    exclude: ['@electric-sql/pglite'],
+    exclude: [
+      '@electric-sql/pglite',
+    ],
   },
   build: {
     target: 'esnext',

@@ -107,6 +107,15 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
     .getAllColumns()
     .filter((column) => column.getCanGroup())
 
+  // Stable setPagination wrapper (avoids new function identity each render)
+  const stablePagination = table.getState().pagination;
+  const stableSetPagination = React.useCallback((updater: React.SetStateAction<typeof stablePagination>) => {
+    const newPagination = typeof updater === 'function'
+      ? updater(table.getState().pagination)
+      : updater;
+    table.setPagination(newPagination);
+  }, [table]);
+
   // Register MCP Table Tools (hook can handle undefined)
   useMCPTableTools({
     ...mcpTools,
@@ -120,13 +129,8 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
     setGlobalFilter,
     columnVisibility,
     setColumnVisibility,
-    pagination: table.getState().pagination,
-    setPagination: (updater) => {
-      const newPagination = typeof updater === 'function'
-        ? updater(table.getState().pagination)
-        : updater;
-      table.setPagination(newPagination);
-    },
+    pagination: stablePagination,
+    setPagination: stableSetPagination,
   })
 
   return (

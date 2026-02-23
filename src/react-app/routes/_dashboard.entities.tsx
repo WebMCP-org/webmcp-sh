@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Database, Plus, Lightbulb, Heart, Code, AlertCircle, User, FolderOpen, Target, BookOpen, type LucideIcon } from 'lucide-react'
 import { useLiveQuery } from '@electric-sql/pglite-react'
 import { memory_entities } from '@/lib/db'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { MemoryEntityForm } from '@/components/forms/memory-entity-form'
@@ -55,14 +55,17 @@ function EntitiesComponent() {
   const entities = entitiesResult?.rows ?? []
   const categoryCounts = categoryCountsResult?.rows ?? []
 
-  const filteredEntities = selectedCategory === 'all'
-    ? entities
-    : entities.filter((entity) => entity.category === selectedCategory)
+  const filteredEntities = useMemo(() =>
+    selectedCategory === 'all'
+      ? entities
+      : entities.filter((entity) => entity.category === selectedCategory),
+    [entities, selectedCategory]
+  );
 
   const totalCount = entities.length
 
-  // MCP Tools configuration to pass to the DataTable
-  const mcpToolsConfig: MCPToolsConfig<memory_entities.GetAllMemoryEntitiesResult> = {
+  // MCP Tools configuration (memoized to prevent DataTable re-renders)
+  const mcpToolsConfig: MCPToolsConfig<memory_entities.GetAllMemoryEntitiesResult> = useMemo(() => ({
     tableName: 'entities',
     tableDescription: 'Structured knowledge entities (facts, preferences, skills, people, projects, goals)',
     selectedItem: selectedEntity,
@@ -123,7 +126,7 @@ function EntitiesComponent() {
         }
       }
     }
-  }
+  }), [selectedEntity, router]);
 
   return (
     <TooltipProvider>

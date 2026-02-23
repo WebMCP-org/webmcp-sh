@@ -84,3 +84,4 @@ temp/
 # Backup files
 *.backup
 *.bak
+.claude

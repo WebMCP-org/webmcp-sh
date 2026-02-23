@@ -7,15 +7,16 @@ export const Route = createFileRoute('/_dashboard')({
   component: DashboardLayout,
 })
 
+// Hoisted to module scope — avoids new object on every render (rendering-hoist-jsx)
+const sidebarStyle = {
+  "--sidebar-width": "calc(var(--spacing) * 72)",
+  "--header-height": "calc(var(--spacing) * 12)",
+} as React.CSSProperties
+
 function DashboardLayout() {
   return (
     <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
+      style={sidebarStyle}
     >
       <AppSidebar variant="inset" />
       <SidebarInset>

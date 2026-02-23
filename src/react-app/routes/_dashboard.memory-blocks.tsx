@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Brain, Plus } from 'lucide-react'
 import { useLiveQuery } from '@electric-sql/pglite-react'
 import { memory_blocks } from '@/lib/db'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { MemoryBlockForm } from '@/components/forms/memory-block-form'
@@ -36,8 +36,8 @@ function MemoryBlocksComponent() {
   const blocksResult = useLiveQuery<memory_blocks.GetAllMemoryBlocksResult>(blocksQuery.sql, blocksQuery.params)
   const blocks = blocksResult?.rows ?? []
 
-  // MCP Tools configuration to pass to the DataTable
-  const mcpToolsConfig: MCPToolsConfig<memory_blocks.GetAllMemoryBlocksResult> = {
+  // MCP Tools configuration (memoized to prevent DataTable re-renders)
+  const mcpToolsConfig: MCPToolsConfig<memory_blocks.GetAllMemoryBlocksResult> = useMemo(() => ({
     tableName: 'memory_blocks',
     tableDescription: 'Always-in-context memory blocks that are core to the AI system',
     selectedItem: selectedBlock,
@@ -84,7 +84,7 @@ function MemoryBlocksComponent() {
         }
       }
     }
-  }
+  }), [selectedBlock]);
 
   return (
     <TooltipProvider>

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import * as d3 from "d3";
 import { jenks } from "simple-statistics";
@@ -41,6 +41,15 @@ type DataField = "population" | "area_sqkm" | "density";
 type ClassificationMethod = "equalInterval" | "quantile" | "naturalBreaks";
 type SchemeType = "sequential" | "diverging" | "qualitative";
 
+// Hoisted to module scope — no component state needed (rendering-hoist-jsx)
+const capitalize = (str: string) =>
+  str.charAt(0).toUpperCase() + str.slice(1);
+
+const getDataLabel = (data: DataField) => {
+  if (data === "area_sqkm") return "Area (sqkm)";
+  return capitalize(data);
+};
+
 function MapComponent() {
   const [statesData, setStatesData] = useState<StatesData | null>(null);
   const [selectedData, setSelectedData] = useState<DataField>("population");
@@ -73,7 +82,7 @@ function MapComponent() {
     return colorSchemes[selectedType].schemes;
   }, [selectedType]);
 
-  const getFeatureStyle = (feature: StateFeature) => {
+  const getFeatureStyle = useCallback((feature: StateFeature) => {
     if (!statesData) return {};
 
     const value = feature.properties[selectedData];
@@ -113,7 +122,7 @@ function MapComponent() {
       color: "#666",
       fillOpacity: 0.7,
     };
-  };
+  }, [statesData, selectedData, selectedClassification, currentColors]);
 
   const legendLabels = useMemo(() => {
     if (!statesData) return [];
@@ -156,7 +165,7 @@ function MapComponent() {
     return labels;
   }, [statesData, selectedData, selectedClassification, currentColors]);
 
-  const onEachFeature = (feature: Feature<Geometry, StateProperties>, layer: Layer) => {
+  const onEachFeature = useCallback((feature: Feature<Geometry, StateProperties>, layer: Layer) => {
     if (feature.properties) {
       layer.bindPopup(`
         <div class="font-sans">
@@ -169,16 +178,7 @@ function MapComponent() {
         </div>
       `);
     }
-  };
-
-  const capitalize = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
-
-  const getDataLabel = (data: DataField) => {
-    if (data === "area_sqkm") return "Area (sqkm)";
-    return capitalize(data);
-  };
+  }, []);
 
   // Register MCP tools for map control
   useMCPMapTools({

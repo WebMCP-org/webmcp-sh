@@ -31,6 +31,12 @@ const nodeTypes = {
   entity: EntityNode as React.ComponentType<NodeProps>,
 };
 
+// Hoisted to module scope to avoid re-creation on every render (rendering-hoist-jsx)
+const defaultEdgeOptions = {
+  type: 'smoothstep',
+  markerEnd: { type: 'arrowclosed' as const, width: 20, height: 20 },
+};
+
 /**
  * Wrapper component for the graph page
  */
@@ -52,10 +58,7 @@ function ReactFlow2D({ nodes, edges }: { nodes: Node[], edges: Edge[] }) {
       fitView
       minZoom={0.1}
       maxZoom={2}
-      defaultEdgeOptions={{
-        type: 'smoothstep',
-        markerEnd: { type: 'arrowclosed', width: 20, height: 20 },
-      }}
+      defaultEdgeOptions={defaultEdgeOptions}
       nodesDraggable={true}
       nodesConnectable={false}
       elementsSelectable={true}
