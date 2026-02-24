@@ -24,7 +24,7 @@
 
 ## What is WebMCP?
 
-[WebMCP](https://docs.mcp-b.ai) is a **W3C web standard** currently being incubated by the Web Machine Learning Community Group. It enables websites to expose AI-callable tools through the browser's `navigator.modelContext` API, allowing AI agents to interact with web applications directly.
+[WebMCP](https://docs.mcp-b.ai) is a **draft proposal** currently being incubated by the W3C Web Machine Learning Community Group. It enables websites to expose AI-callable tools through the browser's `navigator.modelContext` API, allowing AI agents to interact with web applications directly.
 
 **WebMCP.sh** is a development playground demonstrating these capabilities with an in-browser PostgreSQL database (PGlite).
 
