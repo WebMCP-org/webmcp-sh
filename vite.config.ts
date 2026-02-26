@@ -113,6 +113,8 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         // Cache ALL static assets for full offline support
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2,wasm,data}'],
+        // Exclude relay bridge files — these must always be fresh from the server
+        globIgnores: ['**/webmcp-relay/**'],
         // SPA navigation fallback - required for client-side routing to work offline
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [
