@@ -37,10 +37,10 @@ importers:
         version: '@jsr/makisuo__pglite-drizzle@0.0.14(@cloudflare/workers-types@4.20251128.0)(@opentelemetry/api@1.9.0)(@types/react@19.2.2)(react@19.2.0)'
       '@mcp-b/global':
         specifier: ^2.2.0
-        version: 2.2.0(zod@3.25.76)
+        version: 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       '@mcp-b/react-webmcp':
         specifier: ^2.2.0
-        version: 2.2.0(react@19.2.0)(zod@3.25.76)
+        version: 2.2.0(react@19.2.0)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -209,6 +209,9 @@ importers:
       zod:
         specifier: 3.25.76
         version: 3.25.76
+      zod-to-json-schema:
+        specifier: ^3.25.1
+        version: 3.25.1(zod@3.25.76)
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: ^1.15.3
@@ -5635,6 +5638,11 @@ packages:
   youch@4.1.0-beta.10:
     resolution: {integrity: sha512-rLfVLB4FgQneDr0dv1oddCVZmKjcJ6yX6mS4pU82Mq/Dt9a3cLZQ62pDBL4AUO+uVrCvtWz3ZFUL2HFAFJ/BXQ==}
 
+  zod-to-json-schema@3.25.1:
+    resolution: {integrity: sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==}
+    peerDependencies:
+      zod: ^3.25 || ^4
+
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
@@ -7088,30 +7096,31 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@mcp-b/global@2.2.0(zod@3.25.76)':
+  '@mcp-b/global@2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/transports': 2.2.0
+      '@mcp-b/transports': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))
       '@mcp-b/webmcp-polyfill': 2.2.0
-      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod@3.25.76)
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       '@mcp-b/webmcp-types': 2.2.0
     transitivePeerDependencies:
       - zod
       - zod-to-json-schema
 
-  '@mcp-b/react-webmcp@2.2.0(react@19.2.0)(zod@3.25.76)':
+  '@mcp-b/react-webmcp@2.2.0(react@19.2.0)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/global': 2.2.0(zod@3.25.76)
-      '@mcp-b/transports': 2.2.0
+      '@mcp-b/global': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/transports': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))
       '@mcp-b/webmcp-polyfill': 2.2.0
-      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod@3.25.76)
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       '@mcp-b/webmcp-types': 2.2.0
       react: 19.2.0
     optionalDependencies:
       zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
 
-  '@mcp-b/transports@2.2.0':
+  '@mcp-b/transports@2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))':
     dependencies:
-      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod@3.25.76)
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       zod: 3.25.76
     transitivePeerDependencies:
       - zod-to-json-schema
@@ -7122,12 +7131,13 @@ snapshots:
       '@mcp-b/webmcp-types': 2.2.0
       '@standard-schema/spec': 1.1.0
 
-  '@mcp-b/webmcp-ts-sdk@2.2.0(zod@3.25.76)':
+  '@mcp-b/webmcp-ts-sdk@2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
     dependencies:
       '@mcp-b/webmcp-polyfill': 2.2.0
       '@mcp-b/webmcp-types': 2.2.0
     optionalDependencies:
       zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
 
   '@mcp-b/webmcp-types@2.2.0': {}
 
@@ -11220,6 +11230,10 @@ snapshots:
       '@speed-highlight/core': 1.2.12
       cookie: 1.1.1
       youch-core: 0.3.3
+
+  zod-to-json-schema@3.25.1(zod@3.25.76):
+    dependencies:
+      zod: 3.25.76
 
   zod@3.22.3: {}
 

@@ -85,7 +85,8 @@
     "three": "^0.180.0",
     "workbox-build": "^7.4.0",
     "workbox-window": "^7.4.0",
-    "zod": "3.25.76"
+    "zod": "3.25.76",
+    "zod-to-json-schema": "^3.25.1"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.15.3",
