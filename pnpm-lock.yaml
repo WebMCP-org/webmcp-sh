@@ -36,11 +36,11 @@ importers:
         specifier: npm:@jsr/makisuo__pglite-drizzle@^0.0.14
         version: '@jsr/makisuo__pglite-drizzle@0.0.14(@cloudflare/workers-types@4.20251128.0)(@opentelemetry/api@1.9.0)(@types/react@19.2.2)(react@19.2.0)'
       '@mcp-b/global':
-        specifier: 1.6.0
-        version: 1.6.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
+        specifier: ^2.2.0
+        version: 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       '@mcp-b/react-webmcp':
-        specifier: 1.6.0
-        version: 1.6.0(react@19.2.0)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
+        specifier: ^2.2.0
+        version: 2.2.0(react@19.2.0)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -209,6 +209,9 @@ importers:
       zod:
         specifier: 3.25.76
         version: 3.25.76
+      zod-to-json-schema:
+        specifier: ^3.25.1
+        version: 3.25.1(zod@3.25.76)
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: ^1.15.3
@@ -937,11 +940,11 @@ packages:
   '@codemirror/autocomplete@6.19.0':
     resolution: {integrity: sha512-61Hfv3cF07XvUxNeC3E7jhG8XNi1Yom1G0lRC936oLnlF+jrbrv8rc/J98XlYzcsAoTVupfsf5fLej1aI8kyIg==}
 
-  '@codemirror/autocomplete@6.20.0':
-    resolution: {integrity: sha512-bOwvTOIJcG5FVo5gUUupiwYh8MioPLQ4UcqbcRf7UQ98X90tCa9E1kZ3Z7tqwpZxYyOvh1YTYbmZE9RTfTp5hg==}
+  '@codemirror/autocomplete@6.20.1':
+    resolution: {integrity: sha512-1cvg3Vz1dSSToCNlJfRA2WSI4ht3K+WplO0UMOgmUYPivCyy2oueZY6Lx7M9wThm7SDUBViRmuT+OG/i8+ON9A==}
 
-  '@codemirror/commands@6.10.0':
-    resolution: {integrity: sha512-2xUIc5mHXQzT16JnyOFkh8PvfeXuIut3pslWGfsGOhxP/lpgRm9HOl/mpzLErgt5mXDovqA0d11P21gofRLb9w==}
+  '@codemirror/commands@6.10.2':
+    resolution: {integrity: sha512-vvX1fsih9HledO1c9zdotZYUZnE4xV0m6i3m25s5DIfXofuprk6cRcLUZvSk3CASUbwjQX21tOGbkY2BH8TpnQ==}
 
   '@codemirror/commands@6.9.0':
     resolution: {integrity: sha512-454TVgjhO6cMufsyyGN70rGIfJxJEjcqjBG2x2Y03Y/+Fm99d3O/Kv1QDYWuG6hvxsgmjXmBuATikIIYvERX+w==}
@@ -951,6 +954,9 @@ packages:
 
   '@codemirror/language@6.11.3':
     resolution: {integrity: sha512-9HBM2XnwDj7fnu0551HkGdrUrrqmYq/WC5iv6nbY2WdicXdGbhR/gfbZOH73Aqj4351alY1+aoG9rCNfiwS1RA==}
+
+  '@codemirror/language@6.12.2':
+    resolution: {integrity: sha512-jEPmz2nGGDxhRTg3lTpzmIyGKxz3Gp3SJES4b0nAuE5SWQoKdT5GoQ69cwMmFd+wvFUhYirtDTr0/DRHpQAyWg==}
 
   '@codemirror/lint@6.9.0':
     resolution: {integrity: sha512-wZxW+9XDytH3SKvS8cQzMyQCaaazH8XL1EMHleHe00wVzsv7NBQKVW2yzEHrRhmM7ZOhVdItPbvlRBvMp9ej7A==}
@@ -967,8 +973,8 @@ packages:
   '@codemirror/view@6.38.4':
     resolution: {integrity: sha512-hduz0suCcUSC/kM8Fq3A9iLwInJDl8fD1xLpTIk+5xkNm8z/FT7UsIa9sOXrkpChh+XXc18RzswE8QqELsVl+g==}
 
-  '@codemirror/view@6.38.8':
-    resolution: {integrity: sha512-XcE9fcnkHCbWkjeKyi0lllwXmBLtyYb5dt89dJyx23I9+LSh5vZDIuk7OLG4VM1lgrXZQcY6cxyZyk5WVPRv/A==}
+  '@codemirror/view@6.39.16':
+    resolution: {integrity: sha512-m6S22fFpKtOWhq8HuhzsI1WzUP/hB9THbDj0Tl5KX4gbO6Y91hwBl7Yky33NdvB6IffuRFiBxf1R8kJMyXmA4Q==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -1688,8 +1694,8 @@ packages:
   '@lezer/common@1.2.3':
     resolution: {integrity: sha512-w7ojc8ejBqr2REPsWxJjrMFsA/ysDCFICn8zEOR9mrqzOu2amhITYuLD8ag6XZf0CFXDrhKqw7+tW8cX66NaDA==}
 
-  '@lezer/common@1.4.0':
-    resolution: {integrity: sha512-DVeMRoGrgn/k45oQNu189BoW4SZwgZFzJ1+1TV5j2NJ/KFC83oa/enRqZSGshyeMk5cPWMhsKs9nx+8o0unwGg==}
+  '@lezer/common@1.5.1':
+    resolution: {integrity: sha512-6YRVG9vBkaY7p1IVxL4s44n5nUnaNnGM2/AckNgYOnxTG2kWh1vR8BMxPseWPjRNpb5VtXnMpeYAEAADoRV1Iw==}
 
   '@lezer/highlight@1.2.1':
     resolution: {integrity: sha512-Z5duk4RN/3zuVO7Jq0pGLJ3qynpxUVsh7IbUbGj88+uV2ApSAn6kWg2au3iJb+0Zi7kKtqffIESgNcRXWZWmSA==}
@@ -1700,15 +1706,18 @@ packages:
   '@lezer/lr@1.4.2':
     resolution: {integrity: sha512-pu0K1jCIdnQ12aWNaAVU5bzi7Bd1w54J3ECgANPmYLtQKP0HBj2cE/5coBD66MT10xbtIuUr7tg0Shbsvk0mDA==}
 
+  '@lezer/lr@1.4.8':
+    resolution: {integrity: sha512-bPWa0Pgx69ylNlMlPvBPryqeLYQjyJjqPx+Aupm5zydLIF3NE+6MMLT8Yi23Bd9cif9VS00aUebn+6fDIGBcDA==}
+
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
-  '@mcp-b/global@1.6.0':
-    resolution: {integrity: sha512-+prHOY61VB7cfH0yqS+x9zjASmjPxU/f5E7MYt46S53fuJz97BlIS1zL6FxMh7oQauvObrjW3L2l1bg3S6nIbA==}
+  '@mcp-b/global@2.2.0':
+    resolution: {integrity: sha512-3+FNuVXPGyhzYsVPL5UItMkTF+GD6E3iHEmuJY0yydjjpWtlqrUw7b7PLhyuymKcc1+jTMunyrr3Zps0uPEfiw==}
     engines: {node: '>=18'}
 
-  '@mcp-b/react-webmcp@1.6.0':
-    resolution: {integrity: sha512-D4/1ueDYnLJ8qzmtpbbVBsv1RvNrRCA2xLdc8bMMDyTwEsPJQ24DcB2PZv6cAKHAL1Z0S7Nb2FyGhaIEXJ5xyQ==}
+  '@mcp-b/react-webmcp@2.2.0':
+    resolution: {integrity: sha512-D2k/ZMGWfEd2pt4yBp2CgdAahBXRwcafFikSO6aSa2gc1CiPEL0A2aGMm0qEGF3REC5lY0yvybWWZJcqfdiPSg==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       zod: ^3.25 || ^4.0
@@ -1719,15 +1728,15 @@ packages:
       zod-to-json-schema:
         optional: true
 
-  '@mcp-b/transports@1.4.0':
-    resolution: {integrity: sha512-yx9zn7Jf1v06Ke9ctDTAqU8uv+hL9ArrQMX7CcUjQ0hiMcrF1acUnkTHvjD915U8XR6xcOCBddSp0BskRbXdYQ==}
+  '@mcp-b/transports@2.2.0':
+    resolution: {integrity: sha512-zSqYekrmou72z67GF5jXaDnQdhT84Hlmi4meshm0zMn71GlaYmHhXfb3UsgW3xQ7Y5CexQ4U9L9IrdG6/+MTfA==}
 
-  '@mcp-b/webmcp-polyfill@0.3.0':
-    resolution: {integrity: sha512-5Kf6how8Xzjgk3YNrkjNrdw5GY7Bqo/WudQcXfR39K4rnKyF2hXqrY1MKdZL3i+eYSnOJI/9N1JgHi88zk6Avw==}
+  '@mcp-b/webmcp-polyfill@2.2.0':
+    resolution: {integrity: sha512-as49JP4MHXVMMVNzD8938EsiU2tEzWNk7Un6c6C/xK5rstkIrQZQsVLbH7NFtmgMb6bbryzSqg9JWSFIxkU27Q==}
     engines: {node: '>=18'}
 
-  '@mcp-b/webmcp-ts-sdk@1.6.0':
-    resolution: {integrity: sha512-j94Fd1w4Uw7vbsZ06qHWtMCl7nxx6Ht6FJOieaRG0JJelSuQ17XQxFYtRhME2Onyp/2vVRGm63TdIKhdh6R8sg==}
+  '@mcp-b/webmcp-ts-sdk@2.2.0':
+    resolution: {integrity: sha512-IzjwqrpbbASbAJxpr5k5m1ryiELGdnohDXzpLuB7UK2VI1rsAwQ04j59uRkMvaqZ4iwvxHTzKk+AajRB57OcPw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25 || ^4.0
@@ -1738,8 +1747,8 @@ packages:
       zod-to-json-schema:
         optional: true
 
-  '@mcp-b/webmcp-types@0.3.0':
-    resolution: {integrity: sha512-RNr94JJ9NkvVbeUCE/x+2Di/BeghwcJlibY85RSFQQ+8NdNabaRe9hVuYaq4dcXCwejnPcC34C2dJNtZQHbEQg==}
+  '@mcp-b/webmcp-types@2.2.0':
+    resolution: {integrity: sha512-1/UYAwQKBkqRgK18GkbGR4m6Cn9vz6Qy6pTL5LIIinUOhR5dMLaNl/blH/tJT+nJleMmgDoFZWGAmmr+fAz2PQ==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -6478,19 +6487,19 @@ snapshots:
       '@codemirror/view': 6.38.4
       '@lezer/common': 1.2.3
 
-  '@codemirror/autocomplete@6.20.0':
+  '@codemirror/autocomplete@6.20.1':
     dependencies:
-      '@codemirror/language': 6.11.3
+      '@codemirror/language': 6.12.2
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.8
-      '@lezer/common': 1.4.0
+      '@codemirror/view': 6.39.16
+      '@lezer/common': 1.5.1
 
-  '@codemirror/commands@6.10.0':
+  '@codemirror/commands@6.10.2':
     dependencies:
-      '@codemirror/language': 6.11.3
+      '@codemirror/language': 6.12.2
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.8
-      '@lezer/common': 1.4.0
+      '@codemirror/view': 6.39.16
+      '@lezer/common': 1.5.1
 
   '@codemirror/commands@6.9.0':
     dependencies:
@@ -6517,16 +6526,25 @@ snapshots:
       '@lezer/lr': 1.4.2
       style-mod: 4.1.2
 
+  '@codemirror/language@6.12.2':
+    dependencies:
+      '@codemirror/state': 6.5.2
+      '@codemirror/view': 6.39.16
+      '@lezer/common': 1.5.1
+      '@lezer/highlight': 1.2.3
+      '@lezer/lr': 1.4.8
+      style-mod: 4.1.3
+
   '@codemirror/lint@6.9.0':
     dependencies:
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.8
+      '@codemirror/view': 6.39.16
       crelt: 1.0.6
 
   '@codemirror/search@6.5.11':
     dependencies:
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.8
+      '@codemirror/view': 6.39.16
       crelt: 1.0.6
 
   '@codemirror/state@6.5.2':
@@ -6535,9 +6553,9 @@ snapshots:
 
   '@codemirror/theme-one-dark@6.1.3':
     dependencies:
-      '@codemirror/language': 6.11.3
+      '@codemirror/language': 6.12.2
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.8
+      '@codemirror/view': 6.39.16
       '@lezer/highlight': 1.2.3
 
   '@codemirror/view@6.38.4':
@@ -6547,7 +6565,7 @@ snapshots:
       style-mod: 4.1.2
       w3c-keyname: 2.2.8
 
-  '@codemirror/view@6.38.8':
+  '@codemirror/view@6.39.16':
     dependencies:
       '@codemirror/state': 6.5.2
       crelt: 1.0.6
@@ -7058,7 +7076,7 @@ snapshots:
 
   '@lezer/common@1.2.3': {}
 
-  '@lezer/common@1.4.0': {}
+  '@lezer/common@1.5.1': {}
 
   '@lezer/highlight@1.2.1':
     dependencies:
@@ -7066,58 +7084,62 @@ snapshots:
 
   '@lezer/highlight@1.2.3':
     dependencies:
-      '@lezer/common': 1.4.0
+      '@lezer/common': 1.5.1
 
   '@lezer/lr@1.4.2':
     dependencies:
       '@lezer/common': 1.2.3
 
+  '@lezer/lr@1.4.8':
+    dependencies:
+      '@lezer/common': 1.5.1
+
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@mcp-b/global@1.6.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
+  '@mcp-b/global@2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/transports': 1.4.0(zod-to-json-schema@3.25.1(zod@3.25.76))
-      '@mcp-b/webmcp-polyfill': 0.3.0
-      '@mcp-b/webmcp-ts-sdk': 1.6.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
-      '@mcp-b/webmcp-types': 0.3.0
+      '@mcp-b/transports': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))
+      '@mcp-b/webmcp-polyfill': 2.2.0
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/webmcp-types': 2.2.0
     transitivePeerDependencies:
       - zod
       - zod-to-json-schema
 
-  '@mcp-b/react-webmcp@1.6.0(react@19.2.0)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
+  '@mcp-b/react-webmcp@2.2.0(react@19.2.0)(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/global': 1.6.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
-      '@mcp-b/transports': 1.4.0(zod-to-json-schema@3.25.1(zod@3.25.76))
-      '@mcp-b/webmcp-polyfill': 0.3.0
-      '@mcp-b/webmcp-ts-sdk': 1.6.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
-      '@mcp-b/webmcp-types': 0.3.0
+      '@mcp-b/global': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/transports': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))
+      '@mcp-b/webmcp-polyfill': 2.2.0
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/webmcp-types': 2.2.0
       react: 19.2.0
     optionalDependencies:
       zod: 3.25.76
       zod-to-json-schema: 3.25.1(zod@3.25.76)
 
-  '@mcp-b/transports@1.4.0(zod-to-json-schema@3.25.1(zod@3.25.76))':
+  '@mcp-b/transports@2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))':
     dependencies:
-      '@mcp-b/webmcp-ts-sdk': 1.6.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/webmcp-ts-sdk': 2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)
       zod: 3.25.76
     transitivePeerDependencies:
       - zod-to-json-schema
 
-  '@mcp-b/webmcp-polyfill@0.3.0':
+  '@mcp-b/webmcp-polyfill@2.2.0':
     dependencies:
       '@cfworker/json-schema': 4.1.1
-      '@mcp-b/webmcp-types': 0.3.0
+      '@mcp-b/webmcp-types': 2.2.0
       '@standard-schema/spec': 1.1.0
 
-  '@mcp-b/webmcp-ts-sdk@1.6.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
+  '@mcp-b/webmcp-ts-sdk@2.2.0(zod-to-json-schema@3.25.1(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/webmcp-polyfill': 0.3.0
-      '@mcp-b/webmcp-types': 0.3.0
+      '@mcp-b/webmcp-polyfill': 2.2.0
+      '@mcp-b/webmcp-types': 2.2.0
     optionalDependencies:
       zod: 3.25.76
       zod-to-json-schema: 3.25.1(zod@3.25.76)
 
-  '@mcp-b/webmcp-types@0.3.0': {}
+  '@mcp-b/webmcp-types@2.2.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -8678,13 +8700,13 @@ snapshots:
 
   codemirror@6.0.2:
     dependencies:
-      '@codemirror/autocomplete': 6.20.0
-      '@codemirror/commands': 6.10.0
-      '@codemirror/language': 6.11.3
+      '@codemirror/autocomplete': 6.20.1
+      '@codemirror/commands': 6.10.2
+      '@codemirror/language': 6.12.2
       '@codemirror/lint': 6.9.0
       '@codemirror/search': 6.5.11
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.8
+      '@codemirror/view': 6.39.16
 
   color-convert@2.0.1:
     dependencies:
@@ -11212,7 +11234,6 @@ snapshots:
   zod-to-json-schema@3.25.1(zod@3.25.76):
     dependencies:
       zod: 3.25.76
-    optional: true
 
   zod@3.22.3: {}
 
