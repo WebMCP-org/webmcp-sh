@@ -155,6 +155,22 @@ export default defineConfig({
             }
           },
           {
+            // Always fetch WebMCP local-relay browser assets fresh — these change
+            // with each relay release and must not be served from the PWA cache.
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/@mcp-b\/webmcp-local-relay/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'webmcp-relay-cdn',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 10 // 10 min offline fallback only
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
             // Cache CDN assets with stale-while-revalidate
             urlPattern: /^https:\/\/cdn\./,
             handler: 'StaleWhileRevalidate',
