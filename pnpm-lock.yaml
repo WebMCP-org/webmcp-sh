@@ -39,11 +39,11 @@ importers:
         specifier: npm:@jsr/makisuo__pglite-drizzle@^0.0.14
         version: '@jsr/makisuo__pglite-drizzle@0.0.14(@cloudflare/workers-types@4.20251128.0)(@opentelemetry/api@1.9.0)(@types/react@19.2.2)(react@19.2.0)'
       '@mcp-b/global':
-        specifier: ^2.3.1
-        version: 2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
+        specifier: 3.0.0
+        version: 3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
       '@mcp-b/react-webmcp':
-        specifier: ^2.3.1
-        version: 2.3.1(react@19.2.0)(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
+        specifier: 3.0.0
+        version: 3.0.0(react@19.2.0)(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1703,12 +1703,12 @@ packages:
   '@marijn/find-cluster-break@1.0.2':
     resolution: {integrity: sha512-l0h88YhZFyKdXIFNfSWpyjStDjGHwZ/U7iobcK1cQQD8sejsONdQtTVU+1wVN1PBw40PiiHB1vA5S7VTfQiP9g==}
 
-  '@mcp-b/global@2.3.1':
-    resolution: {integrity: sha512-qTg7Wi4pkDafH51qaf8H0MToKzFizXh4i/KSal7nKEF+cKB2HKDSTEUIgX5lo5bn5j+8gR52HGrnGdMpXzZnmw==}
+  '@mcp-b/global@3.0.0':
+    resolution: {integrity: sha512-HZWlR2Gb5v/ROtg0noiiHfrnHVPYxxhOPPaeYlXvCd6UB/u82Q3lwtCdWQLw66N25Zp9VSMGRR1Eq72yDFqcNQ==}
     engines: {node: '>=18'}
 
-  '@mcp-b/react-webmcp@2.3.1':
-    resolution: {integrity: sha512-+XrXoBUJ3T8uPg4+IgR63GhV3q1o9U0FgjGpfirltEFSOoVRYECoQfmubzYZ8EO/ciFCe3EtuGBjDa/r792iFw==}
+  '@mcp-b/react-webmcp@3.0.0':
+    resolution: {integrity: sha512-lYsAM6ljlZ1lNqM2Dhp616z43c+DJUaFQgcNBWhDuHvYLTyGNhyD0PUGIdchFOLNdP4y+gjG0v8xqo03/y6dpw==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       zod: ^3.25 || ^4.0
@@ -1719,15 +1719,15 @@ packages:
       zod-to-json-schema:
         optional: true
 
-  '@mcp-b/transports@2.3.1':
-    resolution: {integrity: sha512-9nn+XBMlrmU8hsH5UC0/7eGN4yqGlxcwM9M8bMALskKceQgR7mSwuUXujFmRBZUGlaX4YI/Cz7+XBg4ZbZZNqQ==}
+  '@mcp-b/transports@3.0.0':
+    resolution: {integrity: sha512-WMgeb0P9Bhu+0mN07qkvCo+W9Fucdk9+iyp7wPZYAtQ4ZTcbNuu8Zl1qdNM8oWxXgMbA749w4nUcPsbPaMvSvA==}
 
-  '@mcp-b/webmcp-polyfill@2.3.1':
-    resolution: {integrity: sha512-d0q6OqM8HdCnJ6+Sz8ztdkxcGXy8umz5KLpToG7SbC6MSmPN2YSEIx94E7nE3h+6AB1037ZtaoAOI1Lp19yIyw==}
+  '@mcp-b/webmcp-polyfill@3.0.0':
+    resolution: {integrity: sha512-TCrCOZCTfRWrTp8MpWU8EO4U7r7IvDDaIYW9Ej0aBD2KVR2hvwr4t3T7kPkSYssGhpIZJrq19owSzN1vZabW+A==}
     engines: {node: '>=18'}
 
-  '@mcp-b/webmcp-ts-sdk@2.3.1':
-    resolution: {integrity: sha512-h76aXeVwAJv6wE0TH1Jt/tgD8JQSkmNxTvJRLLtA7YGJ5N8rMm7JBDts3Qy2Yq7lr7lO0s9jPpBCFxSCXFl2cQ==}
+  '@mcp-b/webmcp-ts-sdk@3.0.0':
+    resolution: {integrity: sha512-Lbn7ODKWMYd6xqpcl+OmXseKbjwB+Q3F9CUm9vDFpZgviWc3/5CuG3IDylHg/toVMeZz6v5+E8AmBnv8zj5G5w==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25 || ^4.0
@@ -1738,8 +1738,8 @@ packages:
       zod-to-json-schema:
         optional: true
 
-  '@mcp-b/webmcp-types@2.3.1':
-    resolution: {integrity: sha512-Put6k/ig+PeL8zt+oBelucCHW6OaqST39ppZU5bGKP56w6iciabelYn98341qOoU7m+tFOrUSVSTjty4kksMAw==}
+  '@mcp-b/webmcp-types@3.0.0':
+    resolution: {integrity: sha512-MmKHNAtlyZoK5khz5GnmgEj/ehk5esoUbgOaFndrlZvpjq3ppmIY3BDrwCv6xaihuuIMOoLLDlf0E65wUd4q7A==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -7054,50 +7054,50 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.2': {}
 
-  '@mcp-b/global@2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)':
+  '@mcp-b/global@3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/transports': 2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))
-      '@mcp-b/webmcp-polyfill': 2.3.1
-      '@mcp-b/webmcp-ts-sdk': 2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
-      '@mcp-b/webmcp-types': 2.3.1
+      '@mcp-b/transports': 3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))
+      '@mcp-b/webmcp-polyfill': 3.0.0
+      '@mcp-b/webmcp-ts-sdk': 3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/webmcp-types': 3.0.0
     transitivePeerDependencies:
       - zod
       - zod-to-json-schema
 
-  '@mcp-b/react-webmcp@2.3.1(react@19.2.0)(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)':
+  '@mcp-b/react-webmcp@3.0.0(react@19.2.0)(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/global': 2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
-      '@mcp-b/transports': 2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))
-      '@mcp-b/webmcp-polyfill': 2.3.1
-      '@mcp-b/webmcp-ts-sdk': 2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
-      '@mcp-b/webmcp-types': 2.3.1
+      '@mcp-b/global': 3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/transports': 3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))
+      '@mcp-b/webmcp-polyfill': 3.0.0
+      '@mcp-b/webmcp-ts-sdk': 3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/webmcp-types': 3.0.0
       react: 19.2.0
     optionalDependencies:
       zod: 3.25.76
       zod-to-json-schema: 3.25.2(zod@3.25.76)
 
-  '@mcp-b/transports@2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))':
+  '@mcp-b/transports@3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))':
     dependencies:
-      '@mcp-b/webmcp-ts-sdk': 2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
+      '@mcp-b/webmcp-ts-sdk': 3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)
       zod: 3.25.76
     transitivePeerDependencies:
       - zod-to-json-schema
 
-  '@mcp-b/webmcp-polyfill@2.3.1':
+  '@mcp-b/webmcp-polyfill@3.0.0':
     dependencies:
       '@cfworker/json-schema': 4.1.1
-      '@mcp-b/webmcp-types': 2.3.1
+      '@mcp-b/webmcp-types': 3.0.0
       '@standard-schema/spec': 1.1.0
 
-  '@mcp-b/webmcp-ts-sdk@2.3.1(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)':
+  '@mcp-b/webmcp-ts-sdk@3.0.0(zod-to-json-schema@3.25.2(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      '@mcp-b/webmcp-polyfill': 2.3.1
-      '@mcp-b/webmcp-types': 2.3.1
+      '@mcp-b/webmcp-polyfill': 3.0.0
+      '@mcp-b/webmcp-types': 3.0.0
     optionalDependencies:
       zod: 3.25.76
       zod-to-json-schema: 3.25.2(zod@3.25.76)
 
-  '@mcp-b/webmcp-types@2.3.1': {}
+  '@mcp-b/webmcp-types@3.0.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
