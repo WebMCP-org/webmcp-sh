@@ -62,7 +62,7 @@ function SQLExecutionLogPage() {
     toast.success('Query history cleared')
   }
 
-  // Format SQL with Prettier
+  // Format SQL
   const handleFormatSQL = async () => {
     if (!selectedQuery?.query) return
 
