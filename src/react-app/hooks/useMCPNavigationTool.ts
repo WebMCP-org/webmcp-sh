@@ -246,7 +246,7 @@ The tool will navigate the user to the specified route and return a confirmation
 
       // Validate route exists
       if (!isValidRoute(to)) {
-        throw new Error(`Invalid route: "${to}". Use the "list_routes" tool to see available routes.`);
+        throw new Error(`Invalid route: "${to}". Use the "list_all_routes" tool to see available routes.`);
       }
 
       // Build navigation options
