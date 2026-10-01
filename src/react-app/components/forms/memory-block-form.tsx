@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { zod4Resolver } from '@/lib/zod4-resolver';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { z } from 'zod/v4';
 import { insert_memory_block_schema } from '@/lib/db/schema';
 import type { InsertMemoryBlock, UpdateMemoryBlock } from '@/lib/db/types';
 import { memory_blocks } from '@/lib/db';
@@ -32,8 +33,8 @@ export function MemoryBlockForm({ block, onSuccess, onCancel }: MemoryBlockFormP
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tokenCount, setTokenCount] = useState(0);
 
-  const form = useForm<InsertMemoryBlock>({
-    resolver: zod4Resolver<InsertMemoryBlock>(insert_memory_block_schema),
+  const form = useForm<z.input<typeof insert_memory_block_schema>, unknown, z.output<typeof insert_memory_block_schema>>({
+    resolver: zodResolver(insert_memory_block_schema),
     defaultValues: block ?? {
       block_type: 'context',
       label: '',

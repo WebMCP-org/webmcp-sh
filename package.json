@@ -27,7 +27,7 @@
     "@codemirror/view": "^6.42.0",
     "@electric-sql/pglite": "^0.3.14",
     "@electric-sql/pglite-react": "^0.2.32",
-    "@hookform/resolvers": "^3.9.1",
+    "@hookform/resolvers": "^5.9.1",
     "@mcp-b/global": "6.0.0-beta.20261001010549",
     "@mcp-b/react-webmcp": "6.0.0-beta.20261001010549",
     "@radix-ui/react-alert-dialog": "^1.1.15",

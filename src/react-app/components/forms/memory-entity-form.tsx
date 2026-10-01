@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { zod4Resolver } from '@/lib/zod4-resolver';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { z } from 'zod/v4';
 import { insert_memory_entity_schema } from '@/lib/db/schema';
 import type { InsertMemoryEntity, UpdateMemoryEntity } from '@/lib/db/types';
 import { memory_entities } from '@/lib/db';
@@ -34,8 +35,8 @@ export function MemoryEntityForm({ entity, onSuccess, onCancel }: MemoryEntityFo
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>(entity?.tags ?? []);
 
-  const form = useForm<InsertMemoryEntity>({
-    resolver: zod4Resolver<InsertMemoryEntity>(insert_memory_entity_schema),
+  const form = useForm<z.input<typeof insert_memory_entity_schema>, unknown, z.output<typeof insert_memory_entity_schema>>({
+    resolver: zodResolver(insert_memory_entity_schema),
     defaultValues: entity ?? {
       category: 'fact',
       name: '',
