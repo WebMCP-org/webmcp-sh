@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { toast } from 'sonner';
 import { memory_blocks } from '@/lib/db';
@@ -34,28 +33,54 @@ Example:
   "char_limit": 500
 }`,
     inputSchema: {
-      block_type: z.enum(['user_profile', 'agent_persona', 'current_goals', 'context'])
-        .describe('Type of memory block'),
-      label: z.string().min(1).max(200)
-        .describe('Human-readable label for the block'),
-      value: z.string().min(1)
-        .describe('The actual memory content'),
-      priority: z.number().int().min(0).max(100).optional().default(50)
-        .describe('Priority (0-100, higher = more important)'),
-      char_limit: z.number().int().positive().optional().default(500)
-        .describe('Maximum character limit for this block'),
-      metadata: z.record(z.unknown()).optional()
-        .describe('Optional structured metadata'),
-    },
+      type: 'object',
+      properties: {
+        block_type: {
+          type: 'string',
+          enum: ['user_profile', 'agent_persona', 'current_goals', 'context'],
+          description: 'Type of memory block',
+        },
+        label: {
+          type: 'string',
+          minLength: 1,
+          maxLength: 200,
+          description: 'Human-readable label for the block',
+        },
+        value: { type: 'string', minLength: 1, description: 'The actual memory content' },
+        priority: {
+          type: 'integer',
+          minimum: 0,
+          maximum: 100,
+          default: 50,
+          description: 'Priority (0-100, higher = more important)',
+        },
+        char_limit: {
+          type: 'integer',
+          minimum: 1,
+          default: 500,
+          description: 'Maximum character limit for this block',
+        },
+        metadata: {
+          type: 'object',
+          additionalProperties: true,
+          description: 'Optional structured metadata',
+        },
+      },
+      required: ['block_type', 'label', 'value'],
+    } as const,
     annotations: {
       title: 'Create Memory Block',
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
-        const block = await memory_blocks.create(input as InsertMemoryBlock);
+        const block = await memory_blocks.create({
+          priority: 50,
+          char_limit: 500,
+          ...input,
+        } as InsertMemoryBlock);
         toast.success('Memory block created', {
           description: `Created "${block.label}"`,
         });
@@ -85,27 +110,29 @@ Example:
   "priority": 80
 }`,
     inputSchema: {
-      id: z.string().uuid().describe('The memory block ID to update'),
-      block_type: z.enum(['user_profile', 'agent_persona', 'current_goals', 'context']).optional()
-        .describe('New block type'),
-      label: z.string().min(1).max(200).optional()
-        .describe('New label'),
-      value: z.string().min(1).optional()
-        .describe('New content'),
-      priority: z.number().int().min(0).max(100).optional()
-        .describe('New priority'),
-      char_limit: z.number().int().positive().optional()
-        .describe('New character limit'),
-      metadata: z.record(z.unknown()).optional()
-        .describe('New metadata'),
-    },
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid', description: 'The memory block ID to update' },
+        block_type: {
+          type: 'string',
+          enum: ['user_profile', 'agent_persona', 'current_goals', 'context'],
+          description: 'New block type',
+        },
+        label: { type: 'string', minLength: 1, maxLength: 200, description: 'New label' },
+        value: { type: 'string', minLength: 1, description: 'New content' },
+        priority: { type: 'integer', minimum: 0, maximum: 100, description: 'New priority' },
+        char_limit: { type: 'integer', minimum: 1, description: 'New character limit' },
+        metadata: { type: 'object', additionalProperties: true, description: 'New metadata' },
+      },
+      required: ['id'],
+    } as const,
     annotations: {
       title: 'Update Memory Block',
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const block = await memory_blocks.update(input);
         if (!block) {
@@ -138,15 +165,19 @@ Example:
   "id": "uuid-here"
 }`,
     inputSchema: {
-      id: z.string().uuid().describe('The memory block ID to delete'),
-    },
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid', description: 'The memory block ID to delete' },
+      },
+      required: ['id'],
+    } as const,
     annotations: {
       title: 'Delete Memory Block',
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const existing = await memory_blocks.get_by_id(input.id);
         if (!existing) {
@@ -179,16 +210,22 @@ Example:
 {} // List all
 { "block_type": "user_profile" } // Filter by type`,
     inputSchema: {
-      block_type: z.enum(['user_profile', 'agent_persona', 'current_goals', 'context']).optional()
-        .describe('Filter by block type'),
-    },
+      type: 'object',
+      properties: {
+        block_type: {
+          type: 'string',
+          enum: ['user_profile', 'agent_persona', 'current_goals', 'context'],
+          description: 'Filter by block type',
+        },
+      },
+    } as const,
     annotations: {
       title: 'List Memory Blocks',
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         let blocks;
         if (input.block_type) {

@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { useWebMCP } from "@mcp-b/react-webmcp";
 import { toast } from "sonner";
 import { colorSchemes } from "@/lib/color-schemes";
@@ -72,34 +71,39 @@ Example:
   "classification": "quantile"
 }`,
     inputSchema: {
-      data: z
-        .enum(["population", "area_sqkm", "density"])
-        .optional()
-        .describe("Data field to visualize"),
-      type: z
-        .enum(["sequential", "diverging", "qualitative"])
-        .optional()
-        .describe("Color scheme type"),
-      schemeName: z.string().optional().describe("Name of the color scheme"),
-      classes: z
-        .number()
-        .int()
-        .min(2)
-        .max(9)
-        .optional()
-        .describe("Number of classification classes (2-9)"),
-      classification: z
-        .enum(["equalInterval", "quantile", "naturalBreaks"])
-        .optional()
-        .describe("Classification method"),
-    },
+      type: "object",
+      properties: {
+        data: {
+          type: "string",
+          enum: ["population", "area_sqkm", "density"],
+          description: "Data field to visualize",
+        },
+        type: {
+          type: "string",
+          enum: ["sequential", "diverging", "qualitative"],
+          description: "Color scheme type",
+        },
+        schemeName: { type: "string", description: "Name of the color scheme" },
+        classes: {
+          type: "integer",
+          minimum: 2,
+          maximum: 9,
+          description: "Number of classification classes (2-9)",
+        },
+        classification: {
+          type: "string",
+          enum: ["equalInterval", "quantile", "naturalBreaks"],
+          description: "Classification method",
+        },
+      },
+    } as const,
     annotations: {
       title: "Set Map Filters",
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         if (input.data) options.setSelectedData(input.data);
 
@@ -168,7 +172,7 @@ Returns the current settings for data field, color scheme, and classification me
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       const state: MapState = {
         data: options.selectedData,
         type: options.selectedType,
@@ -202,7 +206,7 @@ Example response:
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       try {
         const schemes: ColorSchemeSummary[] = options.availableSchemes.map(
           (s) => ({

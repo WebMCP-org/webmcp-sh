@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { toast } from 'sonner';
 import { memory_entities } from '@/lib/db';
@@ -37,30 +36,57 @@ Example:
   "confidence": 90
 }`,
     inputSchema: {
-      category: z.enum(['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'])
-        .describe('Entity category'),
-      name: z.string().min(1).max(200)
-        .describe('Entity name'),
-      description: z.string().min(1)
-        .describe('Detailed description'),
-      tags: z.array(z.string()).optional().default([])
-        .describe('Tags for categorization'),
-      importance_score: z.number().int().min(0).max(100).optional().default(50)
-        .describe('Importance (0-100)'),
-      confidence: z.number().int().min(0).max(100).optional().default(100)
-        .describe('Confidence level (0-100)'),
-      memory_tier: z.enum(['short_term', 'working', 'long_term', 'archived']).optional().default('short_term')
-        .describe('Memory tier'),
-      memory_type: z.enum(['episodic', 'semantic']).optional().default('semantic')
-        .describe('Memory type (episodic = specific events, semantic = general knowledge)'),
-    },
+      type: 'object',
+      properties: {
+        category: {
+          type: 'string',
+          enum: ['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'],
+          description: 'Entity category',
+        },
+        name: { type: 'string', minLength: 1, maxLength: 200, description: 'Entity name' },
+        description: { type: 'string', minLength: 1, description: 'Detailed description' },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          default: [],
+          description: 'Tags for categorization',
+        },
+        importance_score: {
+          type: 'integer',
+          minimum: 0,
+          maximum: 100,
+          default: 50,
+          description: 'Importance (0-100)',
+        },
+        confidence: {
+          type: 'integer',
+          minimum: 0,
+          maximum: 100,
+          default: 100,
+          description: 'Confidence level (0-100)',
+        },
+        memory_tier: {
+          type: 'string',
+          enum: ['short_term', 'working', 'long_term', 'archived'],
+          default: 'short_term',
+          description: 'Memory tier',
+        },
+        memory_type: {
+          type: 'string',
+          enum: ['episodic', 'semantic'],
+          default: 'semantic',
+          description: 'Memory type (episodic = specific events, semantic = general knowledge)',
+        },
+      },
+      required: ['category', 'name', 'description'],
+    } as const,
     annotations: {
       title: 'Create Entity',
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const entity = await memory_entities.create(input as InsertMemoryEntity);
         toast.success('Entity created', {
@@ -92,31 +118,44 @@ Example:
   "importance_score": 90
 }`,
     inputSchema: {
-      id: z.string().uuid().describe('The entity ID to update'),
-      category: z.enum(['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal']).optional()
-        .describe('New category'),
-      name: z.string().min(1).max(200).optional()
-        .describe('New name'),
-      description: z.string().min(1).optional()
-        .describe('New description'),
-      tags: z.array(z.string()).optional()
-        .describe('New tags'),
-      importance_score: z.number().int().min(0).max(100).optional()
-        .describe('New importance'),
-      confidence: z.number().int().min(0).max(100).optional()
-        .describe('New confidence'),
-      memory_tier: z.enum(['short_term', 'working', 'long_term', 'archived']).optional()
-        .describe('New memory tier'),
-      memory_type: z.enum(['episodic', 'semantic']).optional()
-        .describe('New memory type'),
-    },
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid', description: 'The entity ID to update' },
+        category: {
+          type: 'string',
+          enum: ['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'],
+          description: 'New category',
+        },
+        name: { type: 'string', minLength: 1, maxLength: 200, description: 'New name' },
+        description: { type: 'string', minLength: 1, description: 'New description' },
+        tags: { type: 'array', items: { type: 'string' }, description: 'New tags' },
+        importance_score: {
+          type: 'integer',
+          minimum: 0,
+          maximum: 100,
+          description: 'New importance',
+        },
+        confidence: { type: 'integer', minimum: 0, maximum: 100, description: 'New confidence' },
+        memory_tier: {
+          type: 'string',
+          enum: ['short_term', 'working', 'long_term', 'archived'],
+          description: 'New memory tier',
+        },
+        memory_type: {
+          type: 'string',
+          enum: ['episodic', 'semantic'],
+          description: 'New memory type',
+        },
+      },
+      required: ['id'],
+    } as const,
     annotations: {
       title: 'Update Entity',
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const entity = await memory_entities.update(input);
         if (!entity) {
@@ -149,15 +188,19 @@ Example:
   "id": "uuid-here"
 }`,
     inputSchema: {
-      id: z.string().uuid().describe('The entity ID to delete'),
-    },
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid', description: 'The entity ID to delete' },
+      },
+      required: ['id'],
+    } as const,
     annotations: {
       title: 'Delete Entity',
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const existing = await memory_entities.get_by_id(input.id);
         if (!existing) {
@@ -190,23 +233,38 @@ Example:
 { "query": "TypeScript" }
 { "query": "python", "category": "skill" }`,
     inputSchema: {
-      query: z.string().min(1)
-        .describe('Search query (searches name and description)'),
-      category: z.enum(['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal']).optional()
-        .describe('Filter by category'),
-      limit: z.number().int().min(1).max(100).optional().default(20)
-        .describe('Maximum results to return'),
-    },
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          minLength: 1,
+          description: 'Search query (searches name and description)',
+        },
+        category: {
+          type: 'string',
+          enum: ['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'],
+          description: 'Filter by category',
+        },
+        limit: {
+          type: 'integer',
+          minimum: 1,
+          maximum: 100,
+          default: 20,
+          description: 'Maximum results to return',
+        },
+      },
+      required: ['query'],
+    } as const,
     annotations: {
       title: 'Search Entities',
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const entities = await memory_entities.search(input.query, { category: input.category });
-        const limited = entities.slice(0, input.limit);
+        const limited = entities.slice(0, input.limit ?? 20);
         return {
           query: input.query,
           count: limited.length,
@@ -239,22 +297,33 @@ Example:
 { "category": "skill" } // Filter by category
 { "limit": 50 } // Limit results`,
     inputSchema: {
-      category: z.enum(['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal']).optional()
-        .describe('Filter by category'),
-      limit: z.number().int().min(1).max(100).optional().default(50)
-        .describe('Maximum results'),
-    },
+      type: 'object',
+      properties: {
+        category: {
+          type: 'string',
+          enum: ['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'],
+          description: 'Filter by category',
+        },
+        limit: {
+          type: 'integer',
+          minimum: 1,
+          maximum: 100,
+          default: 50,
+          description: 'Maximum results',
+        },
+      },
+    } as const,
     annotations: {
       title: 'List Entities',
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const entities = await memory_entities.get_all({
           category: input.category,
-          limit: input.limit
+          limit: input.limit ?? 50
         });
         return {
           count: entities.length,
@@ -284,15 +353,19 @@ Example:
   "id": "uuid-here"
 }`,
     inputSchema: {
-      id: z.string().uuid().describe('The entity ID to retrieve'),
-    },
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid', description: 'The entity ID to retrieve' },
+      },
+      required: ['id'],
+    } as const,
     annotations: {
       title: 'Get Entity',
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
         const entity = await memory_entities.get_by_id(input.id);
         if (!entity) {

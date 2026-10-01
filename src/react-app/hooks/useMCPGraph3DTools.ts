@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { useWebMCP } from "@mcp-b/react-webmcp";
 import { toast } from "sonner";
 import { pg_lite } from "@/lib/db";
@@ -56,18 +55,28 @@ Example queries:
 
 The results are highlighted and the camera zooms to show them.`,
     inputSchema: {
-      where_clause: z.string().min(1)
-        .describe("SQL WHERE clause to filter entities (e.g., \"category = 'skill'\")"),
-      show_connections: z.boolean().default(true)
-        .describe("Also highlight connected entities"),
-    },
+      type: "object",
+      properties: {
+        where_clause: {
+          type: "string",
+          minLength: 1,
+          description: "SQL WHERE clause to filter entities (e.g., \"category = 'skill'\")",
+        },
+        show_connections: {
+          type: "boolean",
+          default: true,
+          description: "Also highlight connected entities",
+        },
+      },
+      required: ["where_clause"],
+    } as const,
     annotations: {
       title: "3D Query",
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async ({ where_clause, show_connections }) => {
+    execute: async ({ where_clause, show_connections = true }) => {
       const api = getApi();
       if (!api) {
         toast.error("3D graph not initialized - please navigate to the Graph page");
@@ -137,16 +146,23 @@ The camera will fly to the entity and highlight it along with its connections.
 
 This helps users who don't know how to navigate the 3D UI - you navigate for them.`,
     inputSchema: {
-      name: z.string().min(1)
-        .describe("Name of entity to navigate to (partial match allowed)"),
-    },
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          minLength: 1,
+          description: "Name of entity to navigate to (partial match allowed)",
+        },
+      },
+      required: ["name"],
+    } as const,
     annotations: {
       title: "3D Navigate",
       readOnlyHint: true,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async ({ name }) => {
+    execute: async ({ name }) => {
       const api = getApi();
       if (!api) {
         toast.error("3D graph not initialized - please navigate to the Graph page");
@@ -226,24 +242,42 @@ will zoom to the new entity so the user can see it was created.
 
 Categories: fact, preference, skill, rule, context, person, project, goal`,
     inputSchema: {
-      name: z.string().min(1).max(200)
-        .describe("Name of the entity"),
-      category: z.enum(["fact", "preference", "skill", "rule", "context", "person", "project", "goal"])
-        .describe("Category of the entity"),
-      description: z.string().max(1000).optional()
-        .describe("Description of the entity"),
-      importance_score: z.number().min(0).max(100).default(50)
-        .describe("Importance score (0-100)"),
-      tags: z.array(z.string()).default([])
-        .describe("Tags for the entity"),
-    },
+      type: "object",
+      properties: {
+        name: { type: "string", minLength: 1, maxLength: 200, description: "Name of the entity" },
+        category: {
+          type: "string",
+          enum: ["fact", "preference", "skill", "rule", "context", "person", "project", "goal"],
+          description: "Category of the entity",
+        },
+        description: {
+          type: "string",
+          maxLength: 1000,
+          description: "Description of the entity",
+        },
+        importance_score: {
+          type: "number",
+          minimum: 0,
+          maximum: 100,
+          default: 50,
+          description: "Importance score (0-100)",
+        },
+        tags: {
+          type: "array",
+          items: { type: "string" },
+          default: [],
+          description: "Tags for the entity",
+        },
+      },
+      required: ["name", "category"],
+    } as const,
     annotations: {
       title: "3D Add Entity",
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async ({ name, category, description, importance_score, tags }) => {
+    execute: async ({ name, category, description, importance_score = 50, tags = [] }) => {
       const api = getApi();
 
       // Create the entity
@@ -294,24 +328,46 @@ the camera will zoom to show both entities and their connection.
 
 Common relationship types: uses, related_to, works_on, knows, created, part_of, depends_on`,
     inputSchema: {
-      from_entity: z.string().min(1)
-        .describe("Name of the source entity (partial match allowed)"),
-      to_entity: z.string().min(1)
-        .describe("Name of the target entity (partial match allowed)"),
-      relationship_type: z.string().min(1).max(50)
-        .describe("Type of relationship (e.g., 'uses', 'related_to', 'works_on')"),
-      strength: z.number().min(1).max(10).default(5)
-        .describe("Connection strength (1-10)"),
-      description: z.string().max(500).optional()
-        .describe("Description of the relationship"),
-    },
+      type: "object",
+      properties: {
+        from_entity: {
+          type: "string",
+          minLength: 1,
+          description: "Name of the source entity (partial match allowed)",
+        },
+        to_entity: {
+          type: "string",
+          minLength: 1,
+          description: "Name of the target entity (partial match allowed)",
+        },
+        relationship_type: {
+          type: "string",
+          minLength: 1,
+          maxLength: 50,
+          description: "Type of relationship (e.g., 'uses', 'related_to', 'works_on')",
+        },
+        strength: {
+          type: "number",
+          minimum: 1,
+          maximum: 10,
+          default: 5,
+          description: "Connection strength (1-10)",
+        },
+        description: {
+          type: "string",
+          maxLength: 500,
+          description: "Description of the relationship",
+        },
+      },
+      required: ["from_entity", "to_entity", "relationship_type"],
+    } as const,
     annotations: {
       title: "3D Add Connection",
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async ({ from_entity, to_entity, relationship_type, strength, description }) => {
+    execute: async ({ from_entity, to_entity, relationship_type, strength = 5, description }) => {
       const api = getApi();
 
       // Find source entity
@@ -385,7 +441,7 @@ ${api ? 'The graph will refresh and zoom to show the connected entities.' : 'Nav
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       const api = getApi();
       if (!api) {
         toast.error("3D graph not initialized");

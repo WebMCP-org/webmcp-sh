@@ -29,8 +29,8 @@
     "@electric-sql/pglite-react": "^0.2.32",
     "@hookform/resolvers": "^3.9.1",
     "@makisuo/pglite-drizzle": "npm:@jsr/makisuo__pglite-drizzle@^0.0.14",
-    "@mcp-b/global": "4.0.0",
-    "@mcp-b/react-webmcp": "4.0.0",
+    "@mcp-b/global": "6.0.0-beta.20261001010549",
+    "@mcp-b/react-webmcp": "6.0.0-beta.20261001010549",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -86,8 +86,7 @@
     "three": "^0.180.0",
     "workbox-build": "^7.4.0",
     "workbox-window": "^7.4.0",
-    "zod": "3.25.76",
-    "zod-to-json-schema": "^3.25.2"
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.15.3",
