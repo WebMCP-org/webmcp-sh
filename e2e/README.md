@@ -45,4 +45,4 @@ Tests run automatically on:
 - Pull requests to main/master/develop branches
 - Pushes to main/master/develop branches
 
-See `.github/workflows/e2e-tests.yml` for the CI configuration.
+See `.github/workflows/ci.yml` for the CI configuration.

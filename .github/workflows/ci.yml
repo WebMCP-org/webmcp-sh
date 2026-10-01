@@ -52,6 +52,9 @@ jobs:
       - name: Type check
         run: pnpm exec tsc -b
 
+      - name: Lint
+        run: pnpm lint
+
       - name: Build application
         run: pnpm run build
 
