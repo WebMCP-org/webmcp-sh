@@ -2,9 +2,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Network, Sparkles, Box } from 'lucide-react'
 import { useLiveQuery } from '@electric-sql/pglite-react'
 import { entity_relationships, memory_entities } from '@/lib/db'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import React from 'react'
-import { ReactFlow, Background, Controls, MiniMap, Node, Edge, NodeProps, ReactFlowProvider } from '@xyflow/react'
+import { ReactFlow, Background, Controls, MiniMap, Node, Edge, NodeProps, ReactFlowProvider, useNodesState, useEdgesState } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import '@/styles/graph-highlights.css'
 import EntityNode from '@/components/graph/EntityNode'
@@ -48,12 +48,20 @@ function GraphWrapper() {
  * 2D ReactFlow wrapper that registers tools
  */
 function ReactFlow2D({ nodes, edges }: { nodes: Node[], edges: Edge[] }) {
+  // Flow state with change handlers so tool setNodes/setEdges calls apply; resynced on data changes.
+  const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(nodes);
+  const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(edges);
+  useEffect(() => setFlowNodes(nodes), [nodes, setFlowNodes]);
+  useEffect(() => setFlowEdges(edges), [edges, setFlowEdges]);
+
   useMCPGraphTools();
 
   return (
     <ReactFlow
-      nodes={nodes}
-      edges={edges}
+      nodes={flowNodes}
+      edges={flowEdges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
       nodeTypes={nodeTypes}
       fitView
       minZoom={0.1}
