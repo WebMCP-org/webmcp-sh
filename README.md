@@ -104,7 +104,6 @@ pnpm check            # Typecheck + build + dry-run deploy
 
 # Database
 pnpm db:generate      # Generate migrations
-pnpm db:studio        # Open Drizzle Studio
 
 # Testing
 pnpm test             # Run E2E tests
