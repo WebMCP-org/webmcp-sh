@@ -71,10 +71,8 @@ export function ReplTable({ result }: { result: Results }) {
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              // eslint-disable-next-line @eslint-react/no-array-index-key
               <tr key={i}>
                 {row.map((col, j) => (
-                  // eslint-disable-next-line @eslint-react/no-array-index-key
                   <td key={j} className={cellClass(col)}>
                     {cellValue(col)}
                   </td>

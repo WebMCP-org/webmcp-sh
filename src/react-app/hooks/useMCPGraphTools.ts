@@ -1,8 +1,8 @@
-import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react';
 import { toast } from 'sonner';
 import { pg_lite } from '@/lib/db';
+import type { EntityNodeData } from '@/components/graph/EntityNode';
 
 /**
  * Hook to register MCP tools for React Flow graph manipulation
@@ -35,27 +35,35 @@ Example queries:
 
 The graph will highlight matching nodes and optionally zoom to show them.`,
     inputSchema: {
-      where_clause: z.string()
-        .min(1)
-        .describe('SQL WHERE clause to filter entities (e.g., "category = \'skill\' AND importance_score > 70")'),
-      zoom_to_results: z.boolean()
-        .optional()
-        .default(true)
-        .describe('Whether to zoom the graph to show highlighted nodes'),
-      include_relationships: z.boolean()
-        .optional()
-        .default(true)
-        .describe('Whether to also highlight relationships between matched entities'),
-    },
+      type: 'object',
+      properties: {
+        where_clause: {
+          type: 'string',
+          minLength: 1,
+          description: 'SQL WHERE clause to filter entities (e.g., "category = \'skill\' AND importance_score > 70")',
+        },
+        zoom_to_results: {
+          type: 'boolean',
+          default: true,
+          description: 'Whether to zoom the graph to show highlighted nodes',
+        },
+        include_relationships: {
+          type: 'boolean',
+          default: true,
+          description: 'Whether to also highlight relationships between matched entities',
+        },
+      },
+      required: ['where_clause'],
+    } as const,
     annotations: {
       title: 'Query & Highlight Graph Entities',
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       try {
-        const { where_clause, zoom_to_results, include_relationships } = input;
+        const { where_clause, zoom_to_results = true, include_relationships = true } = input;
 
         // Execute SQL query to find matching entities
         const query = `
@@ -163,28 +171,36 @@ This tool:
 - Shows connected entities within specified depth
 - Provides information about the entity's connections`,
     inputSchema: {
-      entity_name: z.string()
-        .min(1)
-        .describe('Name of the entity to focus on'),
-      connection_depth: z.number()
-        .min(1)
-        .max(3)
-        .optional()
-        .default(1)
-        .describe('How many levels of connections to show (1-3)'),
-      show_details: z.boolean()
-        .optional()
-        .default(true)
-        .describe('Whether to return detailed information about connections'),
-    },
+      type: 'object',
+      properties: {
+        entity_name: {
+          type: 'string',
+          minLength: 1,
+          description: 'Name of the entity to focus on',
+        },
+        connection_depth: {
+          type: 'number',
+          minimum: 1,
+          maximum: 3,
+          default: 1,
+          description: 'How many levels of connections to show (1-3)',
+        },
+        show_details: {
+          type: 'boolean',
+          default: true,
+          description: 'Whether to return detailed information about connections',
+        },
+      },
+      required: ['entity_name'],
+    } as const,
     annotations: {
       title: 'Focus on Entity',
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
-      const { entity_name, connection_depth, show_details } = input;
+    execute: async (input) => {
+      const { entity_name, connection_depth = 1, show_details = true } = input;
 
       // Find the entity
       const entityResult = await pg_lite.query(`
@@ -339,7 +355,7 @@ Showing ${connectedIds.size} entities within depth ${connection_depth}${details}
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       // Reset all nodes to unhighlighted state
       const resetNodes = nodes.map(node => ({
         ...node,
@@ -388,18 +404,18 @@ Showing ${connectedIds.size} entities within depth ${connection_depth}${details}
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       const categories = nodes.reduce((acc, node) => {
-        const category = (node.data as any).category || 'unknown';
+        const category = (node.data as Partial<EntityNodeData>).category || 'unknown';
         acc[category] = (acc[category] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
       const avgImportance = nodes.reduce((sum, node) =>
-        sum + ((node.data as any).importance_score || 0), 0) / nodes.length;
+        sum + ((node.data as Partial<EntityNodeData>).importance_score || 0), 0) / nodes.length;
 
       const maxConnections = Math.max(...nodes.map(node =>
-        (node.data as any).connection_count || 0));
+        (node.data as Partial<EntityNodeData>).connection_count || 0));
 
       return `Graph Statistics:
 

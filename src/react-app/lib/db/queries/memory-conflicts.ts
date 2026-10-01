@@ -107,7 +107,7 @@ export async function update(data: UpdateMemoryConflict) {
     .update(schema.memory_conflicts)
     .set({
       ...updates,
-      resolved_at: updates.resolved_at ? new Date(updates.resolved_at as any) : null
+      resolved_at: updates.resolved_at ? new Date(updates.resolved_at) : null
     })
     .where(eq(schema.memory_conflicts.id, id as string))
     .returning();

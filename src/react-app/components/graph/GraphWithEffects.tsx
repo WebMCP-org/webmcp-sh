@@ -1,6 +1,5 @@
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react';
 import { useWebMCP } from '@mcp-b/react-webmcp';
-import { z } from 'zod';
 import { pg_lite } from '@/lib/db';
 
 /**
@@ -23,30 +22,38 @@ This tool:
 - Adds pulsing animation to highlighted nodes
 - Colors edges between highlighted nodes`,
     inputSchema: {
-      category: z.enum(['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'])
-        .describe('Category to highlight'),
-      zoom_to_category: z.boolean()
-        .optional()
-        .default(true)
-        .describe('Whether to zoom to show highlighted nodes'),
-    },
+      type: 'object',
+      properties: {
+        category: {
+          type: 'string',
+          enum: ['fact', 'preference', 'skill', 'rule', 'context', 'person', 'project', 'goal'],
+          description: 'Category to highlight',
+        },
+        zoom_to_category: {
+          type: 'boolean',
+          default: true,
+          description: 'Whether to zoom to show highlighted nodes',
+        },
+      },
+      required: ['category'],
+    } as const,
     annotations: {
       title: 'Highlight Category',
       readOnlyHint: false,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
-      const { category, zoom_to_category } = input;
+    execute: async (input) => {
+      const { category, zoom_to_category = true } = input;
 
       // Find all entities of this category
-      const result = await pg_lite.query(`
+      const result = await pg_lite.query<{ id: string; name: string; importance_score: number }>(`
         SELECT id, name, importance_score
         FROM memory_entities
         WHERE category = $1
       `, [category]);
 
-      const categoryIds = new Set(result.rows.map((r: any) => r.id));
+      const categoryIds = new Set(result.rows.map((r) => r.id));
 
       if (categoryIds.size === 0) {
         return `No entities found with category "${category}"`;
@@ -108,7 +115,7 @@ This tool:
       }
 
       return `✨ Highlighted ${categoryIds.size} ${category} entities
-${result.rows.slice(0, 5).map((e: any) => `• ${e.name}`).join('\n')}
+${result.rows.slice(0, 5).map((e) => `• ${e.name}`).join('\n')}
 ${zoom_to_category ? '\nZoomed to show highlighted nodes' : ''}`;
     },
   });
@@ -123,32 +130,39 @@ This creates a visual wave that travels through the graph:
 - Creates a flowing animation effect
 - Shows the graph structure dynamically`,
     inputSchema: {
-      direction: z.enum(['left-to-right', 'top-to-bottom', 'center-out'])
-        .optional()
-        .default('left-to-right')
-        .describe('Direction of the wave effect'),
-      wave_speed: z.number()
-        .min(50)
-        .max(500)
-        .optional()
-        .default(100)
-        .describe('Speed of wave in ms per node'),
-      color: z.string()
-        .optional()
-        .default('#3b82f6')
-        .describe('Color of the wave effect'),
-    },
+      type: 'object',
+      properties: {
+        direction: {
+          type: 'string',
+          enum: ['left-to-right', 'top-to-bottom', 'center-out'],
+          default: 'left-to-right',
+          description: 'Direction of the wave effect',
+        },
+        wave_speed: {
+          type: 'number',
+          minimum: 50,
+          maximum: 500,
+          default: 100,
+          description: 'Speed of wave in ms per node',
+        },
+        color: {
+          type: 'string',
+          default: '#3b82f6',
+          description: 'Color of the wave effect',
+        },
+      },
+    } as const,
     annotations: {
       title: 'Wave Effect',
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async (input) => {
-      const { direction, wave_speed, color } = input;
+    execute: async (input) => {
+      const { direction = 'left-to-right', wave_speed = 100, color = '#3b82f6' } = input;
 
       // Sort nodes based on direction
-      let sortedNodes = [...nodes];
+      const sortedNodes = [...nodes];
 
       if (direction === 'left-to-right') {
         sortedNodes.sort((a, b) => a.position.x - b.position.x);
@@ -228,7 +242,7 @@ Total duration: ${sortedNodes.length * wave_speed}ms`;
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       // Reset all nodes
       const resetNodes = nodes.map(node => ({
         ...node,

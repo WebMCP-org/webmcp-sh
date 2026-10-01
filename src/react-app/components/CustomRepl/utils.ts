@@ -36,7 +36,7 @@ export async function runDescribe(
   const start = performance.now()
   let out: string | Record<string, unknown> | undefined
   let ret: Results
-  const { promise, cancel: _cancel } = describe(
+  const { promise } = describe(
     query,
     'postgres',
     async (sql) => {

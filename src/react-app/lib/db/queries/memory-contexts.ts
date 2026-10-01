@@ -131,7 +131,7 @@ export async function toggle_active(id: string) {
 }
 
 /** Get context hierarchy (recursive) */
-export async function get_hierarchy(): Promise<any[]> {
+export async function get_hierarchy() {
   const roots = await get_roots();
   const result = [];
 

@@ -93,9 +93,9 @@ function DashboardHome() {
   const sessionCount = sessionsResult?.rows?.[0]?.count ?? 0;
 
   // Token data
-  const categoryTokensData = categoryTokensResult?.rows ?? [];
-  const tierTokensData = tierTokensResult?.rows ?? [];
-  const blockTypeTokensData = blockTypeTokensResult?.rows ?? [];
+  const categoryTokensData = useMemo(() => categoryTokensResult?.rows ?? [], [categoryTokensResult]);
+  const tierTokensData = useMemo(() => tierTokensResult?.rows ?? [], [tierTokensResult]);
+  const blockTypeTokensData = useMemo(() => blockTypeTokensResult?.rows ?? [], [blockTypeTokensResult]);
 
   // Calculate total tokens (memoized — two .reduce() calls)
   const totalTokens = useMemo(() => {

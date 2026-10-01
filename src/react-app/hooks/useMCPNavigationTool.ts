@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useRouter } from '@tanstack/react-router';
 import { useMemo } from 'react';
@@ -75,6 +74,15 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
       'Run visual effects like camera tours and particle bursts',
       'Analyze graph patterns and statistics',
       'Execute SQL queries directly'
+    ]
+  },
+  {
+    path: '/map',
+    description: 'Map - US states choropleth (GIS demo)',
+    capabilities: [
+      'Color states by population, area, or density',
+      'Change color scheme, class count, and classification method',
+      'Read the current map settings'
     ]
   },
   {
@@ -201,39 +209,48 @@ ${routeListDescription}
 
 The tool will navigate the user to the specified route and return a confirmation message.`,
     inputSchema: {
-      to: z.string()
-        .min(1, 'Route path cannot be empty')
-        .describe('The route path to navigate to (e.g., "/entities", "/graph")'),
-      params: z.record(z.string(), z.any())
-        .optional()
-        .describe('Route parameters (e.g., { "entityId": "uuid-here" }) for dynamic routes'),
-      search: z.record(z.string(), z.any())
-        .optional()
-        .describe('URL search/query parameters (e.g., { "filter": "skills", "page": "2" })'),
-      hash: z.string()
-        .optional()
-        .describe('URL hash fragment (e.g., "section-1")'),
-      replace: z.boolean()
-        .optional()
-        .default(false)
-        .describe('If true, replaces current history entry instead of pushing new one'),
-    },
+      type: 'object',
+      properties: {
+        to: {
+          type: 'string',
+          minLength: 1,
+          description: 'The route path to navigate to (e.g., "/entities", "/graph")',
+        },
+        params: {
+          type: 'object',
+          additionalProperties: true,
+          description: 'Route parameters (e.g., { "entityId": "uuid-here" }) for dynamic routes',
+        },
+        search: {
+          type: 'object',
+          additionalProperties: true,
+          description: 'URL search/query parameters (e.g., { "filter": "skills", "page": "2" })',
+        },
+        hash: { type: 'string', description: 'URL hash fragment (e.g., "section-1")' },
+        replace: {
+          type: 'boolean',
+          default: false,
+          description: 'If true, replaces current history entry instead of pushing new one',
+        },
+      },
+      required: ['to'],
+    } as const,
     annotations: {
       title: 'Navigate',
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       const { to, params, search, hash, replace } = input;
 
       // Validate route exists
       if (!isValidRoute(to)) {
-        throw new Error(`Invalid route: "${to}". Use the "list_routes" tool to see available routes.`);
+        throw new Error(`Invalid route: "${to}". Use the "list_all_routes" tool to see available routes.`);
       }
 
       // Build navigation options
-      const navOptions: any = { to };
+      const navOptions: Record<string, unknown> = { to };
       if (params) navOptions.params = params;
       if (search) navOptions.search = search;
       if (hash) navOptions.hash = hash;
@@ -241,7 +258,7 @@ The tool will navigate the user to the specified route and return a confirmation
 
       try {
         // Perform navigation
-        await router.navigate(navOptions);
+        await router.navigate(navOptions as Parameters<typeof router.navigate>[0]);
 
         // Build response message
         let message = `✓ Navigated to ${to}`;
@@ -280,7 +297,7 @@ Useful for understanding where the user is and providing context-aware responses
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       const location = router.state.location;
 
       return {
@@ -303,7 +320,7 @@ Useful for understanding where the user is and providing context-aware responses
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       return formatRouteList();
     },
   });
@@ -316,17 +333,21 @@ Useful for understanding where the user is and providing context-aware responses
 Use this tool to understand what areas of the app exist and what you can do in each.
 When you navigate to a route, context-specific tools will become available automatically.`,
     inputSchema: {
-      query: z.string()
-        .optional()
-        .describe('Optional: Search for a specific area (e.g., "graph", "memory", "sql")')
-    },
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Optional: Search for a specific area (e.g., "graph", "memory", "sql")',
+        },
+      },
+    } as const,
     annotations: {
       title: 'App Gateway',
       readOnlyHint: true,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       const { query } = input;
 
       let output = formatRouteList();

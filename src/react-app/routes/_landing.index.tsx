@@ -34,11 +34,15 @@ const TOOL_CODE: Record<string, string> = {
   name: 'navigate',
   description: 'Navigate to a different route in the application',
   inputSchema: {
-    to: z.string().describe('The route path to navigate to'),
-    params: z.record(z.string(), z.any()).optional(),
-    search: z.record(z.string(), z.any()).optional(),
+    type: 'object',
+    properties: {
+      to: { type: 'string', description: 'The route path to navigate to' },
+      params: { type: 'object', additionalProperties: true },
+      search: { type: 'object', additionalProperties: true },
+    },
+    required: ['to'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     await router.navigate({ to: input.to, params: input.params });
     return \`Navigated to \${input.to}\`;
   },
@@ -47,9 +51,9 @@ const TOOL_CODE: Record<string, string> = {
   get_current_context: `useWebMCP({
   name: 'get_current_context',
   description: 'Get the current application context',
-  inputSchema: {},
+  inputSchema: { type: 'object', properties: {} },
   annotations: { readOnlyHint: true },
-  handler: async () => {
+  execute: async () => {
     const location = router.state.location;
     return {
       pathname: location.pathname,
@@ -62,8 +66,8 @@ const TOOL_CODE: Record<string, string> = {
   list_all_routes: `useWebMCP({
   name: 'list_all_routes',
   description: 'Get all available routes with descriptions',
-  inputSchema: {},
-  handler: async () => {
+  inputSchema: { type: 'object', properties: {} },
+  execute: async () => {
     return formatRouteList(); // Returns formatted route documentation
   },
 });`,
@@ -72,10 +76,12 @@ const TOOL_CODE: Record<string, string> = {
   name: 'app_gateway',
   description: 'Primary entry point for understanding the app',
   inputSchema: {
-    query: z.string().optional()
-      .describe('Specific area to focus on')
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'Specific area to focus on' },
+    },
   },
-  handler: async (input) => {
+  execute: async (input) => {
     let output = formatRouteList();
     if (input.query) {
       // Filter routes based on query
@@ -93,9 +99,13 @@ const TOOL_CODE: Record<string, string> = {
   name: 'sql_query',
   description: 'Execute SQL queries against the database',
   inputSchema: {
-    query: z.string().describe('The SQL query to execute'),
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'The SQL query to execute' },
+    },
+    required: ['query'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     // Safety check - block dangerous operations
     const analysis = analyzeQuery(input.query);
     if (analysis.isDangerous) {
@@ -110,9 +120,9 @@ const TOOL_CODE: Record<string, string> = {
   get_database_info: `useWebMCP({
   name: 'get_database_info',
   description: 'Get complete schema and query patterns',
-  inputSchema: {},
+  inputSchema: { type: 'object', properties: {} },
   annotations: { readOnlyHint: true },
-  handler: async () => {
+  execute: async () => {
     // Returns comprehensive database documentation:
     // - All table schemas with column types
     // - Record counts per table
@@ -126,15 +136,22 @@ const TOOL_CODE: Record<string, string> = {
   name: \`table_\${tableName}\`,
   description: 'Control table UI in real-time',
   inputSchema: {
-    operation: z.enum([
-      'filter_column', 'batch_filter', 'clear_filter',
-      'group_by', 'sort', 'search', 'paginate', 'select'
-    ]),
-    column: z.string().optional(),
-    value: z.unknown().optional(),
-    filterType: z.enum(['equals', 'contains', 'greaterThan', 'between']).optional(),
+    type: 'object',
+    properties: {
+      operation: {
+        type: 'string',
+        enum: [
+          'filter_column', 'batch_filter', 'clear_filter',
+          'group_by', 'sort', 'search', 'paginate', 'select'
+        ],
+      },
+      column: { type: 'string' },
+      value: {},
+      filterType: { type: 'string', enum: ['equals', 'contains', 'greaterThan', 'between'] },
+    },
+    required: ['operation'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     // Directly manipulates React state for immediate UI updates
     if (input.operation === 'filter_column') {
       setColumnFilters(prev => [...prev, { id: input.column, value: input.value }]);
@@ -187,10 +204,14 @@ case 'group_by': {
   name: 'graph_query_entities',
   description: 'Query and highlight entities in the graph',
   inputSchema: {
-    where_clause: z.string().describe('SQL WHERE clause'),
-    zoom_to_results: z.boolean().optional().default(true),
+    type: 'object',
+    properties: {
+      where_clause: { type: 'string', description: 'SQL WHERE clause' },
+      zoom_to_results: { type: 'boolean', default: true },
+    },
+    required: ['where_clause'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     // Execute SQL to find matching entities
     const result = await pg_lite.query(
       \`SELECT * FROM memory_entities WHERE \${input.where_clause}\`
@@ -213,10 +234,14 @@ case 'group_by': {
   name: 'graph_focus_entity',
   description: 'Focus view on a specific entity',
   inputSchema: {
-    entity_id: z.string().describe('Entity UUID to focus on'),
-    show_connections: z.boolean().optional().default(true),
+    type: 'object',
+    properties: {
+      entity_id: { type: 'string', description: 'Entity UUID to focus on' },
+      show_connections: { type: 'boolean', default: true },
+    },
+    required: ['entity_id'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const node = nodes.find(n => n.id === input.entity_id);
     if (!node) throw new Error('Entity not found in graph');
 
@@ -240,10 +265,14 @@ case 'group_by': {
   name: 'graph_set_layout',
   description: 'Change graph layout algorithm',
   inputSchema: {
-    layout: z.enum(['force', 'hierarchical', 'radial', 'grid']),
-    animate: z.boolean().optional().default(true),
+    type: 'object',
+    properties: {
+      layout: { type: 'string', enum: ['force', 'hierarchical', 'radial', 'grid'] },
+      animate: { type: 'boolean', default: true },
+    },
+    required: ['layout'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const newPositions = calculateLayout(nodes, edges, input.layout);
 
     if (input.animate) {
@@ -261,12 +290,16 @@ case 'group_by': {
   name: 'graph_3d_rotate',
   description: 'Control 3D graph rotation and zoom',
   inputSchema: {
-    action: z.enum(['rotate', 'zoom', 'reset', 'auto_rotate']),
-    x: z.number().optional(),
-    y: z.number().optional(),
-    zoom: z.number().optional(),
+    type: 'object',
+    properties: {
+      action: { type: 'string', enum: ['rotate', 'zoom', 'reset', 'auto_rotate'] },
+      x: { type: 'number' },
+      y: { type: 'number' },
+      zoom: { type: 'number' },
+    },
+    required: ['action'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const controls = threeRef.current?.controls;
 
     if (input.action === 'rotate') {
@@ -285,14 +318,21 @@ case 'group_by': {
   name: 'create_entity',
   description: 'Create a new memory entity (structured knowledge)',
   inputSchema: {
-    category: z.enum(['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal']),
-    name: z.string().min(1).max(200),
-    description: z.string().min(1),
-    tags: z.array(z.string()).optional().default([]),
-    importance_score: z.number().int().min(0).max(100).optional(),
-    confidence: z.number().int().min(0).max(100).optional(),
+    type: 'object',
+    properties: {
+      category: {
+        type: 'string',
+        enum: ['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal'],
+      },
+      name: { type: 'string', minLength: 1, maxLength: 200 },
+      description: { type: 'string', minLength: 1 },
+      tags: { type: 'array', items: { type: 'string' }, default: [] },
+      importance_score: { type: 'integer', minimum: 0, maximum: 100 },
+      confidence: { type: 'integer', minimum: 0, maximum: 100 },
+    },
+    required: ['category', 'name', 'description'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const entity = await memory_entities.create(input);
     toast.success('Entity created', { description: entity.name });
     return { success: true, entity };
@@ -303,12 +343,19 @@ case 'group_by': {
   name: 'create_memory_block',
   description: 'Create a new memory block (always-in-context core memory)',
   inputSchema: {
-    block_type: z.enum(['user_profile', 'agent_persona', 'current_goals', 'context']),
-    label: z.string().min(1).max(200),
-    value: z.string().min(1),
-    priority: z.number().int().min(0).max(100).optional(),
+    type: 'object',
+    properties: {
+      block_type: {
+        type: 'string',
+        enum: ['user_profile', 'agent_persona', 'current_goals', 'context'],
+      },
+      label: { type: 'string', minLength: 1, maxLength: 200 },
+      value: { type: 'string', minLength: 1 },
+      priority: { type: 'integer', minimum: 0, maximum: 100 },
+    },
+    required: ['block_type', 'label', 'value'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const block = await memory_blocks.create(input);
     toast.success('Memory block created');
     return { success: true, block };
@@ -319,11 +366,18 @@ case 'group_by': {
   name: 'search_entities',
   description: 'Search memory entities by name or description',
   inputSchema: {
-    query: z.string().min(1),
-    category: z.enum(['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal']).optional(),
-    limit: z.number().int().min(1).max(100).optional().default(20),
+    type: 'object',
+    properties: {
+      query: { type: 'string', minLength: 1 },
+      category: {
+        type: 'string',
+        enum: ['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal'],
+      },
+      limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+    },
+    required: ['query'],
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const entities = await memory_entities.search(input.query, { category: input.category });
     return {
       query: input.query,
@@ -337,10 +391,16 @@ case 'group_by': {
   name: 'list_entities',
   description: 'List memory entities, optionally filtered by category',
   inputSchema: {
-    category: z.enum(['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal']).optional(),
-    limit: z.number().int().min(1).max(100).optional().default(50),
+    type: 'object',
+    properties: {
+      category: {
+        type: 'string',
+        enum: ['fact', 'preference', 'skill', 'rule', 'person', 'project', 'goal'],
+      },
+      limit: { type: 'integer', minimum: 1, maximum: 100, default: 50 },
+    },
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const entities = await memory_entities.get_all({
       category: input.category,
       limit: input.limit
@@ -352,9 +412,9 @@ case 'group_by': {
   graph_statistics: `useWebMCP({
   name: 'graph_statistics',
   description: 'Get statistics about the knowledge graph',
-  inputSchema: {},
+  inputSchema: { type: 'object', properties: {} },
   annotations: { readOnlyHint: true },
-  handler: async () => {
+  execute: async () => {
     return {
       totalNodes: nodes.length,
       totalEdges: edges.length,
@@ -369,10 +429,13 @@ case 'group_by': {
   name: 'graph3d_camera_tour',
   description: 'Start an automated camera tour of the 3D graph',
   inputSchema: {
-    duration: z.number().optional().default(10000),
-    points: z.enum(['random', 'categories', 'important']).optional(),
+    type: 'object',
+    properties: {
+      duration: { type: 'number', default: 10000 },
+      points: { type: 'string', enum: ['random', 'categories', 'important'] },
+    },
   },
-  handler: async (input) => {
+  execute: async (input) => {
     const tourPoints = generateTourPoints(input.points);
     await animateCameraTour(tourPoints, input.duration);
     return { success: true, message: 'Camera tour complete' };
@@ -757,7 +820,7 @@ function HomePage() {
                 <CardContent className="p-0 overflow-x-auto">
                   <HighlightedCode code={`import { useWebMCP } from '@mcp-b/react-webmcp';
 
-// JSON Schema-first (recommended) — no Zod required
+// Tool schemas are plain JSON Schema
 useWebMCP({
   name: 'my_tool',
   description: 'What this tool does',
@@ -775,19 +838,9 @@ useWebMCP({
       count: { type: 'number' },
     },
   },
-  handler: async (input) => {
+  execute: async (input) => {
     return { result: 'Done', count: 1 };
   },
-});
-
-// Zod schemas still supported as optional convenience
-import { z } from 'zod';
-useWebMCP({
-  name: 'my_zod_tool',
-  inputSchema: {
-    param: z.string().describe('Also works'),
-  },
-  handler: async (input) => 'Result for AI',
 });`} />
                 </CardContent>
               </Card>

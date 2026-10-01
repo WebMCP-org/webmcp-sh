@@ -125,21 +125,6 @@ export default defineConfig({
         // Runtime caching for external resources
         runtimeCaching: [
           {
-            // Cache Prettier from unpkg.com for offline SQL formatting
-            urlPattern: /^https:\/\/unpkg\.com\/prettier.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'prettier-cdn-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
             // Cache Google Fonts
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
             handler: 'CacheFirst',

@@ -1,7 +1,6 @@
 import { common, createStarryNight } from '@wooorm/starry-night'
 import { toHtml } from 'hast-util-to-html'
 import { format } from 'sql-formatter'
-import { formatSQLWithPrettier } from './prettier-formatter'
 
 let starryNightInstance: Awaited<ReturnType<typeof createStarryNight>> | null = null
 
@@ -17,27 +16,19 @@ async function getStarryNight() {
 
 /**
  * Format SQL code for better readability
- * Uses Prettier if available, falls back to sql-formatter
  */
 export async function formatSQL(code: string): Promise<string> {
   try {
-    // Try Prettier first, which will fall back to sql-formatter if needed
-    return await formatSQLWithPrettier(code)
+    return format(code, {
+      language: 'postgresql',
+      tabWidth: 2,
+      keywordCase: 'upper',
+      dataTypeCase: 'upper',
+      functionCase: 'upper',
+    })
   } catch (error) {
-    console.error('Error formatting SQL:', error)
-    // Final fallback: try sql-formatter directly
-    try {
-      return format(code, {
-        language: 'postgresql',
-        tabWidth: 2,
-        keywordCase: 'upper',
-        dataTypeCase: 'upper',
-        functionCase: 'upper',
-      })
-    } catch (fallbackError) {
-      console.error('Fallback SQL formatting failed:', fallbackError)
-      return code
-    }
+    console.error('SQL formatting failed:', error)
+    return code
   }
 }
 

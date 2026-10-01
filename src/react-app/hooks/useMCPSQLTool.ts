@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { toast } from 'sonner';
 import { pg_lite } from '@/lib/db';
@@ -108,11 +107,6 @@ function analyzeQuery(sql: string): {
  * Format query results from REPL Response for AI consumption
  */
 function formatReplResults(response: Response): string {
-  // If error, return error message
-  if (response.error) {
-    return `❌ Error: ${response.error}`;
-  }
-
   // If text response (from \d commands), return text
   if (response.text) {
     return response.text;
@@ -357,7 +351,7 @@ After calling this once, use sql_query for all your database operations.`,
       idempotentHint: true,
       openWorldHint: false,
     },
-    handler: async () => {
+    execute: async () => {
       return await getDatabaseInfo();
     },
   });
@@ -386,17 +380,23 @@ SAFETY:
 
 💡 TIP: Write ONE powerful query using JOINs and CTEs instead of multiple simple queries! See get_database_info for examples.`,
     inputSchema: {
-      query: z.string()
-        .min(1, 'SQL query cannot be empty')
-        .describe('The SQL query to execute (SELECT, INSERT, UPDATE, DELETE)'),
-    },
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          minLength: 1,
+          description: 'The SQL query to execute (SELECT, INSERT, UPDATE, DELETE)',
+        },
+      },
+      required: ['query'],
+    } as const,
     annotations: {
       title: 'SQL Query',
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: true,
     },
-    handler: async (input) => {
+    execute: async (input) => {
       const { query: rawQuery } = input;
       const startTime = performance.now();
 
@@ -435,6 +435,11 @@ SAFETY:
             }] as Response['results'],
             time: performance.now() - startTime,
           };
+        }
+
+        // The REPL reports query errors in the response instead of throwing.
+        if (response.error) {
+          throw new Error(response.error);
         }
 
         const executionTime = Math.round(performance.now() - startTime);

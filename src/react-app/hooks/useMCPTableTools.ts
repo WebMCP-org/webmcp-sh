@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
@@ -780,51 +779,85 @@ ${Object.entries(customActions).map(([key]) =>
 
 All operations update the UI in real-time, providing immediate visual feedback to the user.`,
     inputSchema: {
-      operation: z.enum(operationEnum).describe('The operation to perform'),
+      type: 'object',
+      properties: {
+        // `operationEnum` is computed at runtime from the configured custom actions,
+        // so this schema cannot be a `const` literal and the operation stays a plain string.
+        operation: {
+          type: 'string',
+          enum: operationEnum,
+          description: 'The operation to perform',
+        },
 
-      // Filter operations
-      column: z.string().optional().describe('Column name for filtering/sorting/grouping'),
-      value: z.unknown().optional().describe('Filter value'),
-      filterType: z.enum(['equals', 'contains', 'startsWith', 'endsWith', 'greaterThan', 'lessThan', 'between', 'notEquals', 'notContains'])
-        .optional().describe('Type of filter to apply'),
-      secondValue: z.unknown().optional().describe('Second value for between filter'),
-      filters: z.array(z.object({
-        column: z.string(),
-        value: z.unknown(),
-        filterType: z.string().optional(),
-        secondValue: z.unknown().optional()
-      })).optional().describe('Array of filters for batch filtering'),
+        // Filter operations
+        column: { type: 'string', description: 'Column name for filtering/sorting/grouping' },
+        value: { description: 'Filter value' },
+        filterType: {
+          type: 'string',
+          enum: ['equals', 'contains', 'startsWith', 'endsWith', 'greaterThan', 'lessThan', 'between', 'notEquals', 'notContains'],
+          description: 'Type of filter to apply',
+        },
+        secondValue: { description: 'Second value for between filter' },
+        filters: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              column: { type: 'string' },
+              value: {},
+              filterType: { type: 'string' },
+              secondValue: {},
+            },
+            required: ['column'],
+          },
+          description: 'Array of filters for batch filtering',
+        },
 
-      // Grouping operations
-      groupBy: z.union([z.string(), z.array(z.string())]).optional().describe('Column(s) to group by'),
-      rowId: z.string().optional().describe('Row ID for expand/collapse operations'),
-      expanded: z.boolean().optional().describe('Whether to expand or collapse'),
+        // Grouping operations
+        groupBy: {
+          anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+          description: 'Column(s) to group by',
+        },
+        rowId: { type: 'string', description: 'Row ID for expand/collapse operations' },
+        expanded: { type: 'boolean', description: 'Whether to expand or collapse' },
 
-      // Sort operations
-      sortBy: z.string().optional().describe('Column to sort by'),
-      sortOrder: z.enum(['asc', 'desc']).optional().describe('Sort direction'),
+        // Sort operations
+        sortBy: { type: 'string', description: 'Column to sort by' },
+        sortOrder: { type: 'string', enum: ['asc', 'desc'], description: 'Sort direction' },
 
-      // Pagination
-      page: z.number().optional().describe('Page number (1-based)'),
-      pageSize: z.number().optional().describe('Number of items per page'),
+        // Pagination
+        page: { type: 'number', description: 'Page number (1-based)' },
+        pageSize: { type: 'number', description: 'Number of items per page' },
 
-      // Search
-      query: z.string().optional().describe('Global search query'),
+        // Search
+        query: { type: 'string', description: 'Global search query' },
 
-      // Selection
-      id: z.union([z.string(), z.number()]).optional().describe('ID of item to select/act on'),
-      index: z.number().optional().describe('Index of item in current list (0-based)'),
+        // Selection
+        id: {
+          anyOf: [{ type: 'string' }, { type: 'number' }],
+          description: 'ID of item to select/act on',
+        },
+        index: { type: 'number', description: 'Index of item in current list (0-based)' },
 
-      // Column visibility
-      columns: z.array(z.string()).optional().describe('Column names to show/hide'),
-      visible: z.boolean().optional().describe('Whether to show or hide columns'),
+        // Column visibility
+        columns: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Column names to show/hide',
+        },
+        visible: { type: 'boolean', description: 'Whether to show or hide columns' },
+      },
+      required: ['operation'],
     },
     annotations: {
       readOnlyHint: false,
       idempotentHint: false,
       openWorldHint: false,
     },
-    handler: async (input: OperationInput) => {
+    execute: async (rawInput) => {
+      // The runtime `operationEnum` keeps this schema non-const, so inference widens to
+      // `WebMcpToolInput`; narrow once to the hand-written shape the handlers expect.
+      const input = rawInput as unknown as OperationInput;
       try {
         const result = await handleOperation(input);
         // Show toast for successful operations that modify state

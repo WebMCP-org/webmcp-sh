@@ -1,7 +1,7 @@
 import { pgTable, uuid, text, timestamp, integer, index, jsonb, boolean, primaryKey, AnyPgColumn } from 'drizzle-orm/pg-core';
 import { relations, sql, SQL } from 'drizzle-orm';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 /**
  * AI AGENT MEMORY SYSTEM - SQL-FIRST ARCHITECTURE

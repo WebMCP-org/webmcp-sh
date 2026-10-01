@@ -52,7 +52,7 @@ function EntitiesComponent() {
   const categoryCountsQuery = memory_entities.getMemoryEntityCategoryCountsQuerySQL()
   const categoryCountsResult = useLiveQuery<memory_entities.GetMemoryEntityCategoryCountsResult>(categoryCountsQuery.sql, categoryCountsQuery.params)
 
-  const entities = entitiesResult?.rows ?? []
+  const entities = useMemo(() => entitiesResult?.rows ?? [], [entitiesResult])
   const categoryCounts = categoryCountsResult?.rows ?? []
 
   const filteredEntities = useMemo(() =>

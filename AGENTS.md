@@ -43,7 +43,6 @@
 pnpm install                # Install dependencies
 pnpm dev                    # Start dev server (http://localhost:5173)
 pnpm db:generate            # Generate migrations after schema changes
-pnpm db:studio              # Open Drizzle Studio
 ```
 
 ### Code Quality

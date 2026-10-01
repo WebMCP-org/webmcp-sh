@@ -170,7 +170,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = ({
       return rgb.flat();
     };
 
-    let mouse: { x: number; y: number } = { x: 0.0, y: 0.0 };
+    const mouse: { x: number; y: number } = { x: 0.0, y: 0.0 };
     const handleMouse = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
@@ -202,7 +202,7 @@ export const MeshGradient: React.FC<MeshGradientProps> = ({
     const colorArray = new Float32Array(parseColors());
     gl.uniform3fv(uColors, colorArray);
 
-    let start = performance.now();
+    const start = performance.now();
     const loop = () => {
       const now = performance.now();
       const t =
