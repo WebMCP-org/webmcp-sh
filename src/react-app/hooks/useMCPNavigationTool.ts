@@ -77,6 +77,15 @@ const ROUTE_DEFINITIONS: RouteInfo[] = [
     ]
   },
   {
+    path: '/map',
+    description: 'Map - US states choropleth (GIS demo)',
+    capabilities: [
+      'Color states by population, area, or density',
+      'Change color scheme, class count, and classification method',
+      'Read the current map settings'
+    ]
+  },
+  {
     path: '/memory-blocks',
     description: 'Memory blocks - Manage always-in-context core memories',
     capabilities: [
