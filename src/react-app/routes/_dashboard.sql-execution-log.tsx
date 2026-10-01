@@ -12,7 +12,7 @@ import JsonView from '@uiw/react-json-view'
 import { githubLightTheme } from '@uiw/react-json-view/githubLight'
 import { githubDarkTheme } from '@uiw/react-json-view/githubDark'
 import { cn } from '@/lib/utils'
-import { useTheme } from '@/components/theme-provider'
+import { useTheme } from '@/components/theme-context'
 import { useMCPSQLTool } from '@/hooks/useMCPSQLTool'
 import { useMCPSQLLogPrompts } from '@/hooks/prompts'
 

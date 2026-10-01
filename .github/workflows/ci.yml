@@ -51,7 +51,7 @@ jobs:
         run: pnpm exec tsc -b
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm lint --max-warnings 0
 
       - name: Build application
         run: pnpm run build
