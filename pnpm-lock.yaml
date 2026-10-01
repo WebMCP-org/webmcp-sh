@@ -34,7 +34,7 @@ importers:
         version: 0.2.32(@electric-sql/pglite@0.3.14)(react@19.2.0)
       '@hookform/resolvers':
         specifier: ^5.9.1
-        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.17.1)(react-hook-form@7.64.0(react@19.2.0))(zod@3.25.76)
+        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.17.1)(react-hook-form@7.64.0(react@19.2.0))(zod@4.6.5)
       '@mcp-b/global':
         specifier: 6.0.0-beta.20261001010549
         version: 6.0.0-beta.20261001010549
@@ -130,7 +130,7 @@ importers:
         version: 0.44.6(@cloudflare/workers-types@4.20251128.0)(@electric-sql/pglite@0.3.14)(@opentelemetry/api@1.9.0)
       drizzle-zod:
         specifier: ^0.8.3
-        version: 0.8.3(drizzle-orm@0.44.6(@cloudflare/workers-types@4.20251128.0)(@electric-sql/pglite@0.3.14)(@opentelemetry/api@1.9.0))(zod@3.25.76)
+        version: 0.8.3(drizzle-orm@0.44.6(@cloudflare/workers-types@4.20251128.0)(@electric-sql/pglite@0.3.14)(@opentelemetry/api@1.9.0))(zod@4.6.5)
       gpt-tokenizer:
         specifier: ^3.0.1
         version: 3.0.1
@@ -201,8 +201,8 @@ importers:
         specifier: ^7.4.0
         version: 7.4.0
       zod:
-        specifier: 3.25.76
-        version: 3.25.76
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: ^1.15.3
@@ -6792,14 +6792,14 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv@8.17.1)(react-hook-form@7.64.0(react@19.2.0))(zod@3.25.76)':
+  '@hookform/resolvers@5.9.1(@standard-schema/spec@1.1.0)(ajv@8.17.1)(react-hook-form@7.64.0(react@19.2.0))(zod@4.6.5)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.64.0(react@19.2.0)
     optionalDependencies:
       '@standard-schema/spec': 1.1.0
       ajv: 8.17.1
-      zod: 3.25.76
+      zod: 4.6.5
 
   '@humanfs/core@0.19.1': {}
 
@@ -8852,10 +8852,10 @@ snapshots:
       '@electric-sql/pglite': 0.3.14
       '@opentelemetry/api': 1.9.0
 
-  drizzle-zod@0.8.3(drizzle-orm@0.44.6(@cloudflare/workers-types@4.20251128.0)(@electric-sql/pglite@0.3.14)(@opentelemetry/api@1.9.0))(zod@3.25.76):
+  drizzle-zod@0.8.3(drizzle-orm@0.44.6(@cloudflare/workers-types@4.20251128.0)(@electric-sql/pglite@0.3.14)(@opentelemetry/api@1.9.0))(zod@4.6.5):
     dependencies:
       drizzle-orm: 0.44.6(@cloudflare/workers-types@4.20251128.0)(@electric-sql/pglite@0.3.14)(@opentelemetry/api@1.9.0)
-      zod: 3.25.76
+      zod: 4.6.5
 
   dunder-proto@1.0.1:
     dependencies:

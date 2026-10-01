@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { z } from 'zod/v4';
+import type { z } from 'zod';
 import { insert_memory_entity_schema } from '@/lib/db/schema';
 import type { InsertMemoryEntity, UpdateMemoryEntity } from '@/lib/db/types';
 import { memory_entities } from '@/lib/db';
