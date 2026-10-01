@@ -128,7 +128,7 @@ export async function update_field(id: string, field: string, value: string | nu
     throw new Error(`Field '${field}' is not allowed for inline editing`);
   }
 
-  const updates: Record<string, any> = {
+  const updates: Partial<typeof schema.memory_blocks.$inferInsert> = {
     [field]: value,
     updated_at: new Date()
   };

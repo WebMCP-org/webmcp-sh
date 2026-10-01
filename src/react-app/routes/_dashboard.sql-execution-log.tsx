@@ -54,7 +54,7 @@ function SQLExecutionLogPage() {
     LIMIT 100
   `)
 
-  const queryHistory = logsResult?.rows ?? []
+  const queryHistory = useMemo(() => logsResult?.rows ?? [], [logsResult])
 
   const clearHistory = async () => {
     await pg_lite.query('DELETE FROM sql_execution_log')

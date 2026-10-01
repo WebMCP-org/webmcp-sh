@@ -47,13 +47,13 @@ This tool:
       const { category, zoom_to_category = true } = input;
 
       // Find all entities of this category
-      const result = await pg_lite.query(`
+      const result = await pg_lite.query<{ id: string; name: string; importance_score: number }>(`
         SELECT id, name, importance_score
         FROM memory_entities
         WHERE category = $1
       `, [category]);
 
-      const categoryIds = new Set(result.rows.map((r: any) => r.id));
+      const categoryIds = new Set(result.rows.map((r) => r.id));
 
       if (categoryIds.size === 0) {
         return `No entities found with category "${category}"`;
@@ -115,7 +115,7 @@ This tool:
       }
 
       return `✨ Highlighted ${categoryIds.size} ${category} entities
-${result.rows.slice(0, 5).map((e: any) => `• ${e.name}`).join('\n')}
+${result.rows.slice(0, 5).map((e) => `• ${e.name}`).join('\n')}
 ${zoom_to_category ? '\nZoomed to show highlighted nodes' : ''}`;
     },
   });
@@ -162,7 +162,7 @@ This creates a visual wave that travels through the graph:
       const { direction = 'left-to-right', wave_speed = 100, color = '#3b82f6' } = input;
 
       // Sort nodes based on direction
-      let sortedNodes = [...nodes];
+      const sortedNodes = [...nodes];
 
       if (direction === 'left-to-right') {
         sortedNodes.sort((a, b) => a.position.x - b.position.x);

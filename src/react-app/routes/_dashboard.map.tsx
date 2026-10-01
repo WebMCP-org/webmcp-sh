@@ -9,7 +9,7 @@ import "leaflet/dist/leaflet.css";
 import { useMCPMapTools } from "@/hooks/useMCPMapTools";
 import { useMCPMapPrompts } from "@/hooks/prompts";
 import type { Layer } from "leaflet";
-import type { Feature, Geometry } from "geojson";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
 
 export const Route = createFileRoute("/_dashboard/map")({
   component: MapComponent,
@@ -22,20 +22,8 @@ interface StateProperties {
   area_sqkm: number;
 }
 
-interface StateFeature {
-  type: string;
-  id?: string | number;
-  properties: StateProperties;
-  geometry: {
-    type: string;
-    coordinates: number[][][];
-  };
-}
-
-interface StatesData {
-  type: string;
-  features: StateFeature[];
-}
+type StateFeature = Feature<Geometry, StateProperties>;
+type StatesData = FeatureCollection<Geometry, StateProperties>;
 
 type DataField = "population" | "area_sqkm" | "density";
 type ClassificationMethod = "equalInterval" | "quantile" | "naturalBreaks";
@@ -82,8 +70,8 @@ function MapComponent() {
     return colorSchemes[selectedType].schemes;
   }, [selectedType]);
 
-  const getFeatureStyle = useCallback((feature: StateFeature) => {
-    if (!statesData) return {};
+  const getFeatureStyle = useCallback((feature?: StateFeature) => {
+    if (!statesData || !feature) return {};
 
     const value = feature.properties[selectedData];
     const values = statesData.features.map((f) => f.properties[selectedData]);
@@ -235,8 +223,8 @@ function MapComponent() {
           />
           <GeoJSON
             key={`${selectedData}-${selectedType}-${selectedSchemeName}-${selectedClasses}-${selectedClassification}`}
-            data={statesData as any}
-            style={getFeatureStyle as any}
+            data={statesData}
+            style={getFeatureStyle}
             onEachFeature={onEachFeature}
           />
         </MapContainer>

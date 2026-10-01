@@ -16,7 +16,7 @@ import {
   getExpandedRowModel,
   getGroupedRowModel,
   useReactTable,
-  FilterFn,
+  FilterMeta,
   Row,
 } from "@tanstack/react-table"
 import { rankItem } from "@tanstack/match-sorter-utils"
@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/table"
 
 // Define fuzzy filter
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+function fuzzyFilter<TData>(row: Row<TData>, columnId: string, value: string, addMeta: (meta: FilterMeta) => void) {
   const itemRank = rankItem(row.getValue(columnId), value)
   addMeta({ itemRank })
   return itemRank.passed

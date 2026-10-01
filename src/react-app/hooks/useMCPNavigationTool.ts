@@ -250,7 +250,7 @@ The tool will navigate the user to the specified route and return a confirmation
       }
 
       // Build navigation options
-      const navOptions: any = { to };
+      const navOptions: Record<string, unknown> = { to };
       if (params) navOptions.params = params;
       if (search) navOptions.search = search;
       if (hash) navOptions.hash = hash;
@@ -258,7 +258,7 @@ The tool will navigate the user to the specified route and return a confirmation
 
       try {
         // Perform navigation
-        await router.navigate(navOptions);
+        await router.navigate(navOptions as Parameters<typeof router.navigate>[0]);
 
         // Build response message
         let message = `✓ Navigated to ${to}`;

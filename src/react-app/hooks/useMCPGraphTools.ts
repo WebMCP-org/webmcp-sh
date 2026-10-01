@@ -2,6 +2,7 @@ import { useWebMCP } from '@mcp-b/react-webmcp';
 import { useReactFlow, useNodes, useEdges } from '@xyflow/react';
 import { toast } from 'sonner';
 import { pg_lite } from '@/lib/db';
+import type { EntityNodeData } from '@/components/graph/EntityNode';
 
 /**
  * Hook to register MCP tools for React Flow graph manipulation
@@ -405,16 +406,16 @@ Showing ${connectedIds.size} entities within depth ${connection_depth}${details}
     },
     execute: async () => {
       const categories = nodes.reduce((acc, node) => {
-        const category = (node.data as any).category || 'unknown';
+        const category = (node.data as Partial<EntityNodeData>).category || 'unknown';
         acc[category] = (acc[category] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
       const avgImportance = nodes.reduce((sum, node) =>
-        sum + ((node.data as any).importance_score || 0), 0) / nodes.length;
+        sum + ((node.data as Partial<EntityNodeData>).importance_score || 0), 0) / nodes.length;
 
       const maxConnections = Math.max(...nodes.map(node =>
-        (node.data as any).connection_count || 0));
+        (node.data as Partial<EntityNodeData>).connection_count || 0));
 
       return `Graph Statistics:
 
