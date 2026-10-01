@@ -107,11 +107,6 @@ function analyzeQuery(sql: string): {
  * Format query results from REPL Response for AI consumption
  */
 function formatReplResults(response: Response): string {
-  // If error, return error message
-  if (response.error) {
-    return `❌ Error: ${response.error}`;
-  }
-
   // If text response (from \d commands), return text
   if (response.text) {
     return response.text;
@@ -440,6 +435,11 @@ SAFETY:
             }] as Response['results'],
             time: performance.now() - startTime,
           };
+        }
+
+        // The REPL reports query errors in the response instead of throwing.
+        if (response.error) {
+          throw new Error(response.error);
         }
 
         const executionTime = Math.round(performance.now() - startTime);
