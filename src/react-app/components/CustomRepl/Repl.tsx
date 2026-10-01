@@ -3,7 +3,6 @@ import CodeMirror, {
   type ReactCodeMirrorRef,
   type Extension,
 } from '@uiw/react-codemirror'
-import type { CreateThemeOptions } from '@uiw/codemirror-themes'
 import { defaultKeymap } from '@codemirror/commands'
 import { keymap } from '@codemirror/view'
 import { PostgreSQL } from '@codemirror/lang-sql'
@@ -16,9 +15,7 @@ import { runQuery, getSchema } from './utils'
 import { ReplResponse } from './ReplResponse'
 import {
   githubDark,
-  githubDarkInit,
   githubLight,
-  githubLightInit,
 } from '@uiw/codemirror-theme-github'
 
 import './Repl.css'
@@ -33,12 +30,8 @@ const baseKeymap = defaultKeymap.filter((key) => key.key !== 'Enter')
 
 export type ReplTheme = 'light' | 'dark' | 'auto'
 
-type ThemeInit = (options?: Partial<CreateThemeOptions>) => Extension
-
-export const defaultLightThemeInit: ThemeInit = githubLightInit
-export const defaultLightTheme = githubLight
-export const defaultDarkThemeInit: ThemeInit = githubDarkInit
-export const defaultDarkTheme = githubDark
+const defaultLightTheme = githubLight
+const defaultDarkTheme = githubDark
 
 export interface ReplProps {
   pg?: PGliteInterface
