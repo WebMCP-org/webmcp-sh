@@ -20,4 +20,11 @@ app.use("*", async (c, next) => {
 
 app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
 
+// Browser navigations already get index.html from the assets layer; this covers other GETs such as crawlers.
+app.get("*", (c) =>
+  c.req.path.startsWith("/api/") || /\.\w+$/.test(c.req.path)
+    ? c.notFound()
+    : c.env.ASSETS.fetch(new URL("/", c.req.url)),
+);
+
 export default app;
